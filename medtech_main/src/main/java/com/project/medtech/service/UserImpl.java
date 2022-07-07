@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.Status;
+import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtProvider;
 import com.project.medtech.model.User;
 import com.project.medtech.repository.UserRepository;
@@ -33,7 +34,8 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Override
     public UserModel getUserById(Long id) {
-        return toUserModel(userRepository.findById(id).orElseThrow());
+        return toUserModel(userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User was not found")));
     }
 
     @Override
