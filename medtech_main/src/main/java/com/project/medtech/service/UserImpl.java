@@ -120,6 +120,9 @@ public class UserImpl implements UserService, UserDetailsService {
         UserModel userModel = new UserModel();
         userModel.setUserId(user.getUserId());
         userModel.setEmail(user.getEmail());
+        userModel.setFirstName(user.getFirstName());
+        userModel.setLastName(user.getLastName());
+        userModel.setMiddleName(user.getMiddleName());
         userModel.setPassword(user.getPassword());
         userModel.setPhoneNumber(user.getPhoneNumber());
         userModel.setOtpUsed(user.isOtpUsed());
