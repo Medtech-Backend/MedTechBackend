@@ -29,6 +29,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
+
     @PostMapping("/register")
     public ResponseEntity<UserModel> registerUser(@RequestBody RegisterModel registerModel) {
         return ResponseEntity.ok(userService.registerUser(registerModel));
@@ -45,7 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/check_reset_code")
-    public ResponseEntity<EmailModel> checkResetCode(@RequestBody EmailTextModel emailResetCodeModel) {
+    public ResponseEntity<EmailTextModel> checkResetCode(@RequestBody EmailTextModel emailResetCodeModel) {
         return ResponseEntity.ok(userService.checkResetCode(emailResetCodeModel));
     }
 
