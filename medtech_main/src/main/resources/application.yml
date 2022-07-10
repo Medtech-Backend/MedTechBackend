@@ -1,0 +1,4 @@
+app:
+  name: MedTech Neobis
+server:
+  port: 5432
