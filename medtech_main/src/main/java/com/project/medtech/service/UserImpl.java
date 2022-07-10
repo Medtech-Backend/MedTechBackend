@@ -75,7 +75,7 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public EmailModel checkResetCode(EmailTextModel emailResetCodeModel) {
+    public EmailTextModel checkResetCode(EmailTextModel emailResetCodeModel) {
         User user = userRepository.findByEmail(emailResetCodeModel.getEmail());
         if (user == null) {
             throw new UsernameNotFoundException("User was not found with email: " + emailResetCodeModel.getEmail());
@@ -83,7 +83,9 @@ public class UserImpl implements UserService, UserDetailsService {
         if(user.getResetCode().equals(emailResetCodeModel.getText())) {
             user.setResetCode("");
             userRepository.save(user);
-            return new EmailModel(emailResetCodeModel.getEmail());
+            UserModel model = toUserModel(user);
+            String accessToken = jwtProvider.generateAccessToken(model);
+            return new EmailTextModel(emailResetCodeModel.getEmail(), accessToken);
         } else {
             return null;
         }
@@ -120,9 +122,9 @@ public class UserImpl implements UserService, UserDetailsService {
         UserModel userModel = new UserModel();
         userModel.setUserId(user.getUserId());
         userModel.setEmail(user.getEmail());
-        userModel.setFirstName(user.getFirstName());
-        userModel.setLastName(user.getLastName());
-        userModel.setMiddleName(user.getMiddleName());
+//        userModel.setFirstName(user.getFirstName());
+//        userModel.setLastName(user.getLastName());
+//        userModel.setMiddleName(user.getMiddleName());
         userModel.setPassword(user.getPassword());
         userModel.setPhoneNumber(user.getPhoneNumber());
         userModel.setOtpUsed(user.isOtpUsed());

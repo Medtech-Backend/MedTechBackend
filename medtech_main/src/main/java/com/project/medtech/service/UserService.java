@@ -11,6 +11,6 @@ public interface UserService {
     UserModel getUserByEmail(EmailModel email);
     UserModel registerUser(RegisterModel registerModel);
     UserModel sendResetPassword(EmailModel email);
-    EmailModel checkResetCode(EmailTextModel emailResetCodeModel);
+    EmailTextModel checkResetCode(EmailTextModel emailResetCodeModel);
     AuthResponse updatePassword(EmailTextModel emailPasswordModel);
 }
