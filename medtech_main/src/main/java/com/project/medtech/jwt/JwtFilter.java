@@ -31,7 +31,6 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        System.out.println(((HttpServletRequest) request).getServletPath());
         if (((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/login") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/refresh") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/register") ||
