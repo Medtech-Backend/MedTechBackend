@@ -98,6 +98,7 @@ public class UserImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("User was not found with email: " + emailPasswordModel.getEmail());
         }
         user.setPassword(passwordEncoder().encode(emailPasswordModel.getText()));
+        user.setOtpUsed(true);
         userRepository.save(user);
         UserModel model = toUserModel(user);
         String accessToken = jwtProvider.generateAccessToken(model);

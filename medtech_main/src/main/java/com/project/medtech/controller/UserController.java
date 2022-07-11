@@ -36,12 +36,7 @@ public class UserController {
 
     @PutMapping("/sent_reset_code")
     public ResponseEntity<?> sendResetPassword(@RequestBody EmailModel email) {
-        try {
-            UserModel model = userService.sendResetPassword(email);
-            return ResponseEntity.ok(model);
-        } catch (UsernameNotFoundException e) {
-            return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok(userService.sendResetPassword(email));
     }
 
     @GetMapping("/check_reset_code")
