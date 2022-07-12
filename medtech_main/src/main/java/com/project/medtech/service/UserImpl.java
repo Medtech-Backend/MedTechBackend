@@ -121,7 +121,7 @@ public class UserImpl implements UserService, UserDetailsService {
 
     public static UserModel toUserModel(User user) {
         UserModel userModel = new UserModel();
-        userModel.setUserId(user.getUserId());
+        userModel.setUserId(user.getId());
         userModel.setEmail(user.getEmail());
         userModel.setFirstName(user.getFirstName());
         userModel.setLastName(user.getLastName());

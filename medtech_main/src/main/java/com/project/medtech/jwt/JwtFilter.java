@@ -36,7 +36,7 @@ public class JwtFilter extends GenericFilterBean {
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/register") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/sent_reset_code") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check_reset_code")) {
+                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check_reset_code")){
             filterChain.doFilter(request, response);
         } else {
             String token = getTokenFromRequest((HttpServletRequest) request);

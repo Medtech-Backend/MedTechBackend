@@ -25,7 +25,7 @@ public class User {
             name = "user_seq",
             sequenceName = "user_seq",
             allocationSize = 1)
-    private Long userId;
+    private Long id;
     @Column(unique = true, nullable = false)
     private String email;
     private String password;
