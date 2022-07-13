@@ -42,7 +42,6 @@ public class UserController {
 
     @ApiOperation(value = "отправка кода для восстановленя пароля")
     @PutMapping("/send_reset_code")
-    @PreAuthorize("hasAuthority('user:forgot_password')")
     public ResponseEntity<?> sendResetPassword(@ApiParam(value = "введите почту")
                                                    @RequestBody EmailModel email) {
         return ResponseEntity.ok(userService.sendResetPassword(email));
@@ -50,7 +49,6 @@ public class UserController {
 
     @ApiOperation(value = "проверка кода для восстановления пароля")
     @GetMapping("/check_reset_code")
-    @PreAuthorize("hasAuthority('user:forgot_password')")
     public ResponseEntity<EmailTextModel> checkResetCode(@ApiParam(value = "введите почту и код для восстановления")
                                                              @RequestBody EmailTextModel emailResetCodeModel) {
         return ResponseEntity.ok(userService.checkResetCode(emailResetCodeModel));

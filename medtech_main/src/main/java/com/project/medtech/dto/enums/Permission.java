@@ -4,7 +4,8 @@ public enum Permission {
 
     USER_WRITE("user:write"),
     USER_READ("user:read"),
-    USER_FORGOT_PASSWORD("user:forgot_password");
+    USER_FORGOT_PASSWORD("user:forgot_password"),
+    USER_UPDATE_PASSWORD("user:update_password");
 
     private final String permission;
 
