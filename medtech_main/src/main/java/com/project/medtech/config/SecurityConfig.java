@@ -1,6 +1,9 @@
 package com.project.medtech.config;
 
+import com.project.medtech.dto.enums.Role;
+import com.project.medtech.dto.enums.Status;
 import com.project.medtech.jwt.JwtFilter;
+import com.project.medtech.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/user/register",
-                        "/api/v1/user/check", "/api/v1/user/sent_reset_code",
+                        "/api/v1/user/check", "/api/v1/user/send_reset_code",
                         "/api/v1/user/check_reset_code").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -73,6 +76,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/webjars/**");
     }
+
+//    @Bean
+//    public void configureSuperAdmin() {
+//        User superAdmin = new User();
+//        superAdmin.setEmail();
+//        superAdmin.setPassword();
+//        superAdmin.setFirstName();
+//        superAdmin.setLastName();
+//        superAdmin.setMiddleName();
+//        superAdmin.setPhoneNumber();
+//        superAdmin.setOtpUsed(true);
+//        superAdmin.setRole(Role.SUPERADMIN);
+//        superAdmin.setStatus(Status.ACTIVE);
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

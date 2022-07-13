@@ -25,7 +25,6 @@ public class UserModel implements UserDetails {
     private String lastName;
     private String middleName;
     private String phoneNumber;
-    private String otp;
     private boolean otpUsed;
     private String resetCode;
     private Role role;

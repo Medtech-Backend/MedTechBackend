@@ -9,10 +9,10 @@ import java.util.stream.Collectors;
 import static com.project.medtech.dto.enums.Permission.*;
 
 public enum Role {
-    SUPERADMIN(Sets.newHashSet(USER_READ, USER_WRITE)),
-    ADMIN(Sets.newHashSet(USER_READ, USER_WRITE)),
-    DOCTOR(Sets.newHashSet(USER_READ, USER_WRITE)),
-    PATIENT(Sets.newHashSet(USER_READ, USER_WRITE));
+    SUPERADMIN(Sets.newHashSet(USER_READ, USER_WRITE, USER_FORGOT_PASSWORD)),
+    ADMIN(Sets.newHashSet(USER_READ, USER_WRITE, USER_FORGOT_PASSWORD)),
+    DOCTOR(Sets.newHashSet(USER_READ, USER_WRITE, USER_FORGOT_PASSWORD)),
+    PATIENT(Sets.newHashSet(USER_READ, USER_WRITE, USER_FORGOT_PASSWORD));
 
     private final Set<Permission> permissions;
 
