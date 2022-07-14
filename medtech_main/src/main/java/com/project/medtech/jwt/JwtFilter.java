@@ -33,7 +33,6 @@ public class JwtFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         if (((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/login") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/refresh") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/register") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/send_reset_code") ||
                 ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check_reset_code")) {
