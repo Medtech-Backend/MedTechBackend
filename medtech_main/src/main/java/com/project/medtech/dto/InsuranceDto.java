@@ -1,6 +1,6 @@
 package com.project.medtech.dto;
 
-import com.project.medtech.dto.enums.Role;
+import com.project.medtech.model.Patient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class RegisterModel {
+public class InsuranceDto {
 
-    private String email;
-    private String firstName;
-    private String lastName;
-    private Role role;
+    private Long id;
+    private String territoryName;
+    private String number;
+    private Patient patient;
 }

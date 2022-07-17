@@ -1,16 +1,18 @@
 package com.project.medtech.dto;
 
+import com.project.medtech.model.Pregnancy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailTextModel {
+@Getter
+@Setter
+public class DiseaseDto {
 
-    private String email;
-    private String text;
+    private Long id;
+    private String name;
+    private Pregnancy pregnancy;
 }

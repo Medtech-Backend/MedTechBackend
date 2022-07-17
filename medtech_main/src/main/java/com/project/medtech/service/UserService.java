@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface UserService {
 
-    List<UserModel> getUsers();
-    UserModel getUserById(Long id);
-    UserModel getUserByEmail(EmailModel email);
-    UserModel registerUser(RegisterModel registerModel);
-    UserModel sendResetPassword(EmailModel email);
-    EmailTextModel checkResetCode(EmailTextModel emailResetCodeModel);
-    AuthResponse updatePassword(EmailTextModel emailPasswordModel);
+    List<UserDto> getUsers();
+    UserDto getUserById(Long id);
+    UserDto getUserByEmail(EmailDto email);
+    UserDto registerUser(RegisterDto registerDto);
+    UserDto sendResetPassword(EmailDto email);
+    EmailTextDto checkResetCode(EmailTextDto emailResetCodeDto);
+    AuthResponse updatePassword(EmailTextDto emailPasswordDto);
 }

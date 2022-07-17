@@ -22,40 +22,40 @@ public class UserController {
     private final @NonNull UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserModel>> getUsers() {
+    public ResponseEntity<List<UserDto>> getUsers() {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
     @ApiOperation(value = "получение пользователя по ID")
     @GetMapping("{id}")
-    public ResponseEntity<UserModel> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @ApiOperation(value = "регистрация пользователя")
     @PostMapping("/register")
-    public ResponseEntity<UserModel> registerUser(@RequestBody RegisterModel registerModel) {
-        return ResponseEntity.ok(userService.registerUser(registerModel));
+    public ResponseEntity<UserDto> registerUser(@RequestBody RegisterDto registerDto) {
+        return ResponseEntity.ok(userService.registerUser(registerDto));
     }
 
     @ApiOperation(value = "отправка кода для восстановленя пароля")
     @PutMapping("/send_reset_code")
     public ResponseEntity<?> sendResetPassword(@ApiParam(value = "введите почту")
-                                                   @RequestBody EmailModel email) {
+                                                   @RequestBody EmailDto email) {
         return ResponseEntity.ok(userService.sendResetPassword(email));
     }
 
     @ApiOperation(value = "проверка кода для восстановления пароля")
     @GetMapping("/check_reset_code")
-    public ResponseEntity<EmailTextModel> checkResetCode(@ApiParam(value = "введите почту и код для восстановления")
-                                                             @RequestBody EmailTextModel emailResetCodeModel) {
+    public ResponseEntity<EmailTextDto> checkResetCode(@ApiParam(value = "введите почту и код для восстановления")
+                                                             @RequestBody EmailTextDto emailResetCodeModel) {
         return ResponseEntity.ok(userService.checkResetCode(emailResetCodeModel));
     }
 
     @ApiOperation(value = "обновление пароля при правильном вводе кода для восст-я пар.")
     @PutMapping("/update_password")
     public ResponseEntity<AuthResponse> updatePassword(@ApiParam(value = "введите почту и новый пароль")
-                                                           @RequestBody EmailTextModel emailPasswordModel) {
+                                                           @RequestBody EmailTextDto emailPasswordModel) {
         return ResponseEntity.ok(userService.updatePassword(emailPasswordModel));
     }
 }

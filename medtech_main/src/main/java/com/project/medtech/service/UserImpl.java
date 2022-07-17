@@ -26,20 +26,20 @@ public class UserImpl implements UserService, UserDetailsService {
     private final JwtProvider jwtProvider;
 
     @Override
-    public List<UserModel> getUsers() {
+    public List<UserDto> getUsers() {
         return userRepository.findAll()
                 .stream().map(UserImpl::toUserModel)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserModel getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         return toUserModel(userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User was not found")));
     }
 
     @Override
-    public UserModel getUserByEmail(EmailModel email) {
+    public UserDto getUserByEmail(EmailDto email) {
         User user = userRepository.findByEmail(email.getEmail());
         if (user == null) {
             throw new UsernameNotFoundException("User was not found with email: " + email);
@@ -48,22 +48,22 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserModel registerUser(RegisterModel registerModel) {
+    public UserDto registerUser(RegisterDto registerDto) {
         User user = new User();
-        user.setEmail(registerModel.getEmail());
-        user.setFirstName(registerModel.getFirstName());
-        user.setLastName(registerModel.getLastName());
-        user.setRole(registerModel.getRole());
+        user.setEmail(registerDto.getEmail());
+        user.setFirstName(registerDto.getFirstName());
+        user.setLastName(registerDto.getLastName());
+        user.setRole(registerDto.getRole());
         user.setStatus(Status.ACTIVE);
         user.setOtpUsed(false);
-        String password = emailSenderService.send(registerModel.getEmail(), "otp");
+        String password = emailSenderService.send(registerDto.getEmail(), "otp");
         user.setPassword(passwordEncoder().encode(password));
         userRepository.save(user);
         return toUserModel(user);
     }
 
     @Override
-    public UserModel sendResetPassword(EmailModel email) {
+    public UserDto sendResetPassword(EmailDto email) {
         User user = userRepository.findByEmail(email.getEmail());
         if(user == null) {
             throw new UsernameNotFoundException("User was not found with email: " + email);
@@ -75,32 +75,32 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public EmailTextModel checkResetCode(EmailTextModel emailResetCodeModel) {
-        User user = userRepository.findByEmail(emailResetCodeModel.getEmail());
+    public EmailTextDto checkResetCode(EmailTextDto emailResetCodeDto) {
+        User user = userRepository.findByEmail(emailResetCodeDto.getEmail());
         if (user == null) {
-            throw new UsernameNotFoundException("User was not found with email: " + emailResetCodeModel.getEmail());
+            throw new UsernameNotFoundException("User was not found with email: " + emailResetCodeDto.getEmail());
         }
-        if(user.getResetCode().equals(emailResetCodeModel.getText())) {
+        if(user.getResetCode().equals(emailResetCodeDto.getText())) {
             user.setResetCode("");
             userRepository.save(user);
-            UserModel model = toUserModel(user);
+            UserDto model = toUserModel(user);
             String accessToken = jwtProvider.generateAccessToken(model);
-            return new EmailTextModel(emailResetCodeModel.getEmail(), accessToken);
+            return new EmailTextDto(emailResetCodeDto.getEmail(), accessToken);
         } else {
             throw new ResourceNotFoundException("Incorrect reset code. Try again.");
         }
     }
 
     @Override
-    public AuthResponse updatePassword(EmailTextModel emailPasswordModel) {
-        User user = userRepository.findByEmail(emailPasswordModel.getEmail());
+    public AuthResponse updatePassword(EmailTextDto emailPasswordDto) {
+        User user = userRepository.findByEmail(emailPasswordDto.getEmail());
         if (user == null) {
-            throw new UsernameNotFoundException("User was not found with email: " + emailPasswordModel.getEmail());
+            throw new UsernameNotFoundException("User was not found with email: " + emailPasswordDto.getEmail());
         }
-        user.setPassword(passwordEncoder().encode(emailPasswordModel.getText()));
+        user.setPassword(passwordEncoder().encode(emailPasswordDto.getText()));
         user.setOtpUsed(true);
         userRepository.save(user);
-        UserModel model = toUserModel(user);
+        UserDto model = toUserModel(user);
         String accessToken = jwtProvider.generateAccessToken(model);
         String refreshToken = jwtProvider.generateRefreshToken(model);
         return new AuthResponse(accessToken, refreshToken, model.isOtpUsed());
@@ -112,26 +112,26 @@ public class UserImpl implements UserService, UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User was not found with email: " + username);
         }
-        return UserModel.getUserDetails(user);
+        return UserDto.getUserDetails(user);
     }
 
     protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    public static UserModel toUserModel(User user) {
-        UserModel userModel = new UserModel();
-        userModel.setUserId(user.getUserId());
-        userModel.setEmail(user.getEmail());
-        userModel.setFirstName(user.getFirstName());
-        userModel.setLastName(user.getLastName());
-        userModel.setMiddleName(user.getMiddleName());
-        userModel.setPassword(user.getPassword());
-        userModel.setPhoneNumber(user.getPhoneNumber());
-        userModel.setOtpUsed(user.isOtpUsed());
-        userModel.setRole(user.getRole());
-        userModel.setStatus(user.getStatus());
-        return userModel;
+    public static UserDto toUserModel(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setUserId(user.getUserId());
+        userDto.setEmail(user.getEmail());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setMiddleName(user.getMiddleName());
+        userDto.setPassword(user.getPassword());
+        userDto.setPhoneNumber(user.getPhoneNumber());
+        userDto.setOtpUsed(user.isOtpUsed());
+        userDto.setRole(user.getRole());
+        userDto.setStatus(user.getStatus());
+        return userDto;
     }
 
 }

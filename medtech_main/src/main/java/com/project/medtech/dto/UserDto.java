@@ -16,7 +16,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserModel implements UserDetails {
+public class UserDto implements UserDetails {
 
     private Long userId;
     private String email;

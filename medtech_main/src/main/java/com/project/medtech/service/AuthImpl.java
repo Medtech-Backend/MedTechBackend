@@ -23,8 +23,8 @@ public class AuthImpl implements AuthService {
     @Override
     @SneakyThrows
     public AuthResponse login(@NonNull AuthRequest authRequest) {
-        EmailModel email = new EmailModel(authRequest.getEmail());
-        UserModel user = userService.getUserByEmail(email);
+        EmailDto email = new EmailDto(authRequest.getEmail());
+        UserDto user = userService.getUserByEmail(email);
         if(user == null) {
             throw new AuthException("User was not found");
         }
@@ -43,8 +43,8 @@ public class AuthImpl implements AuthService {
         if (jwtProvider.validateToken(refreshToken)) {
             final Claims claims = jwtProvider.getClaims(refreshToken);
             final String email = claims.getSubject();
-            EmailModel emailModel = new EmailModel(email);
-            final UserModel user = userService.getUserByEmail(emailModel);
+            EmailDto emailDto = new EmailDto(email);
+            final UserDto user = userService.getUserByEmail(emailDto);
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String newRefreshToken = jwtProvider.generateRefreshToken(user);
             return new AuthResponse(accessToken, newRefreshToken, user.isOtpUsed());
