@@ -4,6 +4,7 @@ import com.project.medtech.dto.AuthRequest;
 import com.project.medtech.dto.AuthResponse;
 import com.project.medtech.dto.RefreshJwtRequest;
 import com.project.medtech.service.AuthService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Api( "REST APIs related to authentication")
 public class AuthController {
 
     private final AuthService authService;
