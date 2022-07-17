@@ -87,7 +87,7 @@ public class UserImpl implements UserService, UserDetailsService {
             String accessToken = jwtProvider.generateAccessToken(model);
             return new EmailTextModel(emailResetCodeModel.getEmail(), accessToken);
         } else {
-            return null;
+            throw new ResourceNotFoundException("Incorrect reset code. Try again.");
         }
     }
 
