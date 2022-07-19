@@ -35,6 +35,7 @@ public class Pregnancy {
     private String bloodHiv;
     private String bloodHivPartner;
     private Date registrationDate;
+    private Integer firstVisitWeekOfPregnancy;
     private String fromAnotherMedOrganization;
     private Integer pregnancyNumber;
     private Integer childbirthNumber;
