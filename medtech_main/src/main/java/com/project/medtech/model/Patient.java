@@ -35,6 +35,8 @@ public class Patient {
     private String husbandWorkPlace;
     private String husbandPosition;
     private String husbandPhoneNumber;
+    private Long currentPregnancyId;
+
     @Enumerated(value = EnumType.STRING)
     private Married married;
     @Enumerated(value = EnumType.STRING)
