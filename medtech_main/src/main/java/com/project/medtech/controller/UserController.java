@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "проверка кода для восстановления пароля")
-    @GetMapping("/check_reset_code")
+    @PutMapping("/check_reset_code")
     public ResponseEntity<EmailTextDto> checkResetCode(@ApiParam(value = "введите почту и код для восстановления")
                                                              @RequestBody EmailTextDto emailResetCodeModel) {
         return ResponseEntity.ok(userService.checkResetCode(emailResetCodeModel));
