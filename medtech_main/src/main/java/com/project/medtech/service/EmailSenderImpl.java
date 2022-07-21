@@ -63,8 +63,7 @@ public class EmailSenderImpl implements EmailSenderService {
         String Capital_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String Small_chars = "abcdefghijklmnopqrstuvwxyz";
         String numbers = "0123456789";
-        String symbols = "!@#$%^&*_=+-/.?<>)";
-        String values = Capital_chars + Small_chars + numbers + symbols;
+        String values = Capital_chars + Small_chars + numbers;
         Random random = new Random();
         char[] password = generate ? new char[8] : new char[6];
         if (generate) {
