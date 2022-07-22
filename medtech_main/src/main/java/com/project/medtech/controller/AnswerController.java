@@ -13,48 +13,47 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/v1/answer")
 @RequiredArgsConstructor
-@Api( "REST APIs related to `Answers` Entity")
+@RequestMapping("/answer")
+@Api( "REST APIs related to `Answer` Entity")
 public class AnswerController {
 
     private final AnswerService answerService;
 
     @ApiOperation(value = "заполнение показателей и описания чек-листа")
-    @PutMapping(value="/answerQuestions")
+    @PutMapping(value="/fill-answers")
     ResponseEntity<List<AnswerDto>> answer(
             @RequestBody List<AnswerForQuestionDto> dtoList){
         return ResponseEntity.ok().body(answerService.answer(dtoList));
     }
 
     @ApiOperation(value = "поиск всех вопросов и ответов по ID чек-листа")
-    @GetMapping(value = "/answersByCheckList/{id}")
+    @GetMapping(value = "/get-checklist-answers/{id}")
     ResponseEntity<List<AnswerDto>> getAllAnswersByCheckList(@PathVariable("id") long id) {
         return ResponseEntity.ok(answerService.getAllAnswersByCheckList(id));
     }
 
-    @ApiOperation(value = "изменить ответ на чек-лист")
-    @PutMapping(value="/answer/{id}")
+    @ApiOperation(value = "изменение ответ на чек-лист")
+    @PutMapping(value="/update/{id}")
     ResponseEntity<AnswerDto> updateAnswer(@PathVariable("id") long id, @RequestBody AnswerDto dto) {
         return ResponseEntity.ok().body(answerService.update(id, dto));
     }
 
     @ApiOperation(value = "вывод всех ответов")
-    @GetMapping(value="/answers")
+    @GetMapping(value="/get-all")
     ResponseEntity<List<AnswerDto>> getAllAnswers(){
         return ResponseEntity.ok(answerService.getAllAnswers());
     }
 
-    @ApiOperation(value = "вывод ответа по ID")
-    @GetMapping(value="/answer/{id}")
+    @ApiOperation(value = "получение ответа по ID")
+    @GetMapping(value="/get/{id}")
     ResponseEntity<AnswerDto> getById(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(answerService.findById(id).get());
     }
 
-    @ApiOperation(value = "вывод ответа по ID")
-    @DeleteMapping(value="/answer/{id}")
-    ResponseEntity<Void> deleteAnswer( @PathVariable("id") long id) {
-        answerService.delete(id);
-        return ResponseEntity.noContent().build();
+    @ApiOperation(value = "удаление ответа")
+    @DeleteMapping(value="/delete/{id}")
+    ResponseEntity<AnswerDto> deleteAnswer( @PathVariable("id") long id) {
+        return ResponseEntity.ok(answerService.delete(id));
     }
 }

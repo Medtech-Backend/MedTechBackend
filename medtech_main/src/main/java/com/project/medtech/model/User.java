@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +18,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`user`")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(
@@ -43,4 +46,44 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.getAuthorities();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return status.equals(Status.ACTIVE);
+    }
+
+    public static UserDetails getUserDetails(User user) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(),
+                user.getStatus().equals(Status.ACTIVE),
+                true,
+                true,
+                true,
+                user.getRole().getAuthorities()
+        );
+    }
 }

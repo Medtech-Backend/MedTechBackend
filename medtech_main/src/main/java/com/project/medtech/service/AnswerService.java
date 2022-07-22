@@ -69,10 +69,11 @@ public class AnswerService {
         return AnswerMapper.EntityToDto(repository.save(newAnswer));
     }
 
-    public void delete(long id) {
+    public AnswerDto delete(long id) {
         Answer answer = repository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("No answer with ID : "+id));
         repository.delete(answer);
+        return AnswerMapper.EntityToDto(answer);
     }
 
     public List<AnswerDto> getAllAnswersByCheckList(long id) {

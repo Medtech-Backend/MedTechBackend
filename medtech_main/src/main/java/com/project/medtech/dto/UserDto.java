@@ -16,7 +16,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDto implements UserDetails {
+public class UserDto {
 
     private Long userId;
     private String email;
@@ -29,52 +29,5 @@ public class UserDto implements UserDetails {
     private String resetCode;
     private Role role;
     private Status status;
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return status.equals(Status.ACTIVE);
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return status.equals(Status.ACTIVE);
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return status.equals(Status.ACTIVE);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return status.equals(Status.ACTIVE);
-    }
-
-    public static UserDetails getUserDetails(User user) {
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getRole().getAuthorities()
-        );
-    }
 
 }

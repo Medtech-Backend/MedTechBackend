@@ -14,9 +14,9 @@ import java.util.*;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-@Api( "REST APIs related to user")
+@RequestMapping("/user")
+@Api( "REST APIs related to `User` Entity")
 public class UserController {
 
     private final @NonNull UserService userService;
@@ -38,24 +38,4 @@ public class UserController {
         return ResponseEntity.ok(userService.registerUser(registerDto));
     }
 
-    @ApiOperation(value = "отправка кода для восстановленя пароля")
-    @PutMapping("/send_reset_code")
-    public ResponseEntity<?> sendResetPassword(@ApiParam(value = "введите почту")
-                                                   @RequestBody EmailDto email) {
-        return ResponseEntity.ok(userService.sendResetPassword(email));
-    }
-
-    @ApiOperation(value = "проверка кода для восстановления пароля")
-    @PutMapping("/check_reset_code")
-    public ResponseEntity<EmailTextDto> checkResetCode(@ApiParam(value = "введите почту и код для восстановления")
-                                                             @RequestBody EmailTextDto emailResetCodeModel) {
-        return ResponseEntity.ok(userService.checkResetCode(emailResetCodeModel));
-    }
-
-    @ApiOperation(value = "обновление пароля при правильном вводе кода для восст-я пар.")
-    @PutMapping("/update_password")
-    public ResponseEntity<AuthResponse> updatePassword(@ApiParam(value = "введите почту и новый пароль")
-                                                           @RequestBody EmailTextDto emailPasswordModel) {
-        return ResponseEntity.ok(userService.updatePassword(emailPasswordModel));
-    }
 }
