@@ -31,13 +31,6 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        if (((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/login") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/auth/refresh") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/send_reset_code") ||
-                ((HttpServletRequest) request).getServletPath().equals("/api/v1/user/check_reset_code")) {
-            filterChain.doFilter(request, response);
-        } else {
             String token = getTokenFromRequest((HttpServletRequest) request);
             if (token != null && jwtProvider.validateToken(token)) {
                 final Claims claims = jwtProvider.getClaims(token);
@@ -51,7 +44,6 @@ public class JwtFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
             filterChain.doFilter(request, response);
-        }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

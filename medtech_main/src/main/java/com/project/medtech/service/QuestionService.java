@@ -49,9 +49,10 @@ public class QuestionService {
         return QuestionMapper.EntityToDto(questionRepository.save(newQuestion));
     }
 
-    public void delete(long id) {
+    public QuestionDto delete(long id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("No Question with ID : "+id));
         questionRepository.delete(question);
+        return QuestionMapper.EntityToDto(question);
     }
 }
