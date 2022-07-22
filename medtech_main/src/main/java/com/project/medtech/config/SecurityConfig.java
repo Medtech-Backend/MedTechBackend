@@ -75,6 +75,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/webjars/**");
     }
 
+    //TODO: Создайте другой метод добавления суперадмина.
+
+    /*
+    * Типа того можно сделать
+    *  @Bean
+    public void addAdmin(){
+        User user = new User();
+
+        if (!userRepository.existsByPhoneNumber("admin")) {
+            user.setPhoneNumber("admin");
+            user.setRole(ERole.getRole(1));
+            user.setActive(true);
+            user.setCompleted(true);
+            user.setActivationCode("$2a$12$HZAXhyLTr9r1tS7/JPPOXO.NuXCB9a2KXM7o0OW0ZK40uLPfzdB.6"); //здесь лучше encode() использовать
+            userRepository.save(user);
+        }
+    }*/
+
 //    @Bean
 //    public void configureSuperAdmin() {
 //        User superAdmin = new User();

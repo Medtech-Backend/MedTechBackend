@@ -20,7 +20,7 @@ public class UserDto {
 
     private Long userId;
     private String email;
-    private String password;
+//    private String password; TODO: В DTO class такие поля как password прописывать не нужно. password же не будете передавать фронту
     private String firstName;
     private String lastName;
     private String middleName;

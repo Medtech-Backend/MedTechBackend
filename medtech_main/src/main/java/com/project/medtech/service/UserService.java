@@ -76,9 +76,8 @@ public class UserService implements UserDetailsService {
         }
         if(user.getResetCode().equals(emailResetCodeDto.getText())) {
             user.setResetCode("");
-            userRepository.save(user);
-            UserDto model = toUserModel(user);
-            String accessToken = jwtProvider.generateAccessToken(model);
+            user = userRepository.saveAndFlush(user);;
+            String accessToken = jwtProvider.generateAccessToken(user);
             return new EmailTextDto(emailResetCodeDto.getEmail(), accessToken);
         } else {
             throw new ResourceNotFoundException("Incorrect reset code. Try again.");
@@ -92,11 +91,10 @@ public class UserService implements UserDetailsService {
         }
         user.setPassword(passwordEncoder().encode(emailPasswordDto.getText()));
         user.setOtpUsed(true);
-        userRepository.save(user);
-        UserDto model = toUserModel(user);
-        String accessToken = jwtProvider.generateAccessToken(model);
-        String refreshToken = jwtProvider.generateRefreshToken(model);
-        return new AuthResponse(accessToken, refreshToken, model.isOtpUsed());
+        user = userRepository.saveAndFlush(user);
+        String accessToken = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+        return new AuthResponse(accessToken, refreshToken, user.isOtpUsed());
     }
 
     @Override
@@ -119,7 +117,7 @@ public class UserService implements UserDetailsService {
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setMiddleName(user.getMiddleName());
-        userDto.setPassword(user.getPassword());
+//        userDto.setPassword(user.getPassword());
         userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setOtpUsed(user.isOtpUsed());
         userDto.setRole(user.getRole());
@@ -134,7 +132,7 @@ public class UserService implements UserDetailsService {
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setMiddleName(userDto.getMiddleName());
-        user.setPassword(userDto.getPassword());
+//        user.setPassword(userDto.getPassword());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setOtpUsed(userDto.isOtpUsed());
         user.setRole(userDto.getRole());
