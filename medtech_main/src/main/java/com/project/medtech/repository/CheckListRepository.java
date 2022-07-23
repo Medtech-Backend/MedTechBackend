@@ -12,4 +12,7 @@ import java.util.List;
 @Repository
 public interface CheckListRepository extends JpaRepository<CheckList, Long> {
 
+    @Query("SELECT ch FROM CheckList ch WHERE ch.patient = :patient")
+    List<CheckList> findAllByPatient(@RequestParam Patient patient);
+
 }
