@@ -1,12 +1,16 @@
 package com.project.medtech.service;
 
 import com.project.medtech.dto.CheckListInfoDto;
+import com.project.medtech.dto.QuestionDto;
 import com.project.medtech.dto.RequestPatient;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListInfoDtoMapper;
+import com.project.medtech.mapper.CheckListMapper;
+import com.project.medtech.mapper.QuestionMapper;
 import com.project.medtech.model.CheckList;
 import com.project.medtech.model.Patient;
 import com.project.medtech.model.Pregnancy;
+import com.project.medtech.model.Question;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.PatientRepository;
 import com.project.medtech.repository.PregnancyRepository;
@@ -27,6 +31,15 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PregnancyRepository pregnancyRepository;
     private final CheckListRepository checkListRepository;
+
+    public List<Patient> listAll() {
+        return patientRepository.findAll();
+    }
+
+    public Patient findById(Long ID){
+        return patientRepository.findById(ID).orElseThrow(() -> new ResourceNotFoundException("No patient with ID : " + ID));
+
+    }
 
     public Integer getCurrentWeekOfPregnancy(RequestPatient request) {
 
@@ -52,6 +65,7 @@ public class PatientService {
 
         return listDto;
     }
+
 
 
 }

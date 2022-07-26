@@ -46,6 +46,9 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
+    @OneToOne (mappedBy="user")
+    private Patient patient;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();

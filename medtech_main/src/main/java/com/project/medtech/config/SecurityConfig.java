@@ -1,9 +1,6 @@
 package com.project.medtech.config;
 
-import com.project.medtech.dto.enums.Role;
-import com.project.medtech.dto.enums.Status;
 import com.project.medtech.jwt.JwtFilter;
-import com.project.medtech.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
