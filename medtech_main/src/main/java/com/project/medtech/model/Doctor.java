@@ -22,7 +22,11 @@ public class Doctor {
             sequenceName = "doctor_seq",
             allocationSize = 1)
     private Long id;
+
     private int age;
+
+    private byte[] image;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "user_id",

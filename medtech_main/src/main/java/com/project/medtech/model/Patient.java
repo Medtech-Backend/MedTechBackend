@@ -5,6 +5,7 @@ import com.project.medtech.dto.enums.Married;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,20 +26,44 @@ public class Patient {
             allocationSize = 1
     )
     private Long id;
+
+    private LocalDate birthday;
+
     private Integer age;
+
     private String pin;
+
     private String citizenship;
+
     private String patientCategory;
+
     private String workPlace;
+
     private String position;
+
+    private String workConditions;
+
+    private Boolean worksNow;
+
     private String phoneNumber;
+
+    private String husbandFirstName;
+
+    private String husbandLastName;
+
+    private String husbandMiddleName;
+
     private String husbandWorkPlace;
+
     private String husbandPosition;
+
     private String husbandPhoneNumber;
-    private Long currentPregnancyId;
+
+    private byte[] image;
 
     @Enumerated(value = EnumType.STRING)
     private Married married;
+
     @Enumerated(value = EnumType.STRING)
     private Education education;
 
@@ -54,9 +79,11 @@ public class Patient {
     )
     private Insurance insurance;
 
-    @OneToOne(
-            cascade = CascadeType.ALL,
-            mappedBy = "patient"
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "current_pregnancy_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "FKPATIENTPREGNANCY")
     )
     private Pregnancy pregnancy;
 

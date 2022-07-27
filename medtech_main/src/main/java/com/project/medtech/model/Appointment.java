@@ -24,8 +24,17 @@ public class Appointment {
             sequenceName = "appointment_seq",
             allocationSize = 1)
     private Long id;
-    private String name;
-    private String reason;
+
+    private String result;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "appointment_type_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "FKAPPOINTAPPOINTTYPE")
+    )
+    private AppointmentType appointmentType;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "pregnancy_id",

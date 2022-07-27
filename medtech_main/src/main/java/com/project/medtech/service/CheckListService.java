@@ -13,7 +13,6 @@ import com.project.medtech.repository.DoctorRepository;
 import com.project.medtech.repository.PatientRepository;
 import com.project.medtech.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -24,7 +24,9 @@ public class Insurance {
             sequenceName = "insurance_seq",
             allocationSize = 1)
     private Long id;
+
     private String territoryName;
+
     private String number;
 
     @OneToOne(cascade = CascadeType.ALL)

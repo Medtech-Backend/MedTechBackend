@@ -4,6 +4,7 @@ import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.jwt.JwtFilter;
 import com.project.medtech.model.User;
+import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
+    private final UserRepository userRepository;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -75,19 +77,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/webjars/**");
     }
 
-//    @Bean
-//    public void configureSuperAdmin() {
-//        User superAdmin = new User();
-//        superAdmin.setEmail();
-//        superAdmin.setPassword();
-//        superAdmin.setFirstName();
-//        superAdmin.setLastName();
-//        superAdmin.setMiddleName();
-//        superAdmin.setPhoneNumber();
-//        superAdmin.setOtpUsed(true);
-//        superAdmin.setRole(Role.SUPERADMIN);
-//        superAdmin.setStatus(Status.ACTIVE);
-//    }
+    @Bean
+    public void configureSuperAdmin() {
+
+        User user = userRepository.findByEmail("trustmed.team3@gmail.com");
+
+        if (user == null) {
+            User superAdmin = new User();
+            superAdmin.setEmail("trustmed.team3@gmail.com");
+            superAdmin.setPassword("$2a$12$UNNiXe1QGTWoyzJ.U13o.OUNbhXu1ejDsflbK0EwCajpPgn3inD/a");
+            superAdmin.setFirstName("Neobis");
+            superAdmin.setLastName("Team");
+            superAdmin.setMiddleName("Four");
+            superAdmin.setPhoneNumber("");
+            superAdmin.setOtpUsed(true);
+            superAdmin.setRole(Role.SUPERADMIN);
+            superAdmin.setStatus(Status.ACTIVE);
+
+            userRepository.save(superAdmin);
+        }
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

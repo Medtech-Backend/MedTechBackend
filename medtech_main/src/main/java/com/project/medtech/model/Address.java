@@ -25,15 +25,13 @@ public class Address {
             sequenceName = "address_seq",
             allocationSize = 1)
     private Long id;
-    private String city;
-    private String village;
-    private String streetName;
-    private String houseNumber;
-    private Integer apartmentNumber;
+
+    private String patientAddress;
+
     private String phoneNumber;
-    private String relativeStreetName;
-    private String relativeHouseNumber;
-    private Integer relativeApartmentNumber;
+
+    private String relativeAddress;
+
     private String relativePhoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL)

@@ -23,8 +23,10 @@ public class Question {
             sequenceName = "question_seq",
             allocationSize = 1)
     private Long id;
+
     @Column(nullable = false)
     private String question;
+
     @Column(nullable = false)
     private Status status;
 

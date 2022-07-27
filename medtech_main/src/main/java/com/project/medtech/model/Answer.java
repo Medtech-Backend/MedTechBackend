@@ -22,9 +22,12 @@ public class Answer {
             sequenceName = "answer_seq",
             allocationSize = 1)
     private Long id;
+
     @Column(nullable = false)
     private String question;
+
     private String indicators ;
+
     private String description ;
 
     @JsonIgnore

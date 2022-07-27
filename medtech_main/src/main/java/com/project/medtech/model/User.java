@@ -29,20 +29,30 @@ public class User implements UserDetails {
             sequenceName = "user_seq",
             allocationSize = 1)
     private Long userId;
+
     @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
+
     @Column(nullable = false)
     private String firstName;
+
     @Column(nullable = false)
     private String lastName;
+
     private String middleName;
+
     private String phoneNumber;
+
     private boolean otpUsed;
+
     private String resetCode;
+
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private Role role;
+
     @Enumerated(value = EnumType.STRING)
     private Status status;
 

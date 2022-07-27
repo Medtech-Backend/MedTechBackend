@@ -2,6 +2,7 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.CheckListInfoDto;
 import com.project.medtech.dto.QuestionDto;
+import com.project.medtech.dto.RegisterPatientDto;
 import com.project.medtech.dto.RequestPatient;
 import com.project.medtech.service.PatientService;
 import com.project.medtech.service.QuestionService;
@@ -29,9 +30,15 @@ public class PatientController {
     }
 
     @ApiOperation(value = "вывод всех чек-листов по ID пациента")
-    @PostMapping(value="/patients-checklists")
+    @GetMapping(value="/patients-checklists")
     ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@RequestBody RequestPatient patient){
         return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patient));
+    }
+
+    @ApiOperation(value = "регистрация нового пациента")
+    @PostMapping("/create")
+    ResponseEntity<RegisterPatientDto> registerPatient(@RequestBody RegisterPatientDto registerPatientDto) {
+        return ResponseEntity.ok(patientService.registerPatient(registerPatientDto));
     }
 
 }

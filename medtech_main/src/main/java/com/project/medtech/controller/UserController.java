@@ -21,21 +21,22 @@ public class UserController {
 
     private final @NonNull UserService userService;
 
+    @ApiOperation(value = "получение всех пользователей")
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsers() {
+    public ResponseEntity<List<UserDto>> findUsers() {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
     @ApiOperation(value = "получение пользователя по ID")
     @GetMapping("{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> findUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @ApiOperation(value = "регистрация пользователя")
-    @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody RegisterDto registerDto) {
-        return ResponseEntity.ok(userService.registerUser(registerDto));
+    @ApiOperation(value = "получение пользователя по почте")
+    @GetMapping("/email")
+    public ResponseEntity<UserDto> findUserByEmail(EmailDto email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
 }

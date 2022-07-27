@@ -7,6 +7,7 @@ import com.project.medtech.jwt.JwtProvider;
 import com.project.medtech.model.User;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,20 +42,6 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User was not found with email: " + email);
         }
-        return toUserModel(user);
-    }
-
-    public UserDto registerUser(RegisterDto registerDto) {
-        User user = new User();
-        user.setEmail(registerDto.getEmail());
-        user.setFirstName(registerDto.getFirstName());
-        user.setLastName(registerDto.getLastName());
-        user.setRole(registerDto.getRole());
-        user.setStatus(Status.ACTIVE);
-        user.setOtpUsed(false);
-        String password = emailSenderService.send(registerDto.getEmail(), "otp");
-        user.setPassword(passwordEncoder().encode(password));
-        userRepository.save(user);
         return toUserModel(user);
     }
 
