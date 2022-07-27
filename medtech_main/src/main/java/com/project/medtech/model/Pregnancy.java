@@ -66,7 +66,7 @@ public class Pregnancy {
     private String vaginalDischarge;
     private String provisionalDiagnosis;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "patient_id",
             referencedColumnName = "id",

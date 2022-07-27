@@ -1,9 +1,13 @@
 package com.project.medtech.model;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +26,9 @@ public class Doctor {
             sequenceName = "doctor_seq",
             allocationSize = 1)
     private Long id;
+
     private int age;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "user_id",
@@ -30,5 +36,8 @@ public class Doctor {
             foreignKey = @ForeignKey(name = "FKDOCTORUSER")
     )
     private User user;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctor")
+    private Set<Pregnancy> pregnancies;
 
 }
