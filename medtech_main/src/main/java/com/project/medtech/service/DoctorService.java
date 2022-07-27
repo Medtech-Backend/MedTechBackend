@@ -21,7 +21,6 @@ public class DoctorService {
     private final EmailSenderService emailSenderService;
 
     public RegisterDoctorDto createDoctor(RegisterDoctorDto registerDoctorDto) {
-        System.out.println(registerDoctorDto.toString());
         User user = new User();
         user.setEmail(registerDoctorDto.getEmail());
         user.setFirstName(registerDoctorDto.getFirstName());

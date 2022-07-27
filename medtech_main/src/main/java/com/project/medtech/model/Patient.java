@@ -6,6 +6,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -61,6 +63,8 @@ public class Patient {
 
     private byte[] image;
 
+    private Long currentPregnancyId;
+
     @Enumerated(value = EnumType.STRING)
     private Married married;
 
@@ -79,13 +83,8 @@ public class Patient {
     )
     private Insurance insurance;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(
-            name = "current_pregnancy_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "FKPATIENTPREGNANCY")
-    )
-    private Pregnancy pregnancy;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Pregnancy> pregnancy = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(

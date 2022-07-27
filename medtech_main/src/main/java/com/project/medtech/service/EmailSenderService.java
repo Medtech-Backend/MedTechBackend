@@ -21,8 +21,6 @@ public class EmailSenderService {
     @SneakyThrows
     public String send(String email, String type) {
 
-        System.out.println(email);
-
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 

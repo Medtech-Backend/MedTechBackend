@@ -35,8 +35,10 @@ public class PatientService {
 
     public Integer getCurrentWeekOfPregnancy(RequestPatient request) {
 
-        Patient patient = patientRepository.findById(request.getPatientId()).orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + request.getPatientId()));
-        Pregnancy pregnancy = patient.getPregnancy();
+        Patient patient = patientRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + request.getPatientId()));
+        Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + request.getPatientId()));
         if(pregnancy.getRegistrationDate() == null || pregnancy.getFirstVisitWeekOfPregnancy() == null) {
             return 0;
         }
@@ -158,7 +160,9 @@ public class PatientService {
 
         pregnancyRepository.save(pregnancy);
 
-        patient.setPregnancy(pregnancy);
+        patient.setCurrentPregnancyId(pregnancy.getId());
+
+        patient.getPregnancy().add(pregnancy);
 
         userRepository.save(user);
 
