@@ -96,4 +96,5 @@ public class User implements UserDetails {
                 user.getRole().getAuthorities()
         );
     }
+
 }

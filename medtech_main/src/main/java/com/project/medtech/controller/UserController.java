@@ -35,7 +35,7 @@ public class UserController {
 
     @ApiOperation(value = "получение пользователя по почте")
     @GetMapping("/email")
-    public ResponseEntity<UserDto> findUserByEmail(EmailDto email) {
+    public ResponseEntity<UserDto> findUserByEmail(@RequestBody EmailDto email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 

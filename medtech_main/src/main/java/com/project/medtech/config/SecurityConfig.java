@@ -23,6 +23,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;

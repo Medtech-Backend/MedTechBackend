@@ -3,6 +3,7 @@ package com.project.medtech.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.project.medtech.dto.UserDto;
+import com.project.medtech.model.User;
 import io.jsonwebtoken.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class JwtProvider {
     private String secret;
 
 
-    public String generateAccessToken(@NonNull UserDto user) {
+    public String generateAccessToken(@NonNull User user) {
         Date now = new Date();
         final Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
@@ -35,7 +36,7 @@ public class JwtProvider {
                 .sign(algorithm);
     }
 
-    public String generateRefreshToken(@NonNull UserDto user) {
+    public String generateRefreshToken(@NonNull User user) {
         Date now = new Date();
         final Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
@@ -47,23 +48,23 @@ public class JwtProvider {
     }
 
     public boolean validateToken(@NonNull String token) {
-        try {
-
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
-
-        } catch (ExpiredJwtException expEx) {
-            log.error("Token expired", expEx);
-        } catch (UnsupportedJwtException unsEx) {
-            log.error("Unsupported jwt", unsEx);
-        } catch (MalformedJwtException mjEx) {
-            log.error("Malformed jwt", mjEx);
-        } catch (SignatureException sEx) {
-            log.error("Invalid signature", sEx);
-        } catch (Exception e) {
-            log.error("invalid token", e);
-        }
-        return false;
+//        try {
+//
+//
+//        } catch (ExpiredJwtException expEx) {
+//            log.error("Token expired. User your refresh token or login again.", expEx);
+//        } catch (UnsupportedJwtException unsEx) {
+//            log.error("Unsupported jwt", unsEx);
+//        } catch (MalformedJwtException mjEx) {
+//            log.error("Malformed jwt", mjEx);
+//        } catch (SignatureException sEx) {
+//            log.error("Invalid signature", sEx);
+//        } catch (Exception e) {
+//            log.error("invalid token", e);
+//        }
+//        return false;
     }
 
     public Claims getClaims(@NonNull String token) {

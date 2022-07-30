@@ -47,8 +47,6 @@ public class Patient {
 
     private Boolean worksNow;
 
-    private String phoneNumber;
-
     private String husbandFirstName;
 
     private String husbandLastName;

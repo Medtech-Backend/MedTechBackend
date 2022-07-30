@@ -1,8 +1,6 @@
 package com.project.medtech.service;
 
-import com.project.medtech.dto.CheckListInfoDto;
-import com.project.medtech.dto.RegisterPatientDto;
-import com.project.medtech.dto.RequestPatient;
+import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
@@ -10,6 +8,8 @@ import com.project.medtech.mapper.CheckListInfoDtoMapper;
 import com.project.medtech.model.*;
 import com.project.medtech.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,26 @@ public class PatientService {
     private final AddressRepository addressRepository;
     private final InsuranceRepository insuranceRepository;
 
+    public PatientDto getInfo(EmailDto emailDto) {
+        User user = userRepository.findByEmail(emailDto.getEmail());
+        if(user == null) {
+            throw new ResourceNotFoundException("No User with email: " + emailDto.getEmail());
+        }
+
+        Patient patient = patientRepository.findByUserUserId(user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
+
+        PatientDto patientDto = new PatientDto();
+        patientDto.setEmail(emailDto.getEmail());
+        patientDto.setBirthday(patient.getBirthday());
+        patientDto.setAddress(patient.getAddress().getPatientAddress());
+        patientDto.setFullName(user.getLastName() + " " + user.getFirstName() + " " + user.getMiddleName());
+        patientDto.setPhoneNumber(user.getPhoneNumber());
+        patientDto.setWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(patient.getId())));
+
+        return patientDto;
+    }
+
     public Integer getCurrentWeekOfPregnancy(RequestPatient request) {
 
         Patient patient = patientRepository.findById(request.getPatientId())
@@ -50,7 +70,8 @@ public class PatientService {
     }
 
     public List<CheckListInfoDto> getAllPatientsCheckLists(RequestPatient reqPat) {
-        Patient patient = patientRepository.findById(reqPat.getPatientId()).orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + reqPat.getPatientId()));
+        Patient patient = patientRepository.findById(reqPat.getPatientId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + reqPat.getPatientId()));
         List<CheckList> list = checkListRepository.findAllByPatient(patient);
         List<CheckListInfoDto> listDto = new ArrayList<>();
 
@@ -59,6 +80,41 @@ public class PatientService {
         }
 
         return listDto;
+    }
+
+    public PhoneNumberDto changePhoneNumber(PhoneNumberDto phoneNumberDto) {
+        User user = getAuthentication();
+        user.setPhoneNumber(phoneNumberDto.getPhoneNumber());
+
+        userRepository.save(user);
+
+        return phoneNumberDto;
+    }
+
+    public AddressDto changeAddress(AddressDto addressDto) {
+        User user = getAuthentication();
+
+        Patient patient = patientRepository.findByUserUserId(user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
+
+        Address address = addressRepository.findByPatientId(patient.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Address with patient_id: " + user.getUserId()));
+
+        address.setPatientAddress(addressDto.getAddress());
+
+        addressRepository.save(address);
+
+        return addressDto;
+    }
+
+    public EmailDto changeEmail(EmailDto emailDto) {
+        User user = getAuthentication();
+
+        user.setEmail(emailDto.getEmail());
+
+        userRepository.save(user);
+
+        return emailDto;
     }
 
     public RegisterPatientDto registerPatient(RegisterPatientDto registerPatientDto) {
@@ -85,7 +141,6 @@ public class PatientService {
         patient.setPosition(registerPatientDto.getPosition());
         patient.setWorkConditions(registerPatientDto.getWorkConditions());
         patient.setWorksNow(registerPatientDto.getWorksNow());
-        patient.setPhoneNumber(registerPatientDto.getPhoneNumber());
         patient.setHusbandFirstName(registerPatientDto.getHusbandFirstName());
         patient.setHusbandLastName(registerPatientDto.getHusbandLastName());
         patient.setHusbandMiddleName(registerPatientDto.getHusbandMiddleName());
@@ -177,6 +232,11 @@ public class PatientService {
 
     protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    public User getAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByEmail(authentication.getName());
     }
 
 }
