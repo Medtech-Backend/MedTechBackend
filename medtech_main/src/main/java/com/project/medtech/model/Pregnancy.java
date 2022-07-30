@@ -121,4 +121,12 @@ public class Pregnancy {
     )
     private Doctor doctor;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "patient_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "FKPREGNANCYPATIENT")
+    )
+    private Patient patient;
+
 }

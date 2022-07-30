@@ -82,7 +82,7 @@ public class Patient {
     private Insurance insurance;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Pregnancy> pregnancy = new ArrayList<>();
+    private List<Pregnancy> pregnancy;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(

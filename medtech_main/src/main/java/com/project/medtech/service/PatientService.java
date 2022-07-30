@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class PatientService {
     private final AddressRepository addressRepository;
     private final InsuranceRepository insuranceRepository;
 
+
     public PatientDto getInfo(EmailDto emailDto) {
         User user = userRepository.findByEmail(emailDto.getEmail());
         if(user == null) {
@@ -43,6 +45,7 @@ public class PatientService {
                 .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
 
         PatientDto patientDto = new PatientDto();
+        patientDto.setPatientId(patient.getId());
         patientDto.setEmail(emailDto.getEmail());
         patientDto.setBirthday(patient.getBirthday());
         patientDto.setAddress(patient.getAddress().getPatientAddress());
@@ -237,6 +240,26 @@ public class PatientService {
     public User getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(authentication.getName());
+    }
+
+    public List<PatientDataDto> getAllPatients() {
+        List<User> users = userRepository.findAll(Role.PATIENT);
+        List<PatientDataDto> listDto = new ArrayList<>();
+
+        for(User u : users ){
+            PatientDataDto dto = new PatientDataDto();
+            Patient patient = u.getPatient();
+            Address address = patient.getAddress();
+            dto.setPatientId(patient.getId());
+            dto.setFIO(u.getLastName()+" "+u.getFirstName().substring(0, 1)+"."+u.getMiddleName().substring(0, 1)+".");
+            dto.setPhoneNumber(u.getPhoneNumber());
+            dto.setEmail(u.getEmail());
+            dto.setCurrentWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(u.getUserId())));
+            dto.setResidenceAddress(address.getRelativeAddress());
+            dto.setStatus(u.getStatus().toString());
+            listDto.add(dto);
+        }
+        return listDto;
     }
 
 }
