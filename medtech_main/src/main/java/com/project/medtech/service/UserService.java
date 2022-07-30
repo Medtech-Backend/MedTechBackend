@@ -4,15 +4,19 @@ import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtProvider;
+import com.project.medtech.model.Address;
+import com.project.medtech.model.Patient;
 import com.project.medtech.model.User;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +39,8 @@ public class UserService implements UserDetailsService {
         return toUserModel(userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User was not found")));
     }
+
+
 
     public UserDto getUserByEmail(EmailDto email) {
         User user = userRepository.findByEmail(email.getEmail());

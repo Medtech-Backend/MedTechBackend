@@ -2,6 +2,7 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.CheckListInfoDto;
 import com.project.medtech.dto.PatientDto;
+import com.project.medtech.dto.PatientFullDataDto;
 import com.project.medtech.dto.RequestPatient;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.PatientExcelExporter;
@@ -59,6 +60,12 @@ public class PatientController {
     @PostMapping(value="/patients-checklists")
     ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@RequestBody RequestPatient patient){
         return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patient));
+    }
+
+    @ApiOperation(value = "получение пациента по ID пользователя")
+    @GetMapping("/by-user-id/{userId}")
+    public ResponseEntity<PatientFullDataDto> getPatientByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(patientService.getPatientDtoByUserId(userId));
     }
 
     @ApiOperation(value = "вывод данных всех пациентов")

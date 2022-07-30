@@ -26,7 +26,7 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
-    @ApiOperation(value = "получение пользователя по ID")
+    @ApiOperation(value = "получение пользователя по ID")    //Зачем пароль?
     @GetMapping("{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));

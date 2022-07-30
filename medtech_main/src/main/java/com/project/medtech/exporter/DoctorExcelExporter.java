@@ -1,8 +1,10 @@
 package com.project.medtech.exporter;
 
 import com.project.medtech.model.Doctor;
+import com.project.medtech.model.Patient;
 import com.project.medtech.model.Pregnancy;
 import com.project.medtech.model.User;
+import com.project.medtech.service.PatientService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -13,14 +15,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DoctorExcelExporter {
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<User> users;
+
+
 
 
     public DoctorExcelExporter(List<User> users) {
@@ -74,7 +78,17 @@ public class DoctorExcelExporter {
             int columnCount = 0;
 
             Doctor doctor = u.getDoctor();
-            Set<Pregnancy> pregnancies = doctor.getPregnancies();
+            List<Pregnancy> pregnancies = doctor.getPregnancies();
+            List<Patient> patients = new ArrayList<>();
+            int number = 1;
+            for(Pregnancy preg : pregnancies ){
+                for(Pregnancy preg2 : pregnancies){
+                    if(preg.getPatient().getId() == preg2.getPatient().getId()){
+                        break;
+                    }
+
+                }
+            }
 
             createCell(row, columnCount++, num, style);
             createCell(row, columnCount++, u.getFirstName()+" "+u.getLastName()+" "+u.getMiddleName(), style);

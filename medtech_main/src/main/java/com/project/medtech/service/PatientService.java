@@ -13,6 +13,7 @@ import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -39,6 +40,24 @@ public class PatientService {
     public Patient findById(Long ID){
         return patientRepository.findById(ID).orElseThrow(() -> new ResourceNotFoundException("No patient with ID : " + ID));
 
+    }
+
+    public PatientFullDataDto getPatientDtoByUserId(@PathVariable Long userId) {
+        User user = userRepository.getById(userId);
+        Patient patient = user.getPatient();
+        PatientFullDataDto dto = new PatientFullDataDto();
+        Address address = patient.getAddress();
+
+        dto.setPatientId(patient.getId());
+        dto.setCurrentWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(user.getUserId())));
+        dto.setBirthday(patient.getBirthday());
+        dto.setCity(address.getCity());
+        dto.setVillage(address.getVillage());
+        dto.setStreetName(address.getStreetName());
+        dto.setHouseNumber(address.getHouseNumber());
+        dto.setLogin(user.getEmail());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        return dto;
     }
 
     public Integer getCurrentWeekOfPregnancy(RequestPatient request) {
@@ -74,6 +93,7 @@ public class PatientService {
             PatientDto dto = new PatientDto();
             Patient patient = u.getPatient();
             Address address = patient.getAddress();
+            dto.setPatientId(patient.getId());
             dto.setFIO(u.getLastName()+" "+u.getFirstName().substring(0, 1)+"."+u.getMiddleName().substring(0, 1)+".");
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());

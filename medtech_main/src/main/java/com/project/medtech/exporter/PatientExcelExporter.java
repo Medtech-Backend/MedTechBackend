@@ -41,12 +41,17 @@ public class PatientExcelExporter {
         style.setFont(font);
 
         createCell(row, 0, "№", style);
-        createCell(row, 1, "ФИО пациента", style);
-        createCell(row, 2, "Номер телефона", style);
-        createCell(row, 3, "Электронная почта", style);
-        createCell(row, 4, "Срок бер-ти", style);
-        createCell(row, 5, "Адрес прописки", style);
-        createCell(row, 6, "Статус", style);
+        createCell(row, 1, "Фамилия", style);
+        createCell(row, 2, "Имя", style);
+        createCell(row, 3, "Отчество", style);
+        createCell(row, 4, "Номер телефона", style);
+        createCell(row, 5, "Электронная почта", style);
+        createCell(row, 6, "Срок бер-ти", style);
+        createCell(row, 7, "Город", style);
+        createCell(row, 8, "Район", style);
+        createCell(row, 9, "Улица", style);
+        createCell(row, 10, "Дом", style);
+        createCell(row, 11, "Статус", style);
 
     }
 
@@ -80,11 +85,16 @@ public class PatientExcelExporter {
             Address address = patient.getAddress();
 
             createCell(row, columnCount++, num, style);
-            createCell(row, columnCount++, u.getFirstName()+" "+u.getLastName()+" "+u.getMiddleName(), style);
+            createCell(row, columnCount++, u.getFirstName(), style);
+            createCell(row, columnCount++, u.getLastName(), style);
+            createCell(row, columnCount++, u.getMiddleName(), style);
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
             createCell(row, columnCount++, patientService.getCurrentWeekOfPregnancy(new RequestPatient(u.getUserId())), style);
-            createCell(row, columnCount++,  address.getCity() + " " + address.getVillage() + " " + address.getStreetName() + " " + address.getHouseNumber(), style);
+            createCell(row, columnCount++,  address.getCity(), style);
+            createCell(row, columnCount++, address.getVillage(), style);
+            createCell(row, columnCount++, address.getStreetName(), style);
+            createCell(row, columnCount++, address.getHouseNumber(), style);
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
             num++;

@@ -5,11 +5,12 @@ import lombok.Data;
 @Data
 public class PatientDto {
 
-    private String FIO;
-    private String phoneNumber;
-    private String email;
-    private Integer currentWeekOfPregnancy;
-    private String residenceAddress;
     private String status;
+    private String residenceAddress;
+    private Integer currentWeekOfPregnancy;
+    private String email;
+    private String phoneNumber;
+    private String FIO;
+    private Long patientId;
 
 }

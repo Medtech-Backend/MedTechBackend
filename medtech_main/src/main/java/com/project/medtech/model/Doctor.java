@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,6 +38,6 @@ public class Doctor {
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctor")
-    private Set<Pregnancy> pregnancies;
+    private List<Pregnancy> pregnancies;
 
 }
