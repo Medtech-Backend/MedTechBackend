@@ -14,5 +14,7 @@ public class AuthResponse {
     private final String type = "bearer";
     private String accessToken;
     private String refreshToken;
+    private Long userId;
+    private String email;
     private boolean otpUsed;
 }

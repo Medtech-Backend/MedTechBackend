@@ -32,7 +32,7 @@ public class JwtProvider {
                 .withExpiresAt(new Date(System.currentTimeMillis() + 600000)) // 10 minutes
                 .withClaim("roles", user.getRole().getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .withClaim("firstName", user.getFirstName())
+                .withClaim("user_id", user.getUserId())
                 .sign(algorithm);
     }
 

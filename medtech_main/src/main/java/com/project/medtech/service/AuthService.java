@@ -17,7 +17,6 @@ import javax.security.auth.message.AuthException;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserService userService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder encoder;
     private final UserRepository userRepository;
@@ -32,7 +31,7 @@ public class AuthService {
         if (encoder.matches(authRequest.getPassword(), user.getPassword())) {
             String accessToken = jwtProvider.generateAccessToken(user);
             String refreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, refreshToken, user.isOtpUsed());
+            return new AuthResponse(accessToken, refreshToken, user.getUserId(), user.getEmail(), user.isOtpUsed());
         } else {
             throw new AuthException("Incorrect password for email: " + authRequest.getPassword());
         }
@@ -46,7 +45,7 @@ public class AuthService {
             User user = userRepository.findByEmail(email);
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String newRefreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, newRefreshToken, user.isOtpUsed());
+            return new AuthResponse(accessToken, newRefreshToken, user.getUserId(), user.getEmail(), user.isOtpUsed());
         }
         throw new AuthException("Invalid JWT token");
     }

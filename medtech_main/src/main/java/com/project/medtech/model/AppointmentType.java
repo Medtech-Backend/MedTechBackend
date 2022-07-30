@@ -25,5 +25,6 @@ public class AppointmentType {
             allocationSize = 1)
     private Long id;
 
+    @Column(unique = true)
     private String name;
 }

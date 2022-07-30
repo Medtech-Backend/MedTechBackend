@@ -2,6 +2,7 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.service.AuthService;
+import com.project.medtech.service.PatientService;
 import com.project.medtech.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,6 +10,9 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @CrossOrigin
@@ -55,4 +59,5 @@ public class ApiController {
                                                        @RequestBody EmailTextDto emailPasswordModel) {
         return ResponseEntity.ok(userService.updatePassword(emailPasswordModel));
     }
+
 }

@@ -8,15 +8,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterPatientDto {
+public class MedCardDto {
 
     private String email;
     private String firstName;
@@ -24,7 +22,7 @@ public class RegisterPatientDto {
     private String middleName;
     private String phoneNumber;
 
-    private String doctorEmail;
+    private String doctor;
 
     private LocalDate birthday;
     private Integer age;
@@ -73,7 +71,7 @@ public class RegisterPatientDto {
     private String firstVisitComplaints;
     private Double firstVisitGrowth;
     private Double firstVisitWeight;
-    private Double bodyMassIndex;
+    private String bodyMassIndex;
     private String skinAndMucousMembranes;
     private String thyroid;
     private String milkGlands;
@@ -98,5 +96,5 @@ public class RegisterPatientDto {
     private String allergicToDrugs;
     private String pastIllnessesAndSurgeries;
 
-    private List<HashMap<Long, String>> appointmentResults;
+    private HashMap<String, String> typeResultAppointments;
 }

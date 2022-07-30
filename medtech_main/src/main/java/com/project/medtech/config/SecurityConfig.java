@@ -3,8 +3,11 @@ package com.project.medtech.config;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.jwt.JwtFilter;
+import com.project.medtech.model.AppointmentType;
 import com.project.medtech.model.User;
+import com.project.medtech.repository.AppointmentTypeRepository;
 import com.project.medtech.repository.UserRepository;
+import com.project.medtech.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -38,6 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
     private final UserRepository userRepository;
+    private final AppointmentTypeRepository appointmentTypeRepository;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -47,6 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String host;
     @Value("${spring.mail.port}")
     private int port;
+    @Value("#{'${appointments.list}'.split(',')}")
+    private List<String> appointments;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -80,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public void configureSuperAdmin() {
+    public void configure() {
 
         User user = userRepository.findByEmail("trustmed.team3@gmail.com");
 
@@ -97,6 +104,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             superAdmin.setStatus(Status.ACTIVE);
 
             userRepository.save(superAdmin);
+        }
+
+        ArrayList<AppointmentType> appointmentTypes = (ArrayList<AppointmentType>) appointmentTypeRepository.findAll();
+        ArrayList<String> appointmentTypesNames =
+                (ArrayList<String>) appointmentTypes.stream().map(AppointmentType::getName).collect(Collectors.toList());
+        ArrayList<String> list = (ArrayList<String>) appointments;
+        for(String s: list) {
+            if(!appointmentTypesNames.contains(s)) {
+                AppointmentType appointmentType = new AppointmentType();
+                appointmentType.setName(s);
+                appointmentTypeRepository.save(appointmentType);
+            }
         }
     }
 

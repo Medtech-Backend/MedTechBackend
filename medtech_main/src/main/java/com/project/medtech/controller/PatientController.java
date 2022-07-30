@@ -2,7 +2,6 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.service.PatientService;
-import com.project.medtech.service.QuestionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +33,8 @@ public class PatientController {
 
     @ApiOperation(value = "регистрация нового пациента")
     @PostMapping("/create")
-    ResponseEntity<RegisterPatientDto> registerPatient(@RequestBody RegisterPatientDto registerPatientDto) {
-        return ResponseEntity.ok(patientService.registerPatient(registerPatientDto));
+    ResponseEntity<MedCardDto> registerPatient(@RequestBody MedCardDto medCardDto) {
+        return ResponseEntity.ok(patientService.registerPatient(medCardDto));
     }
 
     @ApiOperation(value = "получение инфо о пациентке(для мобильного приложения)")
@@ -56,10 +55,16 @@ public class PatientController {
         return ResponseEntity.ok(patientService.changeAddress(addressDto));
     }
 
-    @ApiOperation(value = "изменение почты телефона пациента")
-    @PutMapping("/change-email")
-    public ResponseEntity<EmailDto> changeEmail(@RequestBody EmailDto emailDto) {
-        return ResponseEntity.ok(patientService.changeEmail(emailDto));
+    @ApiOperation(value = "изменение медицинской карты пациента")
+    @PutMapping("/update-med-card")
+    public ResponseEntity<UpdateMedCard> updateMedCard(@RequestBody UpdateMedCard updateMedCard) {
+        return ResponseEntity.ok(patientService.updateMedCard(updateMedCard));
+    }
+
+    @ApiOperation(value = "получение данных медицинской карты пациента")
+    @GetMapping("/get-med-card-info")
+    public ResponseEntity<MedCardDto> getPatientMedCardInfo(String email) {
+        return ResponseEntity.ok(patientService.getPatientMedCardInfo(email));
     }
 
 }

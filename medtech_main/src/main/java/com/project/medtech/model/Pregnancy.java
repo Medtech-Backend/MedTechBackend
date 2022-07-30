@@ -67,7 +67,7 @@ public class Pregnancy {
 
     private Double firstVisitWeight;
 
-    private Double bodyMassIndex;
+    private String bodyMassIndex;
 
     private String skinAndMucousMembranes;
 

@@ -79,7 +79,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = jwtProvider.generateRefreshToken(user);
-        return new AuthResponse(accessToken, refreshToken, user.isOtpUsed());
+        return new AuthResponse(accessToken, refreshToken, user.getUserId(), user.getEmail(), user.isOtpUsed());
     }
 
     @Override
