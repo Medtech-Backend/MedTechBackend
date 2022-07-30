@@ -50,6 +50,7 @@ public class PatientService {
         patientDto.setAddress(patient.getAddress().getPatientAddress());
         patientDto.setFullName(user.getLastName() + " " + user.getFirstName() + " " + user.getMiddleName());
         patientDto.setPhoneNumber(user.getPhoneNumber());
+        patientDto.setPatientId(patient.getId());
         patientDto.setWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(patient.getId())));
 
         return patientDto;
@@ -123,6 +124,7 @@ public class PatientService {
         user.setPassword(passwordEncoder().encode(password));
 
         Patient patient = new Patient();
+        patient.setPregnancy(new ArrayList<>());
         patient.setUser(user);
         patient.setBirthday(registerPatientDto.getBirthday());
         patient.setAge(registerPatientDto.getAge());
