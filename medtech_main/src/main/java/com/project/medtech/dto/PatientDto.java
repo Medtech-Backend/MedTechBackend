@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PatientDto {
 
+    private Long patientId;
     private Integer weekOfPregnancy;
     private String fullName;
     private LocalDate birthday;

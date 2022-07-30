@@ -4,6 +4,7 @@ package com.project.medtech.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,5 +35,8 @@ public class Doctor {
             foreignKey = @ForeignKey(name = "FKDOCTORUSER")
     )
     private User user;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctor")
+    private List<Pregnancy> pregnancies;
 
 }
