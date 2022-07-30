@@ -15,6 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.role = :role ORDER BY u.firstName, u.lastName, u.middleName DESC")
     List<User> findAll(Role role);
 
+    @Query("SELECT u FROM User u WHERE u.role = :role  AND u.firstName LIKE :substring OR u.lastName LIKE :substring OR u.middleName LIKE :substring")
+    List<User> findAllByFio(Role role, String substring);
+
     User findByEmail(String email);
 
 }

@@ -1,6 +1,6 @@
 package com.project.medtech.mapper;
 
-import com.project.medtech.dto.PatientDataForFilteringDto;
+import com.project.medtech.dto.PatientDto;
 import com.project.medtech.dto.RequestPatient;
 import com.project.medtech.model.Address;
 import com.project.medtech.model.Patient;
@@ -13,13 +13,13 @@ public class PatientDataForFilteringDtoMapper {
     @Autowired
     public static PatientService patientService;
 
-    public static PatientDataForFilteringDto EntityToDto(User user) {
+    public static PatientDto EntityToDto(User user) {
 
         Patient patient = user.getPatient();
         Address address = patient.getAddress();
         RequestPatient requestForCurrentWeek = new RequestPatient(user.getUserId());
 
-        PatientDataForFilteringDto dto = new PatientDataForFilteringDto();
+        PatientDto dto = new PatientDto();
         dto.setFIO(user.getFirstName() + " " + user.getMiddleName() + " " + user.getLastName());
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setEmail(user.getEmail());

@@ -1,19 +1,16 @@
 package com.project.medtech.service;
 
-import com.project.medtech.dto.CheckListInfoDto;
-import com.project.medtech.dto.QuestionDto;
-import com.project.medtech.dto.RequestPatient;
+import com.project.medtech.dto.*;
+import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListInfoDtoMapper;
 import com.project.medtech.mapper.CheckListMapper;
 import com.project.medtech.mapper.QuestionMapper;
-import com.project.medtech.model.CheckList;
-import com.project.medtech.model.Patient;
-import com.project.medtech.model.Pregnancy;
-import com.project.medtech.model.Question;
+import com.project.medtech.model.*;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.PatientRepository;
 import com.project.medtech.repository.PregnancyRepository;
+import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +28,9 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PregnancyRepository pregnancyRepository;
     private final CheckListRepository checkListRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
+
 
     public List<Patient> listAll() {
         return patientRepository.findAll();
@@ -66,6 +66,23 @@ public class PatientService {
         return listDto;
     }
 
+    public List<PatientDto> getAllPatients() {
+        List<User> users = userRepository.findAll(Role.PATIENT);
+        List<PatientDto> listDto = new ArrayList<>();
 
+        for(User u : users ){
+            PatientDto dto = new PatientDto();
+            Patient patient = u.getPatient();
+            Address address = patient.getAddress();
+            dto.setFIO(u.getLastName()+" "+u.getFirstName().substring(0, 1)+"."+u.getMiddleName().substring(0, 1)+".");
+            dto.setPhoneNumber(u.getPhoneNumber());
+            dto.setEmail(u.getEmail());
+            dto.setCurrentWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(u.getUserId())));
+            dto.setResidenceAddress(address.getStreetName() + " " + address.getHouseNumber() + " " + address.getVillage() + " " + address.getCity());
+            dto.setStatus(u.getStatus().toString());
+            listDto.add(dto);
+        }
+        return listDto;
+    }
 
 }

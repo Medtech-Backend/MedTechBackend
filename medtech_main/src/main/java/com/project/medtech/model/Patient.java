@@ -2,12 +2,10 @@ package com.project.medtech.model;
 
 import com.project.medtech.dto.enums.Education;
 import com.project.medtech.dto.enums.Married;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,6 +28,8 @@ public class Patient {
     )
     private Long id;
 
+    private LocalDate birthday;
+
     private Integer age;
 
     private String pin;
@@ -42,7 +42,17 @@ public class Patient {
 
     private String position;
 
+    private String workConditions;
+
+    private Boolean worksNow;
+
     private String phoneNumber;
+
+    private String husbandFirstName;
+
+    private String husbandLastName;
+
+    private String husbandMiddleName;
 
     private String husbandWorkPlace;
 
@@ -52,23 +62,33 @@ public class Patient {
 
     private Long currentPregnancyId;
 
+    private byte[] image;
+
     @Enumerated(value = EnumType.STRING)
     private Married married;
 
     @Enumerated(value = EnumType.STRING)
     private Education education;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "patient")
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            mappedBy = "patient"
+    )
     private Address address;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "patient")
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            mappedBy = "patient"
+    )
     private Insurance insurance;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "patient")
     private List<Pregnancy> pregnancy;
 
+
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id",
+    @JoinColumn(
+            name = "user_id",
             referencedColumnName = "userId",
             foreignKey = @ForeignKey(name = "FKPATIENTUSER")
     )

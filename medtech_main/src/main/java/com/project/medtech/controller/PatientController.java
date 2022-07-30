@@ -1,6 +1,7 @@
 package com.project.medtech.controller;
 
 import com.project.medtech.dto.CheckListInfoDto;
+import com.project.medtech.dto.PatientDto;
 import com.project.medtech.dto.RequestPatient;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.PatientExcelExporter;
@@ -30,6 +31,7 @@ public class PatientController {
     private final PatientService patientService;
     private final UserRepository userRepository;
 
+    @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
     @GetMapping("/export/excel")
     public void exportToExcel(HttpServletResponse response) throws IOException {
 
@@ -57,6 +59,12 @@ public class PatientController {
     @PostMapping(value="/patients-checklists")
     ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@RequestBody RequestPatient patient){
         return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patient));
+    }
+
+    @ApiOperation(value = "вывод данных всех пациентов")
+    @GetMapping(value="/get-all")
+    ResponseEntity<List<PatientDto>> getAll(){
+        return ResponseEntity.ok(patientService.getAllPatients());
     }
 
 }

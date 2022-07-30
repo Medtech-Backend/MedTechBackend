@@ -3,7 +3,7 @@ package com.project.medtech.dto;
 import lombok.Data;
 
 @Data
-public class PatientDataForFilteringDto {
+public class PatientDto {
 
     private String FIO;
     private String phoneNumber;
