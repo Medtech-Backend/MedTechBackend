@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -120,5 +121,11 @@ public class Pregnancy {
             foreignKey = @ForeignKey(name = "FKPREGNANCYDOCTOR")
     )
     private Doctor doctor;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "pregnancy"
+    )
+    private List<Appointment> appointments;
 
 }

@@ -34,6 +34,7 @@ public class PatientService {
     private final AddressRepository addressRepository;
     private final InsuranceRepository insuranceRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentTypeRepository appointmentTypeRepository;
 
     public PatientDto getInfo(EmailDto emailDto) {
         User user = userRepository.findByEmail(emailDto.getEmail());
@@ -210,6 +211,21 @@ public class PatientService {
         pregnancy.setAllergicToDrugs(registerPatientDto.getAllergicToDrugs());
         pregnancy.setPastIllnessesAndSurgeries(registerPatientDto.getPastIllnessesAndSurgeries());
 
+        List<AppointmentType> appointmentTypes = appointmentTypeRepository.findAll();
+        HashMap<String, String> map = registerPatientDto.getTypeResultAppointments();
+        appointmentTypes.forEach(
+                a -> {
+                    if(!map.get(a.getName()).isEmpty()) {
+                        Appointment appointment = new Appointment();
+                        appointment.setAppointmentType(a);
+                        appointment.setResult(map.get(a.getName()));
+                        appointment.setPregnancy(pregnancy);
+
+                        appointmentRepository.save(appointment);
+                    }
+                }
+        );
+
         pregnancyRepository.save(pregnancy);
 
         patient.setCurrentPregnancyId(pregnancy.getId());
@@ -328,7 +344,7 @@ public class PatientService {
         medCardDto.setAllergicToDrugs(pregnancy.getAllergicToDrugs());
         medCardDto.setPastIllnessesAndSurgeries(pregnancy.getPastIllnessesAndSurgeries());
 
-        List<Appointment> appointments = appointmentRepository.findAll();
+        List<Appointment> appointments = pregnancy.getAppointments();
         HashMap<String, String> appointmentsMap = new HashMap<>();
         appointments.forEach(
                 a -> appointmentsMap.put(a.getAppointmentType().getName(), a.getResult())
@@ -440,6 +456,19 @@ public class PatientService {
         pregnancy.setVacationUntilForPregnancy(updateMedCard.getVacationUntilForPregnancy());
         pregnancy.setAllergicToDrugs(updateMedCard.getAllergicToDrugs());
         pregnancy.setPastIllnessesAndSurgeries(updateMedCard.getPastIllnessesAndSurgeries());
+
+        List<Appointment> appointments = pregnancy.getAppointments();
+        HashMap<String, String> map = updateMedCard.getAppointmentResults();
+
+        appointments.forEach(
+                a -> {
+                    if(!map.get(a.getAppointmentType().getName()).isEmpty()) {
+                        a.setResult(map.get(a.getAppointmentType().getName()));
+
+                        appointmentRepository.save(a);
+                    }
+                }
+        );
 
         pregnancyRepository.save(pregnancy);
 
