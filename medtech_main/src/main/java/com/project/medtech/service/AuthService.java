@@ -31,7 +31,8 @@ public class AuthService {
         if (encoder.matches(authRequest.getPassword(), user.getPassword())) {
             String accessToken = jwtProvider.generateAccessToken(user);
             String refreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, refreshToken, user.getUserId(), user.getEmail(), user.isOtpUsed());
+            return new AuthResponse(accessToken, refreshToken, user.getUserId(),
+                    user.getEmail(), user.isOtpUsed(), user.getRole().name());
         } else {
             throw new AuthException("Incorrect password for email: " + authRequest.getPassword());
         }
@@ -45,7 +46,8 @@ public class AuthService {
             User user = userRepository.findByEmail(email);
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String newRefreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, newRefreshToken, user.getUserId(), user.getEmail(), user.isOtpUsed());
+            return new AuthResponse(accessToken, newRefreshToken, user.getUserId(),
+                    user.getEmail(), user.isOtpUsed(), user.getRole().name());
         }
         throw new AuthException("Invalid JWT token");
     }

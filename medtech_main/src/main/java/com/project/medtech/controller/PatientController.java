@@ -91,7 +91,7 @@ public class PatientController {
 
     @ApiOperation(value = "получение данных медицинской карты пациента")
     @GetMapping("/get-med-card-info")
-    public ResponseEntity<MedCardDto> getPatientMedCardInfo(String email) {
+    public ResponseEntity<MedCardDto> getPatientMedCardInfo(@RequestBody EmailDto email) {
         return ResponseEntity.ok(patientService.getPatientMedCardInfo(email));
     }
 

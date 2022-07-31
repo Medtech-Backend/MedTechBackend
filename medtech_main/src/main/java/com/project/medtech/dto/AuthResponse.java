@@ -17,4 +17,5 @@ public class AuthResponse {
     private Long userId;
     private String email;
     private boolean otpUsed;
+    private String role;
 }

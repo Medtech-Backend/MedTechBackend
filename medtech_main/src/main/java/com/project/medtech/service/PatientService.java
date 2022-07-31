@@ -184,6 +184,9 @@ public class PatientService {
         pregnancy.setFirstVisitComplaints(registerPatientDto.getFirstVisitComplaints());
         pregnancy.setFirstVisitGrowth(registerPatientDto.getFirstVisitGrowth());
         pregnancy.setFirstVisitWeight(registerPatientDto.getFirstVisitWeight());
+        if (registerPatientDto.getFirstVisitGrowth() != null && registerPatientDto.getFirstVisitWeight() != null) {
+            pregnancy.setBodyMassIndex(calculateBmx(registerPatientDto.getFirstVisitWeight(), registerPatientDto.getFirstVisitGrowth()));
+        }
         pregnancy.setSkinAndMucousMembranes(registerPatientDto.getSkinAndMucousMembranes());
         pregnancy.setThyroid(registerPatientDto.getThyroid());
         pregnancy.setMilkGlands(registerPatientDto.getMilkGlands());
@@ -224,11 +227,11 @@ public class PatientService {
         return registerPatientDto;
     }
 
-    public MedCardDto getPatientMedCardInfo(String email) {
-        User user = userRepository.findByEmail(email);
+    public MedCardDto getPatientMedCardInfo(EmailDto email) {
+        User user = userRepository.findByEmail(email.getEmail());
 
         if (user == null) {
-            throw new ResourceNotFoundException("User was not found with email: " + email);
+            throw new ResourceNotFoundException("User was not found with email: " + email.getEmail());
         }
 
         Patient patient = patientRepository.findByUserUserId(user.getUserId())
@@ -412,7 +415,9 @@ public class PatientService {
         pregnancy.setFirstVisitComplaints(updateMedCard.getFirstVisitComplaints());
         pregnancy.setFirstVisitGrowth(updateMedCard.getFirstVisitGrowth());
         pregnancy.setFirstVisitWeight(updateMedCard.getFirstVisitWeight());
-        pregnancy.setBodyMassIndex(calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
+        if (updateMedCard.getFirstVisitGrowth() != null && updateMedCard.getFirstVisitWeight() != null) {
+            pregnancy.setBodyMassIndex(calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
+        }
         pregnancy.setSkinAndMucousMembranes(updateMedCard.getSkinAndMucousMembranes());
         pregnancy.setThyroid(updateMedCard.getThyroid());
         pregnancy.setMilkGlands(updateMedCard.getMilkGlands());
@@ -479,6 +484,7 @@ public class PatientService {
     }
 
     public String calculateBmx(Double weight, double height) {
+        height /= 100;
         double result = weight / (height * height);
         return String.format("%.1f", result);
     }

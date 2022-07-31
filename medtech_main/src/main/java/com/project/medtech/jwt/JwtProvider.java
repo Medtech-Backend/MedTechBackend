@@ -2,7 +2,6 @@ package com.project.medtech.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.project.medtech.dto.UserDto;
 import com.project.medtech.model.User;
 import io.jsonwebtoken.*;
 import lombok.NonNull;
@@ -29,7 +28,7 @@ public class JwtProvider {
         return JWT.create()
                 .withSubject(user.getEmail())
                 .withIssuedAt(now)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 600000)) // 10 minutes
+                .withExpiresAt(new Date(System.currentTimeMillis() + 172800000)) // 2 days
                 .withClaim("roles", user.getRole().getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .withClaim("user_id", user.getUserId())
@@ -42,7 +41,7 @@ public class JwtProvider {
         return JWT.create()
                 .withSubject(user.getEmail())
                 .withIssuedAt(now)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 7200000)) // 2 hours
+                .withExpiresAt(new Date(System.currentTimeMillis() + 604800000)) // 7 days
                 .withClaim("roles", String.valueOf((new SimpleGrantedAuthority("can:refresh"))))
                 .sign(algorithm);
     }
@@ -50,21 +49,6 @@ public class JwtProvider {
     public boolean validateToken(@NonNull String token) {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
-//        try {
-//
-//
-//        } catch (ExpiredJwtException expEx) {
-//            log.error("Token expired. User your refresh token or login again.", expEx);
-//        } catch (UnsupportedJwtException unsEx) {
-//            log.error("Unsupported jwt", unsEx);
-//        } catch (MalformedJwtException mjEx) {
-//            log.error("Malformed jwt", mjEx);
-//        } catch (SignatureException sEx) {
-//            log.error("Invalid signature", sEx);
-//        } catch (Exception e) {
-//            log.error("invalid token", e);
-//        }
-//        return false;
     }
 
     public Claims getClaims(@NonNull String token) {
