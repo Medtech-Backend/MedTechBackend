@@ -26,8 +26,6 @@ public class Doctor {
 
     private int age;
 
-    private byte[] image;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "user_id",

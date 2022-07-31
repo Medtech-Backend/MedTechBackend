@@ -59,8 +59,6 @@ public class Patient {
 
     private String husbandPhoneNumber;
 
-    private byte[] image;
-
     private Long currentPregnancyId;
 
     @Enumerated(value = EnumType.STRING)
