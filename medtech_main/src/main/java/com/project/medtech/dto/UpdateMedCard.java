@@ -98,5 +98,5 @@ public class UpdateMedCard {
     private String allergicToDrugs;
     private String pastIllnessesAndSurgeries;
 
-    private HashMap<String, String> appointmentResults;
+    private HashMap<String, String> typeResultAppointments;
 }

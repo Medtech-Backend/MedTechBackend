@@ -17,9 +17,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -215,14 +214,17 @@ public class PatientService {
         HashMap<String, String> map = registerPatientDto.getTypeResultAppointments();
         appointmentTypes.forEach(
                 a -> {
-                    if(!map.get(a.getName()).isEmpty()) {
-                        Appointment appointment = new Appointment();
+                    Appointment appointment = new Appointment();
+                    if(map.get(a.getName()) != null) {
                         appointment.setAppointmentType(a);
                         appointment.setResult(map.get(a.getName()));
                         appointment.setPregnancy(pregnancy);
 
-                        appointmentRepository.save(appointment);
+                    } else {
+                        appointment.setAppointmentType(a);
+                        appointment.setPregnancy(pregnancy);
                     }
+                    appointmentRepository.save(appointment);
                 }
         );
 
@@ -364,7 +366,9 @@ public class PatientService {
         user.setFirstName(updateMedCard.getFirstName());
         user.setLastName(updateMedCard.getLastName());
         user.setMiddleName(updateMedCard.getMiddleName());
-        user.setEmail(updateMedCard.getEmail());
+        if(!updateMedCard.getEmail().equals(user.getEmail())) {
+            user.setEmail(updateMedCard.getEmail());
+        }
         user.setPhoneNumber(updateMedCard.getPhoneNumber());
 
         Patient patient = patientRepository.findByUserUserId(user.getUserId())
@@ -458,17 +462,10 @@ public class PatientService {
         pregnancy.setPastIllnessesAndSurgeries(updateMedCard.getPastIllnessesAndSurgeries());
 
         List<Appointment> appointments = pregnancy.getAppointments();
-        HashMap<String, String> map = updateMedCard.getAppointmentResults();
-
-        appointments.forEach(
-                a -> {
-                    if(!map.get(a.getAppointmentType().getName()).isEmpty()) {
-                        a.setResult(map.get(a.getAppointmentType().getName()));
-
-                        appointmentRepository.save(a);
-                    }
-                }
-        );
+        HashMap<String, String> map = updateMedCard.getTypeResultAppointments();
+//        for(Appointment a: appointments) {
+//            System.out.println(a.getAppointmentType().getName());
+//        }
 
         pregnancyRepository.save(pregnancy);
 
