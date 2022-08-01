@@ -230,6 +230,7 @@ public class PatientService {
 
                     } else {
                         appointment.setAppointmentType(a);
+                        appointment.setResult("");
                         appointment.setPregnancy(pregnancy);
                     }
                     appointmentRepository.save(appointment);
@@ -471,9 +472,12 @@ public class PatientService {
 
         List<Appointment> appointments = pregnancy.getAppointments();
         HashMap<String, String> map = updateMedCard.getTypeResultAppointments();
-//        for(Appointment a: appointments) {
-//            System.out.println(a.getAppointmentType().getName());
-//        }
+        for(Appointment a: appointments) {
+            if(map.containsKey(a.getAppointmentType().getName()) &&
+                    !a.getResult().equals(map.get(a.getAppointmentType().getName()))) {
+                a.setResult(map.get(a.getAppointmentType().getName()));
+            }
+        }
 
         pregnancyRepository.save(pregnancy);
 

@@ -1,6 +1,5 @@
 package com.project.medtech.exception;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,6 +17,11 @@ public class AdviceController {
 
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<String> handleAuthException(AuthException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FileEmptyException.class)
+    public ResponseEntity<Object> handleFileEmptyException(FileEmptyException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 

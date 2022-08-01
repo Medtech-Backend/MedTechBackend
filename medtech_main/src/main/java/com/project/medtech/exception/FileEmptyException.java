@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ResourceNotFoundException extends RuntimeException {
+public class FileEmptyException extends RuntimeException {
     private final String message;
 }

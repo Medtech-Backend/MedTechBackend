@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +27,7 @@ public class Appointment {
 
     private String result;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(
             name = "appointment_type_id",
             referencedColumnName = "id",
@@ -37,7 +35,7 @@ public class Appointment {
     )
     private AppointmentType appointmentType;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(
             name = "pregnancy_id",
             referencedColumnName = "id",

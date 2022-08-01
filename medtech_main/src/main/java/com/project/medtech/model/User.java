@@ -62,6 +62,9 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user")
     private Doctor doctor;
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private Image image;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
