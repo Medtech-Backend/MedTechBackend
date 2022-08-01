@@ -48,9 +48,9 @@ public class PatientController {
     }
 
     @ApiOperation(value = "вывод настоящей недели беременности по ID пациента")
-    @PutMapping("/current-week-of-pregnancy")
-    ResponseEntity<Integer> getCurrentWeekOfPregnancy(@RequestBody RequestPatient patient){
-        return ResponseEntity.ok(patientService.getCurrentWeekOfPregnancy(patient));
+    @GetMapping("/current-week-of-pregnancy")
+    ResponseEntity<Integer> getCurrentWeekOfPregnancy(){
+        return ResponseEntity.ok(patientService.getCurrentWeekOfPregnancy());
     }
 
     @ApiOperation(value = "вывод всех чек-листов по ID пациента")
@@ -66,9 +66,9 @@ public class PatientController {
     }
 
     @ApiOperation(value = "получение инфо о пациентке(для мобильного приложения)")
-    @PutMapping("/get-info")
-    ResponseEntity<PatientDto> getInfo(@RequestBody EmailDto emailDto) {
-        return ResponseEntity.ok(patientService.getInfo(emailDto));
+    @GetMapping("/get-info")
+    ResponseEntity<PatientDto> getInfo() {
+        return ResponseEntity.ok(patientService.getInfo());
     }
 
     @ApiOperation(value = "изменение номера телефона пациента")

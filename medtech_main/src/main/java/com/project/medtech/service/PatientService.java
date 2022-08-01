@@ -35,36 +35,44 @@ public class PatientService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentTypeRepository appointmentTypeRepository;
 
-    public PatientDto getInfo(EmailDto emailDto) {
-        User user = userRepository.findByEmail(emailDto.getEmail());
-        if (user == null) {
-            throw new ResourceNotFoundException("No User with email: " + emailDto.getEmail());
-        }
+    public PatientDto getInfo() {
+        User user = getAuthentication();
 
         Patient patient = patientRepository.findByUserUserId(user.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
 
         PatientDto patientDto = new PatientDto();
-        patientDto.setEmail(emailDto.getEmail());
+        patientDto.setEmail(user.getEmail());
         patientDto.setBirthday(patient.getBirthday());
         patientDto.setAddress(patient.getAddress().getPatientAddress());
         patientDto.setFullName(user.getLastName() + " " + user.getFirstName() + " " + user.getMiddleName());
         patientDto.setPhoneNumber(user.getPhoneNumber());
         patientDto.setPatientId(patient.getId());
-        patientDto.setWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(patient.getId())));
+        patientDto.setWeekOfPregnancy(calculateCurrentWeekOfPregnancy(user.getEmail()));
 
         return patientDto;
     }
+    public Integer getCurrentWeekOfPregnancy() {
+        User user = getAuthentication();
+        return calculateCurrentWeekOfPregnancy(user.getEmail());
+    }
 
-    public Integer getCurrentWeekOfPregnancy(RequestPatient request) {
+    public Integer calculateCurrentWeekOfPregnancy(String email) {
+        User user = userRepository.findByEmail(email);
 
-        Patient patient = patientRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + request.getPatientId()));
+        if(user == null) {
+            throw new ResourceNotFoundException("User was not found with email: " + email);
+        }
+
+        Patient patient = user.getPatient();
+
         Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + request.getPatientId()));
+                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + patient.getId()));
+
         if (pregnancy.getRegistrationDate() == null || pregnancy.getFirstVisitWeekOfPregnancy() == null) {
             return 0;
         }
+
         LocalDate registrationDate = pregnancy.getRegistrationDate();
         LocalDate currentDate = LocalDate.now(ZoneId.systemDefault());
         long diffInDays = ChronoUnit.DAYS.between(registrationDate, currentDate);
@@ -492,7 +500,7 @@ public class PatientService {
             dto.setFIO(u.getLastName() + " " + u.getFirstName().substring(0, 1) + "." + u.getMiddleName().substring(0, 1) + ".");
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
-            dto.setCurrentWeekOfPregnancy(getCurrentWeekOfPregnancy(new RequestPatient(u.getUserId())));
+            dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
             dto.setResidenceAddress(address.getRelativeAddress());
             dto.setStatus(u.getStatus().toString());
             listDto.add(dto);

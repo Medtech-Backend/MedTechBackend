@@ -87,7 +87,7 @@ public class PatientExcelExporter {
             createCell(row, columnCount++, u.getMiddleName(), style);
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
-            createCell(row, columnCount++, patientService.getCurrentWeekOfPregnancy(new RequestPatient(u.getUserId())), style);
+            createCell(row, columnCount++, patientService.calculateCurrentWeekOfPregnancy(u.getEmail()), style);
             createCell(row, columnCount++,  address.getRelativeAddress(), style);
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
