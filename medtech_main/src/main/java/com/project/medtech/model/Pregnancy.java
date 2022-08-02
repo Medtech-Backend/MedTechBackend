@@ -114,7 +114,7 @@ public class Pregnancy {
 
     private String pastIllnessesAndSurgeries;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "doctor_id",
             referencedColumnName = "id",

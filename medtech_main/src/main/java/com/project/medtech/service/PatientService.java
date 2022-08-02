@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,9 +79,9 @@ public class PatientService {
         return pregnancy.getFirstVisitWeekOfPregnancy() + (int) diffInWeeks;
     }
 
-    public List<CheckListInfoDto> getAllPatientsCheckLists(RequestPatient reqPat) {
-        Patient patient = patientRepository.findById(reqPat.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + reqPat.getPatientId()));
+    public List<CheckListInfoDto> getAllPatientsCheckLists(Long reqPat) {
+        Patient patient = patientRepository.findById(reqPat)
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + reqPat));
         List<CheckList> list = checkListRepository.findAllByPatient(patient);
         List<CheckListInfoDto> listDto = new ArrayList<>();
 

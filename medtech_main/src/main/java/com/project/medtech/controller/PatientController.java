@@ -54,9 +54,9 @@ public class PatientController {
     }
 
     @ApiOperation(value = "вывод всех чек-листов по ID пациента")
-    @GetMapping("/patients-checklists")
-    ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@RequestBody RequestPatient patient){
-        return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patient));
+    @GetMapping("/patients-checklists/{patientId}")
+    ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@PathVariable Long patientId){
+        return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patientId));
     }
 
     @ApiOperation(value = "регистрация нового пациента")

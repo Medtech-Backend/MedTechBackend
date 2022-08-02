@@ -27,7 +27,7 @@ public class Appointment {
 
     private String result;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "appointment_type_id",
             referencedColumnName = "id",
@@ -35,7 +35,7 @@ public class Appointment {
     )
     private AppointmentType appointmentType;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "pregnancy_id",
             referencedColumnName = "id",
