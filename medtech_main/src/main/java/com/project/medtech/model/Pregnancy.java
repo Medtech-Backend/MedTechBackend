@@ -44,6 +44,8 @@ public class Pregnancy {
 
     private LocalDate registrationDate;
 
+    private LocalDate firstVisitDate;
+
     private String fromAnotherMedOrganizationReason;
 
     private String nameOfAnotherMedOrganization;

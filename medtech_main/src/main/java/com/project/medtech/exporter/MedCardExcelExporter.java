@@ -37,13 +37,13 @@ public class MedCardExcelExporter {
     private void writeHeaderRow() {
         String[] columns =
         {
-            "Почта", "Имя", "Фамилия", "Отчество", "Номер телефона", "Гинеколог", "Дата рождения",
+            "Дата взятия на учет", "Почта", "Имя", "Фамилия", "Отчество", "Номер телефона", "Гинеколог", "Дата рождения",
             "Возраст", "ИНН", "Гражданство", "Категория пациента", "Место работы", "Должность",
             "Условия труда", "Работает в данное время", "Имя мужа", "Фамилия мужа",
             "Отчество мужа", "Место работы мужа", "Должность мужа", "Номер телефона мужа",
             "Состоит в браке", "Образование", "Постоянное место жительства", "Номер телефона",
             "Адрес родственников", "Номер телефона родственников", "Территория страхования",
-            "Номер удостоверения соц. защиты", "Дата взятия на учет",
+            "Номер удостоверения соц. защиты", "Дата первого осмотра",
             "Неделя беременности на первом осмотре", "Прибыла из другой мед. организации (причина)",
             "Название старой мед. организации", "Беременность (которая)", "Роды (которые)",
             "Срок беременности по последним месячным (нед.)", "Срок беременности по последнему УЗИ (нед.)",
@@ -115,6 +115,7 @@ public class MedCardExcelExporter {
 
         ArrayList<Object> answers = new ArrayList<>();
 
+        answers.add(pregnancy.getRegistrationDate());
         answers.add(user.getEmail());
         answers.add(user.getFirstName());
         answers.add(user.getLastName());
@@ -144,7 +145,7 @@ public class MedCardExcelExporter {
         answers.add(address.getRelativePhoneNumber());
         answers.add(insurance.getTerritoryName());
         answers.add(insurance.getNumber());
-        answers.add(pregnancy.getRegistrationDate());
+        answers.add(pregnancy.getFirstVisitDate()); // Дата первого осмотра
         answers.add(pregnancy.getFirstVisitWeekOfPregnancy());
         answers.add(pregnancy.getFromAnotherMedOrganizationReason());
         answers.add(pregnancy.getNameOfAnotherMedOrganization());

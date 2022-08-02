@@ -59,6 +59,7 @@ public class MedCardDto {
     private String bloodHiv;
     private String bloodHivPartner;
     private LocalDate registrationDate;
+    private LocalDate firstVisitDate;
     private Integer firstVisitWeekOfPregnancy;
     private String fromAnotherMedOrganizationReason;
     private String nameOfAnotherMedOrganization;

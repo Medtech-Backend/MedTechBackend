@@ -68,13 +68,13 @@ public class PatientService {
         Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
                 .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + patient.getId()));
 
-        if (pregnancy.getRegistrationDate() == null || pregnancy.getFirstVisitWeekOfPregnancy() == null) {
+        if (pregnancy.getFirstVisitDate() == null || pregnancy.getFirstVisitWeekOfPregnancy() == null) {
             return 0;
         }
 
-        LocalDate registrationDate = pregnancy.getRegistrationDate();
+        LocalDate firstVisitDate = pregnancy.getFirstVisitDate();
         LocalDate currentDate = LocalDate.now(ZoneId.systemDefault());
-        long diffInDays = ChronoUnit.DAYS.between(registrationDate, currentDate);
+        long diffInDays = ChronoUnit.DAYS.between(firstVisitDate, currentDate);
         long diffInWeeks = diffInDays / 7;
         return pregnancy.getFirstVisitWeekOfPregnancy() + (int) diffInWeeks;
     }
@@ -179,6 +179,7 @@ public class PatientService {
         pregnancy.setBloodHiv(registerPatientDto.getBloodHiv());
         pregnancy.setBloodHivPartner(registerPatientDto.getBloodHivPartner());
         pregnancy.setRegistrationDate(registerPatientDto.getRegistrationDate());
+        pregnancy.setFirstVisitDate(registerPatientDto.getFirstVisitDate());
         pregnancy.setFromAnotherMedOrganizationReason(registerPatientDto.getFromAnotherMedOrganizationReason());
         pregnancy.setNameOfAnotherMedOrganization(registerPatientDto.getNameOfAnotherMedOrganization());
         pregnancy.setPregnancyNumber(registerPatientDto.getPregnancyNumber());
@@ -317,6 +318,7 @@ public class PatientService {
         medCardDto.setBloodHiv(pregnancy.getBloodHiv());
         medCardDto.setBloodHivPartner(pregnancy.getBloodHivPartner());
         medCardDto.setRegistrationDate(pregnancy.getRegistrationDate());
+        medCardDto.setFirstVisitDate(pregnancy.getFirstVisitDate());
         medCardDto.setFirstVisitWeekOfPregnancy(pregnancy.getFirstVisitWeekOfPregnancy());
         medCardDto.setFromAnotherMedOrganizationReason(pregnancy.getFromAnotherMedOrganizationReason());
         medCardDto.setNameOfAnotherMedOrganization(pregnancy.getNameOfAnotherMedOrganization());
@@ -431,6 +433,7 @@ public class PatientService {
         pregnancy.setBloodHiv(updateMedCard.getBloodHiv());
         pregnancy.setBloodHivPartner(updateMedCard.getBloodHivPartner());
         pregnancy.setRegistrationDate(updateMedCard.getRegistrationDate());
+        pregnancy.setFirstVisitDate(updateMedCard.getFirstVisitDate());
         pregnancy.setFromAnotherMedOrganizationReason(updateMedCard.getFromAnotherMedOrganizationReason());
         pregnancy.setNameOfAnotherMedOrganization(updateMedCard.getNameOfAnotherMedOrganization());
         pregnancy.setPregnancyNumber(updateMedCard.getPregnancyNumber());
