@@ -2,12 +2,18 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.Role;
+import com.project.medtech.exception.ResourceNotFoundException;
+import com.project.medtech.exporter.MedCardExcelExporter;
 import com.project.medtech.exporter.PatientExcelExporter;
+import com.project.medtech.model.Patient;
 import com.project.medtech.model.User;
+import com.project.medtech.repository.PatientRepository;
+import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.UserRepository;
 import com.project.medtech.service.PatientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,23 +34,60 @@ public class PatientController {
 
     private final PatientService patientService;
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
+    private final PregnancyRepository pregnancyRepository;
 
     @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
-    @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
-
+    @GetMapping("/excel/get-patients")
+    public void exportPatientsToExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
         String currentDateTime = dateFormatter.format(new Date());
 
-        String headerKey = "Content-Disposition ";
-        String headerValue = "attachment; filename=patients_" + currentDateTime + ".xlsx";
+        String fileName = "patients_" + currentDateTime + ".xlsx";
+
+        fileName = fileName.replaceAll(":", "-");
+
+        String headerValue = "attachment; filename=" + fileName;
+
         response.setHeader(headerKey, headerValue);
+
         List<User> users = userRepository.findAll(Role.PATIENT);
 
         PatientExcelExporter excelExporter = new PatientExcelExporter(users, patientService);
-        excelExporter.export(response);
 
+        excelExporter.export(response);
+    }
+
+    @ApiOperation(value = "скачивание мед. карты определенного пациента")
+    @GetMapping("/excel/med-card/{patientId}")
+    public void exportMedCardToExcel(HttpServletResponse response, @ApiParam(value = "введите ID пациента") @PathVariable Long patientId) throws IOException {
+        response.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String fileName = "med-card_" + currentDateTime + ".xlsx";
+
+        fileName = fileName.replaceAll(":", "-");
+
+        String headerValue = "attachment; filename=" + fileName;
+
+        response.setHeader(headerKey, headerValue);
+
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient was not found with ID: " + patientId));
+
+        MedCardExcelExporter medCardExcelExporter = new MedCardExcelExporter(pregnancyRepository, patient);
+
+        medCardExcelExporter.export(response);
     }
 
     @ApiOperation(value = "вывод настоящей недели беременности по ID пациента")
@@ -100,5 +143,4 @@ public class PatientController {
     ResponseEntity<List<PatientDataDto>> getAll(){
         return ResponseEntity.ok(patientService.getAllPatients());
     }
-
 }
