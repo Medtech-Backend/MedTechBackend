@@ -34,6 +34,7 @@ public class AuthService {
             return new AuthResponse(accessToken, refreshToken, user.getUserId(),
                     user.getEmail(), user.isOtpUsed(), user.getRole().name());
         } else {
+            // FIXME: 03.08.2022 Не думаю хорошей идеей в эксепшн возвращать пароль
             throw new AuthException("Incorrect password for email: " + authRequest.getPassword());
         }
     }

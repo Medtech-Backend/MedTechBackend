@@ -26,6 +26,7 @@ public class AnswerService {
     private final CheckListRepository checkListRepository;
 
 
+    // TODO: 03.08.2022 Code style в Intellij IDEA ctrl + alt + L (попробуйте так покрасивее будет)
     public List<AnswerDto> answer(List<AnswerForQuestionDto> dtoList){
         List<AnswerDto> response = new ArrayList<>();
         for(AnswerForQuestionDto dto : dtoList){

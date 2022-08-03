@@ -11,4 +11,8 @@ import java.util.Optional;
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     @Query("SELECT d FROM Doctor d WHERE d.user.userId = ?1")
     Optional<Doctor> findDoctorByUser(Long id);
+
+    // TODO: 03.08.2022 Данный метод анологичен верхнему
+    // в JPA можно искать по фильтрам вложенных объектов
+    Optional<Doctor> findByUser_UserId(Long userId);
 }

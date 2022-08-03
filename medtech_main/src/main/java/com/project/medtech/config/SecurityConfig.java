@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String host;
     @Value("${spring.mail.port}")
     private int port;
+    // FIXME: 03.08.2022 Почему бы не хранить в ENUM ?
     @Value("#{'${appointments.list}'.split(',')}")
     private List<String> appointments;
 

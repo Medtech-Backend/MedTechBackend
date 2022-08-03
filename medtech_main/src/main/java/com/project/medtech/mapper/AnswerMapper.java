@@ -3,6 +3,7 @@ package com.project.medtech.mapper;
 import com.project.medtech.dto.AnswerDto;
 import com.project.medtech.model.Answer;
 
+// TODO: 03.08.2022 Можно использовать Mapstruct (https://www.baeldung.com/mapstruct) будет полегче
 public class AnswerMapper {
 
     public static Answer DtoToEntity(AnswerDto dto) {

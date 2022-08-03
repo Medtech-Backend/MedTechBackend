@@ -28,6 +28,7 @@ public class EmailSenderService {
         String content = "";
         char[] otp = new char[0];
 
+        // FIXME: 03.08.2022 В данном случае можно было загнать типы в ENUM и внутри хранить шаблон сообщения, а для подставления значении использовать String.format(#{Шаблон}, #{подставляемые значения});
         if (type.equals("otp")) {
             otp = generate(true);
             helper.setFrom("trustmed.team3@gmail.com");

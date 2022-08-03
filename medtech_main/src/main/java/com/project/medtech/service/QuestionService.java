@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,8 @@ public class QuestionService {
 
     public List<QuestionDto> getAllQuestion() {
         List<Question> list = questionRepository.findAll();
+        // TODO: 03.08.2022 Можно было так через стрим замапить
+        // return questionRepository.findAll().stream().map(QuestionMapper::EntityToDto).collect(Collectors.toList());
         List<QuestionDto> listDto = new ArrayList<>();
         for(Question question : list ){
             listDto.add(QuestionMapper.EntityToDto(question));

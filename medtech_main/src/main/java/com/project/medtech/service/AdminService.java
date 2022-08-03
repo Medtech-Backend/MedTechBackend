@@ -35,6 +35,16 @@ public class AdminService {
         return registerAdminDto;
     }
 
+    // TODO: 03.08.2022 В нескольких местах определяется данный метод
+    // Нужно было вытащить как бин
+//    @Bean
+//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+    // и в сервисах где она используется
+    // private final BCryptPasswordEncoder passwordEncoder;
+    // и так как у тебя сервисы анотированы @RequiredArgsConstructor
+    // при создании экземпляра класса Спринг для переменной получит с бина
     protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
