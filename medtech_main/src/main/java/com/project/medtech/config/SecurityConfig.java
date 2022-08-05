@@ -127,11 +127,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
         }
 
-        UserEntity user = userRepository.findByEmail("tilekju3@gmail.com");
+        UserEntity user = userRepository.findByEmail("trustmed.team3@gmail.com");
 
         if (user == null) {
             UserEntity superAdmin = new UserEntity();
-            superAdmin.setEmail("tilekju@gmail.com");
+            superAdmin.setEmail("trustmed.team3@gmail.com");
             superAdmin.setPassword("$2a$12$UNNiXe1QGTWoyzJ.U13o.OUNbhXu1ejDsflbK0EwCajpPgn3inD/a");
             superAdmin.setFirstName("Neobis");
             superAdmin.setLastName("Team");
