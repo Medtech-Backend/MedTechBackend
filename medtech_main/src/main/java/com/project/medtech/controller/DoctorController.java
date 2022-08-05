@@ -48,7 +48,7 @@ public class DoctorController {
         String headerKey = "Content-Disposition ";
         String headerValue = "attachment; filename=doctors_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        List<UserEntity> userEntities = userRepository.findAll(Role.DOCTOR);
+        List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
 
         DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities);
         excelExporter.export(response);

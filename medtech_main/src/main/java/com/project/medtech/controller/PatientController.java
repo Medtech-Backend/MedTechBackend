@@ -60,7 +60,7 @@ public class PatientController {
 
         response.setHeader(headerKey, headerValue);
 
-        List<UserEntity> userEntities = userRepository.findAll(Role.PATIENT);
+        List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.PATIENT.name());
 
         PatientExcelExporter excelExporter = new PatientExcelExporter(userEntities, patientService);
 
