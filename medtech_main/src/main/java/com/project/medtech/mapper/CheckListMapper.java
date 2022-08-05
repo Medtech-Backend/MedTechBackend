@@ -2,29 +2,29 @@ package com.project.medtech.mapper;
 
 
 import com.project.medtech.dto.CheckListDto;
-import com.project.medtech.model.CheckList;
+import com.project.medtech.model.CheckListEntity;
 
 public class CheckListMapper {
-    public static CheckList DtoToEntity(CheckListDto dto) {
+    public static CheckListEntity DtoToEntity(CheckListDto dto) {
 
-        CheckList entity = new CheckList();
+        CheckListEntity entity = new CheckListEntity();
         entity.setId(dto.getId());
-        entity.setPatient(dto.getPatient());
-        entity.setDoctor(dto.getDoctor());
+        entity.setPatientEntity(dto.getPatientEntity());
+        entity.setDoctorEntity(dto.getDoctorEntity());
         entity.setTime(dto.getTime());
         entity.setDate(dto.getDate());
-        entity.setAnswers(dto.getAnswers());
+        entity.setAnswerEntities(dto.getAnswerEntities());
         return entity;
     }
-    public static CheckListDto EntityToDto(CheckList entity) {
+    public static CheckListDto EntityToDto(CheckListEntity entity) {
 
         CheckListDto dto = new CheckListDto();
         dto.setId(entity.getId());
-        dto.setPatient(entity.getPatient());
-        dto.setDoctor(entity.getDoctor());
+        dto.setPatientEntity(entity.getPatientEntity());
+        dto.setDoctorEntity(entity.getDoctorEntity());
         dto.setTime(entity.getTime());
         dto.setDate(entity.getDate());
-        dto.setAnswers(entity.getAnswers());
+        dto.setAnswerEntities(entity.getAnswerEntities());
         return dto;
     }
 }

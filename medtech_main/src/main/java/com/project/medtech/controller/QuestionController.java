@@ -6,7 +6,6 @@ import com.project.medtech.service.QuestionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +18,8 @@ import java.util.List;
 @Api( "REST APIs related to `Question` Entity")
 public class QuestionController {
 
-
     private final QuestionService questionService;
+
 
     @ApiOperation(value = "вывод всех стандартных вопросов чек-листа")
     @GetMapping(value="/get-all")

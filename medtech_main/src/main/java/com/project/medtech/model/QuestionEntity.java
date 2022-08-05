@@ -12,16 +12,18 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`question`")
-public class Question {
+public class QuestionEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "question_seq")
+            generator = "question_seq"
+    )
     @SequenceGenerator(
             name = "question_seq",
             sequenceName = "question_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false)

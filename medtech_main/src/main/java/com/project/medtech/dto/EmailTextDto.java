@@ -13,4 +13,5 @@ public class EmailTextDto {
 
     private String email;
     private String text;
+
 }

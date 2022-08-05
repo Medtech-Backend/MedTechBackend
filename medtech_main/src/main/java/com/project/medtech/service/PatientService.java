@@ -10,11 +10,11 @@ import com.project.medtech.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -24,342 +24,363 @@ import java.util.*;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+
     private final PregnancyRepository pregnancyRepository;
+
     private final CheckListRepository checkListRepository;
+
     private final UserRepository userRepository;
+
     private final DoctorRepository doctorRepository;
+
     private final EmailSenderService emailSenderService;
+
     private final AddressRepository addressRepository;
+
     private final InsuranceRepository insuranceRepository;
+
     private final AppointmentRepository appointmentRepository;
+
     private final AppointmentTypeRepository appointmentTypeRepository;
 
-    public PatientDto getInfo() {
-        User user = getAuthentication();
+    private final PasswordEncoder passwordEncoder;
 
-        Patient patient = patientRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
+    private final RoleRepository roleRepository;
+
+
+    public PatientDto getInfo() {
+        UserEntity userEntity = getAuthentication();
+
+        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + userEntity.getUserId()));
 
         PatientDto patientDto = new PatientDto();
-        patientDto.setEmail(user.getEmail());
-        patientDto.setBirthday(patient.getBirthday());
-        patientDto.setAddress(patient.getAddress().getPatientAddress());
-        patientDto.setFullName(user.getLastName() + " " + user.getFirstName() + " " + user.getMiddleName());
-        patientDto.setPhoneNumber(user.getPhoneNumber());
-        patientDto.setPatientId(patient.getId());
-        patientDto.setWeekOfPregnancy(calculateCurrentWeekOfPregnancy(user.getEmail()));
+        patientDto.setEmail(userEntity.getEmail());
+        patientDto.setBirthday(patientEntity.getBirthday());
+        patientDto.setAddress(patientEntity.getAddressEntity().getPatientAddress());
+        patientDto.setFullName(userEntity.getLastName() + " " + userEntity.getFirstName() + " " + userEntity.getMiddleName());
+        patientDto.setPhoneNumber(userEntity.getPhoneNumber());
+        patientDto.setPatientId(patientEntity.getId());
+        patientDto.setWeekOfPregnancy(calculateCurrentWeekOfPregnancy(userEntity.getEmail()));
 
         return patientDto;
     }
+
     public Integer getCurrentWeekOfPregnancy() {
-        User user = getAuthentication();
-        return calculateCurrentWeekOfPregnancy(user.getEmail());
+        UserEntity userEntity = getAuthentication();
+        return calculateCurrentWeekOfPregnancy(userEntity.getEmail());
     }
 
     public Integer calculateCurrentWeekOfPregnancy(String email) {
-        User user = userRepository.findByEmail(email);
+        UserEntity userEntity = userRepository.findByEmail(email);
 
-        if(user == null) {
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + email);
         }
 
-        Patient patient = user.getPatient();
+        PatientEntity patientEntity = userEntity.getPatientEntity();
 
-        Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + patient.getId()));
+        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + patientEntity.getId()));
 
-        if (pregnancy.getFirstVisitDate() == null || pregnancy.getFirstVisitWeekOfPregnancy() == null) {
+        if (pregnancyEntity.getFirstVisitDate() == null || pregnancyEntity.getFirstVisitWeekOfPregnancy() == null) {
             return 0;
         }
 
-        LocalDate firstVisitDate = pregnancy.getFirstVisitDate();
+        LocalDate firstVisitDate = pregnancyEntity.getFirstVisitDate();
         LocalDate currentDate = LocalDate.now(ZoneId.systemDefault());
         long diffInDays = ChronoUnit.DAYS.between(firstVisitDate, currentDate);
         long diffInWeeks = diffInDays / 7;
-        return pregnancy.getFirstVisitWeekOfPregnancy() + (int) diffInWeeks;
+        return pregnancyEntity.getFirstVisitWeekOfPregnancy() + (int) diffInWeeks;
     }
 
     public List<CheckListInfoDto> getAllPatientsCheckLists(Long reqPat) {
-        Patient patient = patientRepository.findById(reqPat)
+        PatientEntity patientEntity = patientRepository.findById(reqPat)
                 .orElseThrow(() -> new ResourceNotFoundException("No Patient with ID : " + reqPat));
-        List<CheckList> list = checkListRepository.findAllByPatient(patient);
+        List<CheckListEntity> list = checkListRepository.findAllByPatientEntity(patientEntity);
         List<CheckListInfoDto> listDto = new ArrayList<>();
 
-        for (CheckList checkList : list) {
-            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkList));
+        for (CheckListEntity checkListEntity : list) {
+            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkListEntity));
         }
 
         return listDto;
     }
 
     public PhoneNumberDto changePhoneNumber(PhoneNumberDto phoneNumberDto) {
-        User user = getAuthentication();
-        user.setPhoneNumber(phoneNumberDto.getPhoneNumber());
+        UserEntity userEntity = getAuthentication();
+        userEntity.setPhoneNumber(phoneNumberDto.getPhoneNumber());
 
-        userRepository.save(user);
+        userRepository.save(userEntity);
 
         return phoneNumberDto;
     }
 
     public AddressDto changeAddress(AddressDto addressDto) {
-        User user = getAuthentication();
+        UserEntity userEntity = getAuthentication();
 
-        Patient patient = patientRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + user.getUserId()));
+        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + userEntity.getUserId()));
 
-        Address address = addressRepository.findByPatientId(patient.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Address with patient_id: " + user.getUserId()));
+        AddressEntity addressEntity = addressRepository.findByPatientEntityId(patientEntity.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Address with patient_id: " + userEntity.getUserId()));
 
-        address.setPatientAddress(addressDto.getAddress());
+        addressEntity.setPatientAddress(addressDto.getAddress());
 
-        addressRepository.save(address);
+        addressRepository.save(addressEntity);
 
         return addressDto;
     }
 
     public MedCardDto registerPatient(MedCardDto registerPatientDto) {
-        User user = new User();
-        user.setFirstName(registerPatientDto.getFirstName());
-        user.setLastName(registerPatientDto.getLastName());
-        user.setMiddleName(registerPatientDto.getMiddleName());
-        user.setEmail(registerPatientDto.getEmail());
-        user.setPhoneNumber(registerPatientDto.getPhoneNumber());
-        user.setOtpUsed(false);
-        user.setRole(Role.PATIENT);
-        user.setStatus(Status.ACTIVE);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setFirstName(registerPatientDto.getFirstName());
+        userEntity.setLastName(registerPatientDto.getLastName());
+        userEntity.setMiddleName(registerPatientDto.getMiddleName());
+        userEntity.setEmail(registerPatientDto.getEmail());
+        userEntity.setPhoneNumber(registerPatientDto.getPhoneNumber());
+        userEntity.setOtpUsed(false);
+        RoleEntity roleEntity = roleRepository.findByName("PATIENT")
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException("No role was found with name: PATIENT")
+                );
+        userEntity.setRoleEntity(roleEntity);
+        userEntity.setStatus(Status.ACTIVE);
         String password = emailSenderService.send(registerPatientDto.getEmail(), "otp");
-        user.setPassword(passwordEncoder().encode(password));
+        userEntity.setPassword(passwordEncoder.encode(password));
 
-        Patient patient = new Patient();
-        patient.setPregnancy(new ArrayList<>());
-        patient.setUser(user);
-        patient.setBirthday(registerPatientDto.getBirthday());
-        patient.setAge(registerPatientDto.getAge());
-        patient.setPin(registerPatientDto.getPin());
-        patient.setCitizenship(registerPatientDto.getCitizenship());
-        patient.setPatientCategory(registerPatientDto.getPatientCategory());
-        patient.setWorkPlace(registerPatientDto.getWorkPlace());
-        patient.setPosition(registerPatientDto.getPosition());
-        patient.setWorkConditions(registerPatientDto.getWorkConditions());
-        patient.setWorksNow(registerPatientDto.getWorksNow());
-        patient.setHusbandFirstName(registerPatientDto.getHusbandFirstName());
-        patient.setHusbandLastName(registerPatientDto.getHusbandLastName());
-        patient.setHusbandMiddleName(registerPatientDto.getHusbandMiddleName());
-        patient.setHusbandWorkPlace(registerPatientDto.getHusbandWorkPlace());
-        patient.setHusbandPosition(registerPatientDto.getHusbandPosition());
-        patient.setHusbandPhoneNumber(registerPatientDto.getHusbandPhoneNumber());
-        patient.setMarried(registerPatientDto.getMarried());
-        patient.setEducation(registerPatientDto.getEducation());
-        patient.setUser(user);
+        PatientEntity patientEntity = new PatientEntity();
+        patientEntity.setPregnancy(new ArrayList<>());
+        patientEntity.setUserEntity(userEntity);
+        patientEntity.setBirthday(registerPatientDto.getBirthday());
+        patientEntity.setAge(calculateAge(registerPatientDto.getBirthday()));
+        patientEntity.setPin(registerPatientDto.getPin());
+        patientEntity.setCitizenship(registerPatientDto.getCitizenship());
+        patientEntity.setPatientCategory(registerPatientDto.getPatientCategory());
+        patientEntity.setWorkPlace(registerPatientDto.getWorkPlace());
+        patientEntity.setPosition(registerPatientDto.getPosition());
+        patientEntity.setWorkConditions(registerPatientDto.getWorkConditions());
+        patientEntity.setWorksNow(registerPatientDto.getWorksNow());
+        patientEntity.setHusbandFirstName(registerPatientDto.getHusbandFirstName());
+        patientEntity.setHusbandLastName(registerPatientDto.getHusbandLastName());
+        patientEntity.setHusbandMiddleName(registerPatientDto.getHusbandMiddleName());
+        patientEntity.setHusbandWorkPlace(registerPatientDto.getHusbandWorkPlace());
+        patientEntity.setHusbandPosition(registerPatientDto.getHusbandPosition());
+        patientEntity.setHusbandPhoneNumber(registerPatientDto.getHusbandPhoneNumber());
+        patientEntity.setMarried(registerPatientDto.getMarried());
+        patientEntity.setEducation(registerPatientDto.getEducation());
+        patientEntity.setUserEntity(userEntity);
 
-        Address address = new Address();
-        address.setPatientAddress(registerPatientDto.getPatientAddress());
-        address.setPhoneNumber(registerPatientDto.getPatientHomePhoneNumber());
-        address.setRelativeAddress(registerPatientDto.getRelativeAddress());
-        address.setRelativePhoneNumber(registerPatientDto.getRelativePhoneNumber());
-        address.setPatient(patient);
+        AddressEntity addressEntity = new AddressEntity();
+        addressEntity.setPatientAddress(registerPatientDto.getPatientAddress());
+        addressEntity.setPhoneNumber(registerPatientDto.getPatientHomePhoneNumber());
+        addressEntity.setRelativeAddress(registerPatientDto.getRelativeAddress());
+        addressEntity.setRelativePhoneNumber(registerPatientDto.getRelativePhoneNumber());
+        addressEntity.setPatientEntity(patientEntity);
 
-        Insurance insurance = new Insurance();
-        insurance.setTerritoryName(registerPatientDto.getInsuranceTerritoryName());
-        insurance.setNumber(registerPatientDto.getInsuranceNumber());
-        insurance.setPatient(patient);
+        InsuranceEntity insuranceEntity = new InsuranceEntity();
+        insuranceEntity.setTerritoryName(registerPatientDto.getInsuranceTerritoryName());
+        insuranceEntity.setNumber(registerPatientDto.getInsuranceNumber());
+        insuranceEntity.setPatientEntity(patientEntity);
 
-        User userDoctor = userRepository.findByEmail(registerPatientDto.getDoctor());
-        Doctor doctor = doctorRepository.findDoctorByUser(userDoctor.getUserId())
+        UserEntity userEntityDoctor = userRepository.findByEmail(registerPatientDto.getDoctor());
+        DoctorEntity doctorEntity = doctorRepository.findDoctorByUser(userEntityDoctor.getUserId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Doctor was not found with user_id: " + userDoctor.getUserId()));
+                        new ResourceNotFoundException("Doctor was not found with user_id: " + userEntityDoctor.getUserId()));
 
-        Pregnancy pregnancy = new Pregnancy();
-        pregnancy.setDoctor(doctor);
-        pregnancy.setBloodType(registerPatientDto.getBloodType());
-        pregnancy.setRhFactorPregnant(registerPatientDto.getRhFactorPregnant());
-        pregnancy.setRhFactorPartner(registerPatientDto.getRhFactorPartner());
-        pregnancy.setTiterRhFactorInTwentyEightMonth(registerPatientDto.getTiterRhFactorInTwentyEightMonth());
-        pregnancy.setBloodRw(registerPatientDto.getBloodRw());
-        pregnancy.setBloodHiv(registerPatientDto.getBloodHiv());
-        pregnancy.setBloodHivPartner(registerPatientDto.getBloodHivPartner());
-        pregnancy.setRegistrationDate(registerPatientDto.getRegistrationDate());
-        pregnancy.setFirstVisitDate(registerPatientDto.getFirstVisitDate());
-        pregnancy.setFromAnotherMedOrganizationReason(registerPatientDto.getFromAnotherMedOrganizationReason());
-        pregnancy.setNameOfAnotherMedOrganization(registerPatientDto.getNameOfAnotherMedOrganization());
-        pregnancy.setPregnancyNumber(registerPatientDto.getPregnancyNumber());
-        pregnancy.setChildbirthNumber(registerPatientDto.getChildbirthNumber());
-        pregnancy.setGestationalAgeByLastMenstruation(registerPatientDto.getGestationalAgeByLastMenstruation());
-        pregnancy.setGestationalAgeByUltrasound(registerPatientDto.getGestationalAgeByUltrasound());
-        pregnancy.setEstimatedDateOfBirth(registerPatientDto.getEstimatedDateOfBirth());
-        pregnancy.setLateRegistrationReason(registerPatientDto.getLateRegistrationReason());
-        pregnancy.setFirstVisitWeekOfPregnancy(registerPatientDto.getFirstVisitWeekOfPregnancy());
-        pregnancy.setFirstVisitComplaints(registerPatientDto.getFirstVisitComplaints());
-        pregnancy.setFirstVisitGrowth(registerPatientDto.getFirstVisitGrowth());
-        pregnancy.setFirstVisitWeight(registerPatientDto.getFirstVisitWeight());
+        PregnancyEntity pregnancyEntity = new PregnancyEntity();
+        pregnancyEntity.setDoctorEntity(doctorEntity);
+        pregnancyEntity.setBloodType(registerPatientDto.getBloodType());
+        pregnancyEntity.setRhFactorPregnant(registerPatientDto.getRhFactorPregnant());
+        pregnancyEntity.setRhFactorPartner(registerPatientDto.getRhFactorPartner());
+        pregnancyEntity.setTiterRhFactorInTwentyEightMonth(registerPatientDto.getTiterRhFactorInTwentyEightMonth());
+        pregnancyEntity.setBloodRw(registerPatientDto.getBloodRw());
+        pregnancyEntity.setBloodHiv(registerPatientDto.getBloodHiv());
+        pregnancyEntity.setBloodHivPartner(registerPatientDto.getBloodHivPartner());
+        pregnancyEntity.setRegistrationDate(registerPatientDto.getRegistrationDate());
+        pregnancyEntity.setFirstVisitDate(registerPatientDto.getFirstVisitDate());
+        pregnancyEntity.setFromAnotherMedOrganizationReason(registerPatientDto.getFromAnotherMedOrganizationReason());
+        pregnancyEntity.setNameOfAnotherMedOrganization(registerPatientDto.getNameOfAnotherMedOrganization());
+        pregnancyEntity.setPregnancyNumber(registerPatientDto.getPregnancyNumber());
+        pregnancyEntity.setChildbirthNumber(registerPatientDto.getChildbirthNumber());
+        pregnancyEntity.setGestationalAgeByLastMenstruation(registerPatientDto.getGestationalAgeByLastMenstruation());
+        pregnancyEntity.setGestationalAgeByUltrasound(registerPatientDto.getGestationalAgeByUltrasound());
+        pregnancyEntity.setEstimatedDateOfBirth(registerPatientDto.getEstimatedDateOfBirth());
+        pregnancyEntity.setLateRegistrationReason(registerPatientDto.getLateRegistrationReason());
+        pregnancyEntity.setFirstVisitWeekOfPregnancy(registerPatientDto.getFirstVisitWeekOfPregnancy());
+        pregnancyEntity.setFirstVisitComplaints(registerPatientDto.getFirstVisitComplaints());
+        pregnancyEntity.setFirstVisitGrowth(registerPatientDto.getFirstVisitGrowth());
+        pregnancyEntity.setFirstVisitWeight(registerPatientDto.getFirstVisitWeight());
         if (registerPatientDto.getFirstVisitGrowth() != null && registerPatientDto.getFirstVisitWeight() != null) {
-            pregnancy.setBodyMassIndex(calculateBmx(registerPatientDto.getFirstVisitWeight(), registerPatientDto.getFirstVisitGrowth()));
+            pregnancyEntity.setBodyMassIndex(calculateBmx(registerPatientDto.getFirstVisitWeight(), registerPatientDto.getFirstVisitGrowth()));
         }
-        pregnancy.setSkinAndMucousMembranes(registerPatientDto.getSkinAndMucousMembranes());
-        pregnancy.setThyroid(registerPatientDto.getThyroid());
-        pregnancy.setMilkGlands(registerPatientDto.getMilkGlands());
-        pregnancy.setPeripheralLymphNodes(registerPatientDto.getPeripheralLymphNodes());
-        pregnancy.setRespiratorySystem(registerPatientDto.getRespiratorySystem());
-        pregnancy.setCardiovascularSystem(registerPatientDto.getCardiovascularSystem());
-        pregnancy.setArterialPressure(registerPatientDto.getArterialPressure());
-        pregnancy.setDigestiveSystem(registerPatientDto.getDigestiveSystem());
-        pregnancy.setUrinarySystem(registerPatientDto.getUrinarySystem());
-        pregnancy.setEdema(registerPatientDto.getEdema());
-        pregnancy.setBonePelvis(registerPatientDto.getBonePelvis());
-        pregnancy.setUterineFundusHeight(registerPatientDto.getUterineFundusHeight());
-        pregnancy.setFetalHeartbeat(registerPatientDto.getFetalHeartbeat());
-        pregnancy.setExternalGenitalia(registerPatientDto.getExternalGenitalia());
-        pregnancy.setExaminationOfCervixInMirrors(registerPatientDto.getExaminationOfCervixInMirrors());
-        pregnancy.setBimanualStudy(registerPatientDto.getBimanualStudy());
-        pregnancy.setVaginalDischarge(registerPatientDto.getVaginalDischarge());
-        pregnancy.setProvisionalDiagnosis(registerPatientDto.getProvisionalDiagnosis());
-        pregnancy.setVacationFromForPregnancy(registerPatientDto.getVacationFromForPregnancy());
-        pregnancy.setVacationUntilForPregnancy(registerPatientDto.getVacationUntilForPregnancy());
-        pregnancy.setAllergicToDrugs(registerPatientDto.getAllergicToDrugs());
-        pregnancy.setPastIllnessesAndSurgeries(registerPatientDto.getPastIllnessesAndSurgeries());
+        pregnancyEntity.setSkinAndMucousMembranes(registerPatientDto.getSkinAndMucousMembranes());
+        pregnancyEntity.setThyroid(registerPatientDto.getThyroid());
+        pregnancyEntity.setMilkGlands(registerPatientDto.getMilkGlands());
+        pregnancyEntity.setPeripheralLymphNodes(registerPatientDto.getPeripheralLymphNodes());
+        pregnancyEntity.setRespiratorySystem(registerPatientDto.getRespiratorySystem());
+        pregnancyEntity.setCardiovascularSystem(registerPatientDto.getCardiovascularSystem());
+        pregnancyEntity.setArterialPressure(registerPatientDto.getArterialPressure());
+        pregnancyEntity.setDigestiveSystem(registerPatientDto.getDigestiveSystem());
+        pregnancyEntity.setUrinarySystem(registerPatientDto.getUrinarySystem());
+        pregnancyEntity.setEdema(registerPatientDto.getEdema());
+        pregnancyEntity.setBonePelvis(registerPatientDto.getBonePelvis());
+        pregnancyEntity.setUterineFundusHeight(registerPatientDto.getUterineFundusHeight());
+        pregnancyEntity.setFetalHeartbeat(registerPatientDto.getFetalHeartbeat());
+        pregnancyEntity.setExternalGenitalia(registerPatientDto.getExternalGenitalia());
+        pregnancyEntity.setExaminationOfCervixInMirrors(registerPatientDto.getExaminationOfCervixInMirrors());
+        pregnancyEntity.setBimanualStudy(registerPatientDto.getBimanualStudy());
+        pregnancyEntity.setVaginalDischarge(registerPatientDto.getVaginalDischarge());
+        pregnancyEntity.setProvisionalDiagnosis(registerPatientDto.getProvisionalDiagnosis());
+        pregnancyEntity.setVacationFromForPregnancy(registerPatientDto.getVacationFromForPregnancy());
+        pregnancyEntity.setVacationUntilForPregnancy(registerPatientDto.getVacationUntilForPregnancy());
+        pregnancyEntity.setAllergicToDrugs(registerPatientDto.getAllergicToDrugs());
+        pregnancyEntity.setPastIllnessesAndSurgeries(registerPatientDto.getPastIllnessesAndSurgeries());
 
-        List<AppointmentType> appointmentTypes = appointmentTypeRepository.findAll();
+        List<AppointmentTypeEntity> appointmentTypeEntities = appointmentTypeRepository.findAll();
+
         HashMap<String, String> map = registerPatientDto.getTypeResultAppointments();
-        appointmentTypes.forEach(
-                a -> {
-                    Appointment appointment = new Appointment();
-                    if(map.get(a.getName()) != null) {
-                        appointment.setAppointmentType(a);
-                        appointment.setResult(map.get(a.getName()));
-                        appointment.setPregnancy(pregnancy);
 
+        appointmentTypeEntities.forEach(
+                a -> {
+                    AppointmentEntity appointmentEntity = new AppointmentEntity();
+                    if (registerPatientDto.getTypeResultAppointments() != null && map.containsKey(a.getName())) {
+                        appointmentEntity.setAppointmentTypeEntity(a);
+                        appointmentEntity.setResult(map.get(a.getName()));
+                        appointmentEntity.setPregnancyEntity(pregnancyEntity);
                     } else {
-                        appointment.setAppointmentType(a);
-                        appointment.setResult("");
-                        appointment.setPregnancy(pregnancy);
+                        appointmentEntity.setAppointmentTypeEntity(a);
+                        appointmentEntity.setResult("");
+                        appointmentEntity.setPregnancyEntity(pregnancyEntity);
                     }
-                    appointmentRepository.save(appointment);
+                    appointmentRepository.save(appointmentEntity);
                 }
         );
 
-        pregnancyRepository.save(pregnancy);
+        pregnancyRepository.save(pregnancyEntity);
 
-        patient.setCurrentPregnancyId(pregnancy.getId());
+        patientEntity.setCurrentPregnancyId(pregnancyEntity.getId());
 
-        patient.getPregnancy().add(pregnancy);
+        patientEntity.getPregnancy().add(pregnancyEntity);
 
-        patientRepository.save(patient);
+        patientRepository.save(patientEntity);
 
-        userRepository.save(user);
+        userRepository.save(userEntity);
 
-        addressRepository.save(address);
+        addressRepository.save(addressEntity);
 
-        insuranceRepository.save(insurance);
+        insuranceRepository.save(insuranceEntity);
 
         return registerPatientDto;
     }
 
     public MedCardDto getPatientMedCardInfo(EmailDto email) {
-        User user = userRepository.findByEmail(email.getEmail());
+        UserEntity userEntity = userRepository.findByEmail(email.getEmail());
 
-        if (user == null) {
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + email.getEmail());
         }
 
-        Patient patient = patientRepository.findByUserUserId(user.getUserId())
+        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient was not found with user_id: " + user.getUserId())
+                        new ResourceNotFoundException("Patient was not found with user_id: " + userEntity.getUserId())
                 );
 
-        Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
+        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patient.getCurrentPregnancyId())
+                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patientEntity.getCurrentPregnancyId())
                 );
 
-        Doctor doctor = pregnancy.getDoctor();
+        DoctorEntity doctorEntity = pregnancyEntity.getDoctorEntity();
 
         MedCardDto medCardDto = new MedCardDto();
 
-        medCardDto.setEmail(user.getEmail());
-        medCardDto.setFirstName(user.getFirstName());
-        medCardDto.setLastName(user.getLastName());
-        medCardDto.setMiddleName(user.getMiddleName());
-        medCardDto.setPhoneNumber(user.getPhoneNumber());
+        medCardDto.setEmail(userEntity.getEmail());
+        medCardDto.setFirstName(userEntity.getFirstName());
+        medCardDto.setLastName(userEntity.getLastName());
+        medCardDto.setMiddleName(userEntity.getMiddleName());
+        medCardDto.setPhoneNumber(userEntity.getPhoneNumber());
 
-        medCardDto.setDoctor(doctor.getUser().getLastName() + doctor.getUser().getFirstName() + doctor.getUser().getMiddleName());
+        medCardDto.setDoctor(doctorEntity.getUserEntity().getLastName() + doctorEntity.getUserEntity().getFirstName() + doctorEntity.getUserEntity().getMiddleName());
 
-        medCardDto.setBirthday(patient.getBirthday());
-        medCardDto.setAge(patient.getAge());
-        medCardDto.setPin(patient.getPin());
-        medCardDto.setCitizenship(patient.getCitizenship());
-        medCardDto.setPatientCategory(patient.getPatientCategory());
-        medCardDto.setWorkPlace(patient.getWorkPlace());
-        medCardDto.setPosition(patient.getPosition());
-        medCardDto.setWorkConditions(patient.getWorkConditions());
-        medCardDto.setWorksNow(patient.getWorksNow());
-        medCardDto.setHusbandFirstName(patient.getHusbandFirstName());
-        medCardDto.setHusbandLastName(patient.getHusbandLastName());
-        medCardDto.setHusbandMiddleName(patient.getHusbandMiddleName());
-        medCardDto.setHusbandWorkPlace(patient.getHusbandWorkPlace());
-        medCardDto.setHusbandPosition(patient.getHusbandPosition());
-        medCardDto.setHusbandPhoneNumber(patient.getHusbandPhoneNumber());
+        medCardDto.setBirthday(patientEntity.getBirthday());
+        medCardDto.setAge(patientEntity.getAge());
+        medCardDto.setPin(patientEntity.getPin());
+        medCardDto.setCitizenship(patientEntity.getCitizenship());
+        medCardDto.setPatientCategory(patientEntity.getPatientCategory());
+        medCardDto.setWorkPlace(patientEntity.getWorkPlace());
+        medCardDto.setPosition(patientEntity.getPosition());
+        medCardDto.setWorkConditions(patientEntity.getWorkConditions());
+        medCardDto.setWorksNow(patientEntity.getWorksNow());
+        medCardDto.setHusbandFirstName(patientEntity.getHusbandFirstName());
+        medCardDto.setHusbandLastName(patientEntity.getHusbandLastName());
+        medCardDto.setHusbandMiddleName(patientEntity.getHusbandMiddleName());
+        medCardDto.setHusbandWorkPlace(patientEntity.getHusbandWorkPlace());
+        medCardDto.setHusbandPosition(patientEntity.getHusbandPosition());
+        medCardDto.setHusbandPhoneNumber(patientEntity.getHusbandPhoneNumber());
 
-        medCardDto.setMarried(patient.getMarried());
-        medCardDto.setEducation(patient.getEducation());
+        medCardDto.setMarried(patientEntity.getMarried());
+        medCardDto.setEducation(patientEntity.getEducation());
 
-        medCardDto.setPatientAddress(patient.getAddress().getPatientAddress());
-        medCardDto.setPatientHomePhoneNumber(patient.getAddress().getPhoneNumber());
-        medCardDto.setRelativeAddress(patient.getAddress().getRelativeAddress());
-        medCardDto.setRelativePhoneNumber(patient.getAddress().getRelativePhoneNumber());
+        medCardDto.setPatientAddress(patientEntity.getAddressEntity().getPatientAddress());
+        medCardDto.setPatientHomePhoneNumber(patientEntity.getAddressEntity().getPhoneNumber());
+        medCardDto.setRelativeAddress(patientEntity.getAddressEntity().getRelativeAddress());
+        medCardDto.setRelativePhoneNumber(patientEntity.getAddressEntity().getRelativePhoneNumber());
 
-        medCardDto.setInsuranceTerritoryName(patient.getInsurance().getTerritoryName());
-        medCardDto.setInsuranceNumber(patient.getInsurance().getNumber());
+        medCardDto.setInsuranceTerritoryName(patientEntity.getInsuranceEntity().getTerritoryName());
+        medCardDto.setInsuranceNumber(patientEntity.getInsuranceEntity().getNumber());
 
-        medCardDto.setBloodType(pregnancy.getBloodType());
-        medCardDto.setRhFactorPregnant(pregnancy.getRhFactorPregnant());
-        medCardDto.setRhFactorPartner(pregnancy.getRhFactorPartner());
-        medCardDto.setTiterRhFactorInTwentyEightMonth(pregnancy.getTiterRhFactorInTwentyEightMonth());
-        medCardDto.setBloodRw(pregnancy.getBloodRw());
-        medCardDto.setBloodHiv(pregnancy.getBloodHiv());
-        medCardDto.setBloodHivPartner(pregnancy.getBloodHivPartner());
-        medCardDto.setRegistrationDate(pregnancy.getRegistrationDate());
-        medCardDto.setFirstVisitDate(pregnancy.getFirstVisitDate());
-        medCardDto.setFirstVisitWeekOfPregnancy(pregnancy.getFirstVisitWeekOfPregnancy());
-        medCardDto.setFromAnotherMedOrganizationReason(pregnancy.getFromAnotherMedOrganizationReason());
-        medCardDto.setNameOfAnotherMedOrganization(pregnancy.getNameOfAnotherMedOrganization());
-        medCardDto.setPregnancyNumber(pregnancy.getPregnancyNumber());
-        medCardDto.setChildbirthNumber(pregnancy.getChildbirthNumber());
-        medCardDto.setGestationalAgeByLastMenstruation(pregnancy.getGestationalAgeByLastMenstruation());
-        medCardDto.setGestationalAgeByUltrasound(pregnancy.getGestationalAgeByUltrasound());
-        medCardDto.setEstimatedDateOfBirth(pregnancy.getEstimatedDateOfBirth());
-        medCardDto.setLateRegistrationReason(pregnancy.getLateRegistrationReason());
-        medCardDto.setFirstVisitComplaints(pregnancy.getFirstVisitComplaints());
-        medCardDto.setFirstVisitGrowth(pregnancy.getFirstVisitGrowth());
-        medCardDto.setFirstVisitWeight(pregnancy.getFirstVisitWeight());
-        medCardDto.setBodyMassIndex(pregnancy.getBodyMassIndex());
-        medCardDto.setSkinAndMucousMembranes(pregnancy.getSkinAndMucousMembranes());
-        medCardDto.setThyroid(pregnancy.getThyroid());
-        medCardDto.setMilkGlands(pregnancy.getMilkGlands());
-        medCardDto.setPeripheralLymphNodes(pregnancy.getPeripheralLymphNodes());
-        medCardDto.setRespiratorySystem(pregnancy.getRespiratorySystem());
-        medCardDto.setCardiovascularSystem(pregnancy.getCardiovascularSystem());
-        medCardDto.setArterialPressure(pregnancy.getArterialPressure());
-        medCardDto.setDigestiveSystem(pregnancy.getDigestiveSystem());
-        medCardDto.setUrinarySystem(pregnancy.getUrinarySystem());
-        medCardDto.setEdema(pregnancy.getEdema());
-        medCardDto.setBonePelvis(pregnancy.getBonePelvis());
-        medCardDto.setUterineFundusHeight(pregnancy.getUterineFundusHeight());
-        medCardDto.setFetalHeartbeat(pregnancy.getFetalHeartbeat());
-        medCardDto.setExternalGenitalia(pregnancy.getExternalGenitalia());
-        medCardDto.setExaminationOfCervixInMirrors(pregnancy.getExaminationOfCervixInMirrors());
-        medCardDto.setBimanualStudy(pregnancy.getBimanualStudy());
-        medCardDto.setVaginalDischarge(pregnancy.getVaginalDischarge());
-        medCardDto.setProvisionalDiagnosis(pregnancy.getProvisionalDiagnosis());
-        medCardDto.setVacationFromForPregnancy(pregnancy.getVacationFromForPregnancy());
-        medCardDto.setVacationUntilForPregnancy(pregnancy.getVacationUntilForPregnancy());
+        medCardDto.setBloodType(pregnancyEntity.getBloodType());
+        medCardDto.setRhFactorPregnant(pregnancyEntity.getRhFactorPregnant());
+        medCardDto.setRhFactorPartner(pregnancyEntity.getRhFactorPartner());
+        medCardDto.setTiterRhFactorInTwentyEightMonth(pregnancyEntity.getTiterRhFactorInTwentyEightMonth());
+        medCardDto.setBloodRw(pregnancyEntity.getBloodRw());
+        medCardDto.setBloodHiv(pregnancyEntity.getBloodHiv());
+        medCardDto.setBloodHivPartner(pregnancyEntity.getBloodHivPartner());
+        medCardDto.setRegistrationDate(pregnancyEntity.getRegistrationDate());
+        medCardDto.setFirstVisitDate(pregnancyEntity.getFirstVisitDate());
+        medCardDto.setFirstVisitWeekOfPregnancy(pregnancyEntity.getFirstVisitWeekOfPregnancy());
+        medCardDto.setFromAnotherMedOrganizationReason(pregnancyEntity.getFromAnotherMedOrganizationReason());
+        medCardDto.setNameOfAnotherMedOrganization(pregnancyEntity.getNameOfAnotherMedOrganization());
+        medCardDto.setPregnancyNumber(pregnancyEntity.getPregnancyNumber());
+        medCardDto.setChildbirthNumber(pregnancyEntity.getChildbirthNumber());
+        medCardDto.setGestationalAgeByLastMenstruation(pregnancyEntity.getGestationalAgeByLastMenstruation());
+        medCardDto.setGestationalAgeByUltrasound(pregnancyEntity.getGestationalAgeByUltrasound());
+        medCardDto.setEstimatedDateOfBirth(pregnancyEntity.getEstimatedDateOfBirth());
+        medCardDto.setLateRegistrationReason(pregnancyEntity.getLateRegistrationReason());
+        medCardDto.setFirstVisitComplaints(pregnancyEntity.getFirstVisitComplaints());
+        medCardDto.setFirstVisitGrowth(pregnancyEntity.getFirstVisitGrowth());
+        medCardDto.setFirstVisitWeight(pregnancyEntity.getFirstVisitWeight());
+        medCardDto.setBodyMassIndex(pregnancyEntity.getBodyMassIndex());
+        medCardDto.setSkinAndMucousMembranes(pregnancyEntity.getSkinAndMucousMembranes());
+        medCardDto.setThyroid(pregnancyEntity.getThyroid());
+        medCardDto.setMilkGlands(pregnancyEntity.getMilkGlands());
+        medCardDto.setPeripheralLymphNodes(pregnancyEntity.getPeripheralLymphNodes());
+        medCardDto.setRespiratorySystem(pregnancyEntity.getRespiratorySystem());
+        medCardDto.setCardiovascularSystem(pregnancyEntity.getCardiovascularSystem());
+        medCardDto.setArterialPressure(pregnancyEntity.getArterialPressure());
+        medCardDto.setDigestiveSystem(pregnancyEntity.getDigestiveSystem());
+        medCardDto.setUrinarySystem(pregnancyEntity.getUrinarySystem());
+        medCardDto.setEdema(pregnancyEntity.getEdema());
+        medCardDto.setBonePelvis(pregnancyEntity.getBonePelvis());
+        medCardDto.setUterineFundusHeight(pregnancyEntity.getUterineFundusHeight());
+        medCardDto.setFetalHeartbeat(pregnancyEntity.getFetalHeartbeat());
+        medCardDto.setExternalGenitalia(pregnancyEntity.getExternalGenitalia());
+        medCardDto.setExaminationOfCervixInMirrors(pregnancyEntity.getExaminationOfCervixInMirrors());
+        medCardDto.setBimanualStudy(pregnancyEntity.getBimanualStudy());
+        medCardDto.setVaginalDischarge(pregnancyEntity.getVaginalDischarge());
+        medCardDto.setProvisionalDiagnosis(pregnancyEntity.getProvisionalDiagnosis());
+        medCardDto.setVacationFromForPregnancy(pregnancyEntity.getVacationFromForPregnancy());
+        medCardDto.setVacationUntilForPregnancy(pregnancyEntity.getVacationUntilForPregnancy());
 
-        medCardDto.setAllergicToDrugs(pregnancy.getAllergicToDrugs());
-        medCardDto.setPastIllnessesAndSurgeries(pregnancy.getPastIllnessesAndSurgeries());
+        medCardDto.setAllergicToDrugs(pregnancyEntity.getAllergicToDrugs());
+        medCardDto.setPastIllnessesAndSurgeries(pregnancyEntity.getPastIllnessesAndSurgeries());
 
-        List<Appointment> appointments = pregnancy.getAppointments();
+        List<AppointmentEntity> appointmentEntities = pregnancyEntity.getAppointmentEntities();
         HashMap<String, String> appointmentsMap = new HashMap<>();
-        appointments.forEach(
-                a -> appointmentsMap.put(a.getAppointmentType().getName(), a.getResult())
+        appointmentEntities.forEach(
+                a -> appointmentsMap.put(a.getAppointmentTypeEntity().getName(), a.getResult())
         );
 
         medCardDto.setTypeResultAppointments(appointmentsMap);
@@ -368,142 +389,145 @@ public class PatientService {
     }
 
     public UpdateMedCard updateMedCard(UpdateMedCard updateMedCard) {
-        User user = userRepository.findById(updateMedCard.getUser_id())
+        UserEntity userEntity = userRepository.findById(updateMedCard.getUser_id())
                 .orElseThrow(
                         () -> new ResourceNotFoundException("User was not found with id: " + updateMedCard.getUser_id())
                 );
 
-        user.setFirstName(updateMedCard.getFirstName());
-        user.setLastName(updateMedCard.getLastName());
-        user.setMiddleName(updateMedCard.getMiddleName());
-        if(!updateMedCard.getEmail().equals(user.getEmail())) {
-            user.setEmail(updateMedCard.getEmail());
+        userEntity.setFirstName(updateMedCard.getFirstName());
+        userEntity.setLastName(updateMedCard.getLastName());
+        userEntity.setMiddleName(updateMedCard.getMiddleName());
+        if (!updateMedCard.getEmail().equals(userEntity.getEmail())) {
+            userEntity.setEmail(updateMedCard.getEmail());
         }
-        user.setPhoneNumber(updateMedCard.getPhoneNumber());
+        userEntity.setPhoneNumber(updateMedCard.getPhoneNumber());
 
-        Patient patient = patientRepository.findByUserUserId(user.getUserId())
+        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Patient was not found with user_id: " + user.getUserId())
+                        () -> new ResourceNotFoundException("Patient was not found with user_id: " + userEntity.getUserId())
                 );
 
-        patient.setBirthday(updateMedCard.getBirthday());
-        patient.setAge(updateMedCard.getAge());
-        patient.setPin(updateMedCard.getPin());
-        patient.setCitizenship(updateMedCard.getCitizenship());
-        patient.setPatientCategory(updateMedCard.getPatientCategory());
-        patient.setWorkPlace(updateMedCard.getWorkPlace());
-        patient.setPosition(updateMedCard.getPosition());
-        patient.setWorkConditions(updateMedCard.getWorkConditions());
-        patient.setWorksNow(updateMedCard.getWorksNow());
-        patient.setHusbandFirstName(updateMedCard.getHusbandFirstName());
-        patient.setHusbandLastName(updateMedCard.getHusbandLastName());
-        patient.setHusbandMiddleName(updateMedCard.getHusbandMiddleName());
-        patient.setHusbandWorkPlace(updateMedCard.getHusbandWorkPlace());
-        patient.setHusbandPosition(updateMedCard.getHusbandPosition());
-        patient.setHusbandPhoneNumber(updateMedCard.getHusbandPhoneNumber());
-        patient.setMarried(updateMedCard.getMarried());
-        patient.setEducation(updateMedCard.getEducation());
+        patientEntity.setBirthday(updateMedCard.getBirthday());
+        patientEntity.setAge(calculateAge(updateMedCard.getBirthday()));
+        patientEntity.setPin(updateMedCard.getPin());
+        patientEntity.setCitizenship(updateMedCard.getCitizenship());
+        patientEntity.setPatientCategory(updateMedCard.getPatientCategory());
+        patientEntity.setWorkPlace(updateMedCard.getWorkPlace());
+        patientEntity.setPosition(updateMedCard.getPosition());
+        patientEntity.setWorkConditions(updateMedCard.getWorkConditions());
+        patientEntity.setWorksNow(updateMedCard.getWorksNow());
+        patientEntity.setHusbandFirstName(updateMedCard.getHusbandFirstName());
+        patientEntity.setHusbandLastName(updateMedCard.getHusbandLastName());
+        patientEntity.setHusbandMiddleName(updateMedCard.getHusbandMiddleName());
+        patientEntity.setHusbandWorkPlace(updateMedCard.getHusbandWorkPlace());
+        patientEntity.setHusbandPosition(updateMedCard.getHusbandPosition());
+        patientEntity.setHusbandPhoneNumber(updateMedCard.getHusbandPhoneNumber());
+        patientEntity.setMarried(updateMedCard.getMarried());
+        patientEntity.setEducation(updateMedCard.getEducation());
 
-        Address address = patient.getAddress();
-        address.setPatientAddress(updateMedCard.getPatientAddress());
-        address.setPhoneNumber(updateMedCard.getPatientHomePhoneNumber());
-        address.setRelativeAddress(updateMedCard.getRelativeAddress());
-        address.setRelativePhoneNumber(updateMedCard.getRelativePhoneNumber());
+        AddressEntity addressEntity = patientEntity.getAddressEntity();
+        addressEntity.setPatientAddress(updateMedCard.getPatientAddress());
+        addressEntity.setPhoneNumber(updateMedCard.getPatientHomePhoneNumber());
+        addressEntity.setRelativeAddress(updateMedCard.getRelativeAddress());
+        addressEntity.setRelativePhoneNumber(updateMedCard.getRelativePhoneNumber());
 
-        Insurance insurance = patient.getInsurance();
-        insurance.setTerritoryName(updateMedCard.getInsuranceTerritoryName());
-        insurance.setNumber(updateMedCard.getInsuranceNumber());
+        InsuranceEntity insuranceEntity = patientEntity.getInsuranceEntity();
+        insuranceEntity.setTerritoryName(updateMedCard.getInsuranceTerritoryName());
+        insuranceEntity.setNumber(updateMedCard.getInsuranceNumber());
 
-        User userDoctor = userRepository.findByEmail(updateMedCard.getDoctor());
-        Doctor doctor = doctorRepository.findDoctorByUser(userDoctor.getUserId())
+        UserEntity userEntityDoctor = userRepository.findByEmail(updateMedCard.getDoctor());
+        DoctorEntity doctorEntity = doctorRepository.findDoctorByUser(userEntityDoctor.getUserId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Doctor was not found with user_id: " + userDoctor.getUserId()));
+                        new ResourceNotFoundException("Doctor was not found with user_id: " + userEntityDoctor.getUserId()));
 
-        Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
+        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patient.getCurrentPregnancyId())
+                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patientEntity.getCurrentPregnancyId())
                 );
 
-        pregnancy.setDoctor(doctor);
-        pregnancy.setBloodType(updateMedCard.getBloodType());
-        pregnancy.setRhFactorPregnant(updateMedCard.getRhFactorPregnant());
-        pregnancy.setRhFactorPartner(updateMedCard.getRhFactorPartner());
-        pregnancy.setTiterRhFactorInTwentyEightMonth(updateMedCard.getTiterRhFactorInTwentyEightMonth());
-        pregnancy.setBloodRw(updateMedCard.getBloodRw());
-        pregnancy.setBloodHiv(updateMedCard.getBloodHiv());
-        pregnancy.setBloodHivPartner(updateMedCard.getBloodHivPartner());
-        pregnancy.setRegistrationDate(updateMedCard.getRegistrationDate());
-        pregnancy.setFirstVisitDate(updateMedCard.getFirstVisitDate());
-        pregnancy.setFromAnotherMedOrganizationReason(updateMedCard.getFromAnotherMedOrganizationReason());
-        pregnancy.setNameOfAnotherMedOrganization(updateMedCard.getNameOfAnotherMedOrganization());
-        pregnancy.setPregnancyNumber(updateMedCard.getPregnancyNumber());
-        pregnancy.setChildbirthNumber(updateMedCard.getChildbirthNumber());
-        pregnancy.setGestationalAgeByLastMenstruation(updateMedCard.getGestationalAgeByLastMenstruation());
-        pregnancy.setGestationalAgeByUltrasound(updateMedCard.getGestationalAgeByUltrasound());
-        pregnancy.setEstimatedDateOfBirth(updateMedCard.getEstimatedDateOfBirth());
-        pregnancy.setLateRegistrationReason(updateMedCard.getLateRegistrationReason());
-        pregnancy.setFirstVisitWeekOfPregnancy(updateMedCard.getFirstVisitWeekOfPregnancy());
-        pregnancy.setFirstVisitComplaints(updateMedCard.getFirstVisitComplaints());
-        pregnancy.setFirstVisitGrowth(updateMedCard.getFirstVisitGrowth());
-        pregnancy.setFirstVisitWeight(updateMedCard.getFirstVisitWeight());
+        pregnancyEntity.setDoctorEntity(doctorEntity);
+        pregnancyEntity.setBloodType(updateMedCard.getBloodType());
+        pregnancyEntity.setRhFactorPregnant(updateMedCard.getRhFactorPregnant());
+        pregnancyEntity.setRhFactorPartner(updateMedCard.getRhFactorPartner());
+        pregnancyEntity.setTiterRhFactorInTwentyEightMonth(updateMedCard.getTiterRhFactorInTwentyEightMonth());
+        pregnancyEntity.setBloodRw(updateMedCard.getBloodRw());
+        pregnancyEntity.setBloodHiv(updateMedCard.getBloodHiv());
+        pregnancyEntity.setBloodHivPartner(updateMedCard.getBloodHivPartner());
+        pregnancyEntity.setRegistrationDate(updateMedCard.getRegistrationDate());
+        pregnancyEntity.setFirstVisitDate(updateMedCard.getFirstVisitDate());
+        pregnancyEntity.setFromAnotherMedOrganizationReason(updateMedCard.getFromAnotherMedOrganizationReason());
+        pregnancyEntity.setNameOfAnotherMedOrganization(updateMedCard.getNameOfAnotherMedOrganization());
+        pregnancyEntity.setPregnancyNumber(updateMedCard.getPregnancyNumber());
+        pregnancyEntity.setChildbirthNumber(updateMedCard.getChildbirthNumber());
+        pregnancyEntity.setGestationalAgeByLastMenstruation(updateMedCard.getGestationalAgeByLastMenstruation());
+        pregnancyEntity.setGestationalAgeByUltrasound(updateMedCard.getGestationalAgeByUltrasound());
+        pregnancyEntity.setEstimatedDateOfBirth(updateMedCard.getEstimatedDateOfBirth());
+        pregnancyEntity.setLateRegistrationReason(updateMedCard.getLateRegistrationReason());
+        pregnancyEntity.setFirstVisitWeekOfPregnancy(updateMedCard.getFirstVisitWeekOfPregnancy());
+        pregnancyEntity.setFirstVisitComplaints(updateMedCard.getFirstVisitComplaints());
+        pregnancyEntity.setFirstVisitGrowth(updateMedCard.getFirstVisitGrowth());
+        pregnancyEntity.setFirstVisitWeight(updateMedCard.getFirstVisitWeight());
         if (updateMedCard.getFirstVisitGrowth() != null && updateMedCard.getFirstVisitWeight() != null) {
-            pregnancy.setBodyMassIndex(calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
+            pregnancyEntity.setBodyMassIndex(calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
         }
-        pregnancy.setSkinAndMucousMembranes(updateMedCard.getSkinAndMucousMembranes());
-        pregnancy.setThyroid(updateMedCard.getThyroid());
-        pregnancy.setMilkGlands(updateMedCard.getMilkGlands());
-        pregnancy.setPeripheralLymphNodes(updateMedCard.getPeripheralLymphNodes());
-        pregnancy.setRespiratorySystem(updateMedCard.getRespiratorySystem());
-        pregnancy.setCardiovascularSystem(updateMedCard.getCardiovascularSystem());
-        pregnancy.setArterialPressure(updateMedCard.getArterialPressure());
-        pregnancy.setDigestiveSystem(updateMedCard.getDigestiveSystem());
-        pregnancy.setUrinarySystem(updateMedCard.getUrinarySystem());
-        pregnancy.setEdema(updateMedCard.getEdema());
-        pregnancy.setBonePelvis(updateMedCard.getBonePelvis());
-        pregnancy.setUterineFundusHeight(updateMedCard.getUterineFundusHeight());
-        pregnancy.setFetalHeartbeat(updateMedCard.getFetalHeartbeat());
-        pregnancy.setExternalGenitalia(updateMedCard.getExternalGenitalia());
-        pregnancy.setExaminationOfCervixInMirrors(updateMedCard.getExaminationOfCervixInMirrors());
-        pregnancy.setBimanualStudy(updateMedCard.getBimanualStudy());
-        pregnancy.setVaginalDischarge(updateMedCard.getVaginalDischarge());
-        pregnancy.setProvisionalDiagnosis(updateMedCard.getProvisionalDiagnosis());
-        pregnancy.setVacationFromForPregnancy(updateMedCard.getVacationFromForPregnancy());
-        pregnancy.setVacationUntilForPregnancy(updateMedCard.getVacationUntilForPregnancy());
-        pregnancy.setAllergicToDrugs(updateMedCard.getAllergicToDrugs());
-        pregnancy.setPastIllnessesAndSurgeries(updateMedCard.getPastIllnessesAndSurgeries());
+        pregnancyEntity.setSkinAndMucousMembranes(updateMedCard.getSkinAndMucousMembranes());
+        pregnancyEntity.setThyroid(updateMedCard.getThyroid());
+        pregnancyEntity.setMilkGlands(updateMedCard.getMilkGlands());
+        pregnancyEntity.setPeripheralLymphNodes(updateMedCard.getPeripheralLymphNodes());
+        pregnancyEntity.setRespiratorySystem(updateMedCard.getRespiratorySystem());
+        pregnancyEntity.setCardiovascularSystem(updateMedCard.getCardiovascularSystem());
+        pregnancyEntity.setArterialPressure(updateMedCard.getArterialPressure());
+        pregnancyEntity.setDigestiveSystem(updateMedCard.getDigestiveSystem());
+        pregnancyEntity.setUrinarySystem(updateMedCard.getUrinarySystem());
+        pregnancyEntity.setEdema(updateMedCard.getEdema());
+        pregnancyEntity.setBonePelvis(updateMedCard.getBonePelvis());
+        pregnancyEntity.setUterineFundusHeight(updateMedCard.getUterineFundusHeight());
+        pregnancyEntity.setFetalHeartbeat(updateMedCard.getFetalHeartbeat());
+        pregnancyEntity.setExternalGenitalia(updateMedCard.getExternalGenitalia());
+        pregnancyEntity.setExaminationOfCervixInMirrors(updateMedCard.getExaminationOfCervixInMirrors());
+        pregnancyEntity.setBimanualStudy(updateMedCard.getBimanualStudy());
+        pregnancyEntity.setVaginalDischarge(updateMedCard.getVaginalDischarge());
+        pregnancyEntity.setProvisionalDiagnosis(updateMedCard.getProvisionalDiagnosis());
+        pregnancyEntity.setVacationFromForPregnancy(updateMedCard.getVacationFromForPregnancy());
+        pregnancyEntity.setVacationUntilForPregnancy(updateMedCard.getVacationUntilForPregnancy());
+        pregnancyEntity.setAllergicToDrugs(updateMedCard.getAllergicToDrugs());
+        pregnancyEntity.setPastIllnessesAndSurgeries(updateMedCard.getPastIllnessesAndSurgeries());
 
-        List<Appointment> appointments = pregnancy.getAppointments();
+        List<AppointmentEntity> appointmentEntities = pregnancyEntity.getAppointmentEntities();
+
         HashMap<String, String> map = updateMedCard.getTypeResultAppointments();
-        for(Appointment a: appointments) {
-            if(map.containsKey(a.getAppointmentType().getName()) &&
-                    !a.getResult().equals(map.get(a.getAppointmentType().getName()))) {
-                a.setResult(map.get(a.getAppointmentType().getName()));
+
+        for (String key : map.keySet()) {
+            for (AppointmentEntity a1 : appointmentEntities) {
+                if (a1.getAppointmentTypeEntity().getName().equals(key)) {
+                    a1.setResult(map.get(key));
+                }
             }
         }
 
-        pregnancyRepository.save(pregnancy);
+        pregnancyRepository.save(pregnancyEntity);
 
-        userRepository.save(user);
+        userRepository.save(userEntity);
 
-        patientRepository.save(patient);
+        patientRepository.save(patientEntity);
 
-        addressRepository.save(address);
+        addressRepository.save(addressEntity);
 
-        insuranceRepository.save(insurance);
+        insuranceRepository.save(insuranceEntity);
 
         return updateMedCard;
     }
 
     public List<PatientDataDto> getAllPatients() {
-        List<User> users = userRepository.findAll(Role.PATIENT);
+        List<UserEntity> userEntities = userRepository.findAll(Role.PATIENT);
         List<PatientDataDto> listDto = new ArrayList<>();
 
-        for (User u : users) {
+        for (UserEntity u : userEntities) {
             PatientDataDto dto = new PatientDataDto();
-            Patient patient = u.getPatient();
-            Address address = patient.getAddress();
-            dto.setPatientId(patient.getId());
-            dto.setFIO(u.getLastName() + " " + u.getFirstName().substring(0, 1) + "." + u.getMiddleName().substring(0, 1) + ".");
+            PatientEntity patientEntity = u.getPatientEntity();
+            AddressEntity address = patientEntity.getAddressEntity();
+            dto.setPatientId(patientEntity.getId());
+            dto.setFIO(getFullName(u));
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
             dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
@@ -514,11 +538,21 @@ public class PatientService {
         return listDto;
     }
 
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public String getFullName(UserEntity userEntity) {
+        String name = "";
+        if (!userEntity.getLastName().isEmpty()) {
+            name += userEntity.getLastName();
+        }
+        if (!userEntity.getFirstName().isEmpty()) {
+            name += " " + userEntity.getFirstName().charAt(0) + ".";
+        }
+        if (!userEntity.getMiddleName().isEmpty()) {
+            name += " " + userEntity.getMiddleName().charAt(0) + ".";
+        }
+        return name;
     }
 
-    public User getAuthentication() {
+    public UserEntity getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(authentication.getName());
     }
@@ -527,6 +561,10 @@ public class PatientService {
         height /= 100;
         double result = weight / (height * height);
         return String.format("%.1f", result);
+    }
+
+    public int calculateAge(LocalDate dob) {
+        return dob != null ? Period.between(dob, LocalDate.now()).getYears() : 0;
     }
 
 }

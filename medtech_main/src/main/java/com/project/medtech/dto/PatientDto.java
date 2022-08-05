@@ -20,4 +20,5 @@ public class PatientDto {
     private String address;
     private String email;
     private String phoneNumber;
+
 }

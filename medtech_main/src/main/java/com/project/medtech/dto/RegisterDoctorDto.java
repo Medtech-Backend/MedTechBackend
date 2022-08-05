@@ -12,4 +12,5 @@ public class RegisterDoctorDto {
     private String middleName;
     private String phoneNumber;
     private String email;
+
 }

@@ -5,9 +5,9 @@ import com.project.medtech.dto.NewCheckListDto;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListMapper;
-import com.project.medtech.model.Answer;
-import com.project.medtech.model.CheckList;
-import com.project.medtech.model.Question;
+import com.project.medtech.model.AnswerEntity;
+import com.project.medtech.model.CheckListEntity;
+import com.project.medtech.model.QuestionEntity;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.DoctorRepository;
 import com.project.medtech.repository.PatientRepository;
@@ -23,63 +23,65 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CheckListService {
 
-
     private final CheckListRepository repository;
+
     private final DoctorRepository doctorRepository;
+
     private final PatientRepository patientRepository;
+
     private final QuestionRepository questionRepository;
 
 
     public List<CheckListDto> getAllCheckLists() {
-        List<CheckList> list = repository.findAll();
+        List<CheckListEntity> list = repository.findAll();
         List<CheckListDto> listDto = new ArrayList<>();
-        for (CheckList checkList : list) {
-            listDto.add(CheckListMapper.EntityToDto(checkList));
+        for (CheckListEntity checkListEntity : list) {
+            listDto.add(CheckListMapper.EntityToDto(checkListEntity));
         }
         return listDto;
     }
 
     public Optional<CheckListDto> findById(long id) {
-        CheckList text = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
+        CheckListEntity text = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
         return Optional.of(CheckListMapper.EntityToDto(text));
     }
 
     public CheckListDto save(NewCheckListDto dto) {
-        CheckList checkList = new CheckList();
-        checkList.setDoctor(doctorRepository.findById(dto.getDoctorId()).get());
-        checkList.setPatient(patientRepository.findById(dto.getPatientId()).get());
-        checkList.setDate(dto.getDate());
-        checkList.setTime(dto.getTime());
+        CheckListEntity checkListEntity = new CheckListEntity();
+        checkListEntity.setDoctorEntity(doctorRepository.findById(dto.getDoctorId()).get());
+        checkListEntity.setPatientEntity(patientRepository.findById(dto.getPatientId()).get());
+        checkListEntity.setDate(dto.getDate());
+        checkListEntity.setTime(dto.getTime());
 
-        List<Question> questions = questionRepository.findAllByStatus(Status.ACTIVE);
-        List<Answer> answers = new ArrayList<Answer>();
+        List<QuestionEntity> questionEntities = questionRepository.findAllByStatus(Status.ACTIVE);
+        List<AnswerEntity> answerEntities = new ArrayList<AnswerEntity>();
 
-        for (Question question : questions) {
-            Answer ans = new Answer();
-            ans.setQuestion(question.getQuestion());
-            ans.setCheckList(checkList);
-            answers.add(ans);
+        for (QuestionEntity questionEntity : questionEntities) {
+            AnswerEntity ans = new AnswerEntity();
+            ans.setQuestion(questionEntity.getQuestion());
+            ans.setCheckListEntity(checkListEntity);
+            answerEntities.add(ans);
         }
 
-        checkList.setAnswers(answers);
+        checkListEntity.setAnswerEntities(answerEntities);
 
-        repository.save(checkList);
-        return CheckListMapper.EntityToDto(checkList);
+        repository.save(checkListEntity);
+        return CheckListMapper.EntityToDto(checkListEntity);
 
     }
 
     public CheckListDto update(long id, CheckListDto dto) {
-        CheckList checkList = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
-        CheckList checkList1 = CheckListMapper.DtoToEntity(dto);
-        checkList1.setId(checkList.getId());
-        return CheckListMapper.EntityToDto(repository.save(checkList1));
+        CheckListEntity checkListEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
+        CheckListEntity checkListEntity1 = CheckListMapper.DtoToEntity(dto);
+        checkListEntity1.setId(checkListEntity.getId());
+        return CheckListMapper.EntityToDto(repository.save(checkListEntity1));
     }
 
     public CheckListDto delete(long id) {
-        CheckList checkList = repository.findById(id)
+        CheckListEntity checkListEntity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
-        repository.delete(checkList);
-        return CheckListMapper.EntityToDto(checkList);
+        repository.delete(checkListEntity);
+        return CheckListMapper.EntityToDto(checkListEntity);
     }
 
 }

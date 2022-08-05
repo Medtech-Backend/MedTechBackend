@@ -14,6 +14,7 @@ public class EmailSenderService {
 
     private final JavaMailSender mailSender;
 
+
     public EmailSenderService(@Lazy JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -30,7 +31,7 @@ public class EmailSenderService {
 
         if (type.equals("otp")) {
             otp = generate(true);
-            helper.setFrom("trustmed.team3@gmail.com");
+            helper.setFrom("tilekju@gmail.com");
             helper.setTo(email);
             subject = "Here's your One Time Password!";
             content = "<p>Hello! </p>"
@@ -38,9 +39,9 @@ public class EmailSenderService {
                     + "One Time Password to login:</p>"
                     + "<p><b>" + new String(otp) + "</b></p>"
                     + "<br>";
-        } else if(type.equals("resetCode")) {
+        } else if (type.equals("resetCode")) {
             otp = generate(false);
-            helper.setFrom("trustmed.team3@gmail.com");
+            helper.setFrom("tilekju@gmail.com");
             helper.setTo(email);
             subject = "Here's your Reset Code (OTP)!";
             content = "<p>Hello! </p>"

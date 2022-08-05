@@ -3,13 +3,14 @@ package com.project.medtech.service;
 import com.project.medtech.dto.*;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtProvider;
-import com.project.medtech.model.User;
+import com.project.medtech.model.UserEntity;
+import com.project.medtech.repository.PermissionRepository;
+import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+
     private final EmailSenderService emailSenderService;
+
     private final JwtProvider jwtProvider;
+
+    private final PasswordEncoder passwordEncoder;
+
+
+    public UserService(UserRepository userRepository, EmailSenderService emailSenderService, JwtProvider jwtProvider, @Lazy PasswordEncoder passwordEncoder, RoleRepository roleRepository, PermissionRepository permissionRepository) {
+        this.userRepository = userRepository;
+        this.emailSenderService = emailSenderService;
+        this.jwtProvider = jwtProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public List<UserDto> getUsers() {
         return userRepository.findAll()
@@ -36,33 +48,45 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDto getUserByEmail(EmailDto email) {
-        User user = userRepository.findByEmail(email.getEmail());
-        if (user == null) {
+        UserEntity userEntity = userRepository.findByEmail(email.getEmail());
+
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + email.getEmail());
         }
-        return toUserModel(user);
+
+        return toUserModel(userEntity);
     }
 
     public UserDto sendResetPassword(EmailDto email) {
-        User user = userRepository.findByEmail(email.getEmail());
-        if(user == null) {
+        UserEntity userEntity = userRepository.findByEmail(email.getEmail());
+
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + email);
         }
+
         String resetCode = emailSenderService.send(email.getEmail(), "resetCode");
-        user.setResetCode(resetCode);
-        userRepository.save(user);
-        return toUserModel(user);
+
+        userEntity.setResetCode(resetCode);
+
+        userRepository.save(userEntity);
+
+        return toUserModel(userEntity);
     }
 
     public EmailTextDto checkResetCode(EmailTextDto emailResetCodeDto) {
-        User user = userRepository.findByEmail(emailResetCodeDto.getEmail());
-        if (user == null) {
+        UserEntity userEntity = userRepository.findByEmail(emailResetCodeDto.getEmail());
+
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + emailResetCodeDto.getEmail());
         }
-        if(user.getResetCode().equals(emailResetCodeDto.getText())) {
-            user.setResetCode("");
-            userRepository.save(user);
-            String accessToken = jwtProvider.generateAccessToken(user);
+
+        if (userEntity.getResetCode().equals(emailResetCodeDto.getText())) {
+            userEntity.setResetCode("");
+
+            userRepository.save(userEntity);
+
+            String accessToken = jwtProvider.generateAccessToken(userEntity);
+
             return new EmailTextDto(emailResetCodeDto.getEmail(), accessToken);
         } else {
             throw new ResourceNotFoundException("Incorrect reset code. Try again.");
@@ -70,58 +94,50 @@ public class UserService implements UserDetailsService {
     }
 
     public AuthResponse updatePassword(EmailTextDto emailPasswordDto) {
-        User user = userRepository.findByEmail(emailPasswordDto.getEmail());
-        if (user == null) {
+        UserEntity userEntity = userRepository.findByEmail(emailPasswordDto.getEmail());
+
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + emailPasswordDto.getEmail());
         }
-        user.setPassword(passwordEncoder().encode(emailPasswordDto.getText()));
-        user.setOtpUsed(true);
-        userRepository.save(user);
-        String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = jwtProvider.generateRefreshToken(user);
-        return new AuthResponse(accessToken, refreshToken, user.getUserId(),
-                user.getEmail(), user.isOtpUsed(), user.getRole().name());
+
+        userEntity.setPassword(passwordEncoder.encode(emailPasswordDto.getText()));
+        userEntity.setOtpUsed(true);
+
+        userRepository.save(userEntity);
+
+        String accessToken = jwtProvider.generateAccessToken(userEntity);
+
+        String refreshToken = jwtProvider.generateRefreshToken(userEntity);
+
+        return new AuthResponse(accessToken, refreshToken, userEntity.getUserId(),
+                userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
-        if (user == null) {
+        UserEntity userEntity = userRepository.findByEmail(username);
+
+        if (userEntity == null) {
             throw new ResourceNotFoundException("User was not found with email: " + username);
         }
-        return User.getUserDetails(user);
+
+        return UserEntity.getUserDetails(userEntity);
     }
 
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    public static UserDto toUserModel(User user) {
+    public static UserDto toUserModel(UserEntity userEntity) {
         UserDto userDto = new UserDto();
-        userDto.setUserId(user.getUserId());
-        userDto.setEmail(user.getEmail());
-        userDto.setFirstName(user.getFirstName());
-        userDto.setLastName(user.getLastName());
-        userDto.setMiddleName(user.getMiddleName());
-        userDto.setPhoneNumber(user.getPhoneNumber());
-        userDto.setOtpUsed(user.isOtpUsed());
-        userDto.setRole(user.getRole());
-        userDto.setStatus(user.getStatus());
-        return userDto;
-    }
 
-    public static User toUserEntity(UserDto userDto) {
-        User user = new User();
-        user.setUserId(userDto.getUserId());
-        user.setEmail(userDto.getEmail());
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setMiddleName(userDto.getMiddleName());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setOtpUsed(userDto.isOtpUsed());
-        user.setRole(userDto.getRole());
-        user.setStatus(userDto.getStatus());
-        return user;
+        userDto.setUserId(userEntity.getUserId());
+        userDto.setEmail(userEntity.getEmail());
+        userDto.setFirstName(userEntity.getFirstName());
+        userDto.setLastName(userEntity.getLastName());
+        userDto.setMiddleName(userEntity.getMiddleName());
+        userDto.setPhoneNumber(userEntity.getPhoneNumber());
+        userDto.setOtpUsed(userEntity.isOtpUsed());
+        userDto.setRole(userEntity.getRoleEntity());
+        userDto.setStatus(userEntity.getStatus());
+
+        return userDto;
     }
 
 }

@@ -23,7 +23,9 @@ import java.util.List;
 public class ApiController {
 
     private final UserService userService;
+
     private final AuthService authService;
+
 
     @ApiOperation(value = "авторизация пользователя")
     @PostMapping("/login")

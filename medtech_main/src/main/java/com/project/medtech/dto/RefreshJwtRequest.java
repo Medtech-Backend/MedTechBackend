@@ -12,4 +12,5 @@ import lombok.Setter;
 public class RefreshJwtRequest {
 
     private String refreshToken;
+
 }

@@ -1,5 +1,6 @@
 package com.project.medtech.exporter;
 
+import com.project.medtech.dto.enums.AppointmentEnum;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.*;
 import com.project.medtech.repository.PregnancyRepository;
@@ -24,46 +25,46 @@ public class MedCardExcelExporter {
 
     private XSSFSheet sheet;
 
-    private Patient patient;
+    private PatientEntity patientEntity;
 
 
-    public MedCardExcelExporter(PregnancyRepository pregnancyRepository, Patient patient) {
+    public MedCardExcelExporter(PregnancyRepository pregnancyRepository, PatientEntity patientEntity) {
         this.pregnancyRepository = pregnancyRepository;
-        this.patient = patient;
+        this.patientEntity = patientEntity;
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Медицинская карта");
     }
 
     private void writeHeaderRow() {
         String[] columns =
-        {
-            "Дата взятия на учет", "Почта", "Имя", "Фамилия", "Отчество", "Номер телефона", "Гинеколог", "Дата рождения",
-            "Возраст", "ИНН", "Гражданство", "Категория пациента", "Место работы", "Должность",
-            "Условия труда", "Работает в данное время", "Имя мужа", "Фамилия мужа",
-            "Отчество мужа", "Место работы мужа", "Должность мужа", "Номер телефона мужа",
-            "Состоит в браке", "Образование", "Постоянное место жительства", "Номер телефона",
-            "Адрес родственников", "Номер телефона родственников", "Территория страхования",
-            "Номер удостоверения соц. защиты", "Дата первого осмотра",
-            "Неделя беременности на первом осмотре", "Прибыла из другой мед. организации (причина)",
-            "Название старой мед. организации", "Беременность (которая)", "Роды (которые)",
-            "Срок беременности по последним месячным (нед.)", "Срок беременности по последнему УЗИ (нед.)",
-            "Предполагаемая дата родов", "Если взята на учет в сроке беременности свыше 12-недель (указать причины)",
-            "Дан отпуск по беременности с", "Дан отпуск по беременности по", "Группа крови",
-            "Резус-принадлежность беременной", "Резус-принадлежность партнера/мужа",
-            "Титр резус-антител в 28 нед. беременности", "Кровь на RW", "Кровь на ВИЧ",
-            "Кровь на ВИЧ партнера", "Жалобы при первичном осмотре", "Аллергия на препараты",
-            "Перенесенные заболевания и операции", "Рост на первом осмотре", "Вес на первом осмотре", "ИМТ",
-            "Кожные покровы и слизистые", "Щитовидная железа", "Молочные железы",
-            "Периферические лимфатические узлы", "Дыхательная система",
-            "Сердечно-сосудистая система", "Артериальное давление", "Пищеварительная система",
-            "Мочевыделительная система", "Отеки", "Костный таз", "Высота дна матки (см.)",
-            "Сердцебиение плода", "Наружные половые органы", "Осмотр шейки матки в зеркалах",
-            "Бимануальное исследование", "Выделения из влагалища", "Предварительный диагноз",
-            "Анализ крови на гемоглобин", "Группа крови и резус фактор", "Анализ мочи на белок",
-            "Проведено дотестовое консультирование по ВИЧ", "Согласна на тестирование", "Анализ крови на ВИЧ",
-            "Анализ крови на сифилис", "Бактериологический посев мочи", "УЗИ (в 18 недель)",
-            "Фолиевая кислота", "Калия йодид"
-        };
+                {
+                        "Дата взятия на учет", "Почта", "Имя", "Фамилия", "Отчество", "Номер телефона", "Гинеколог", "Дата рождения",
+                        "Возраст", "ИНН", "Гражданство", "Категория пациента", "Место работы", "Должность",
+                        "Условия труда", "Работает в данное время", "Имя мужа", "Фамилия мужа",
+                        "Отчество мужа", "Место работы мужа", "Должность мужа", "Номер телефона мужа",
+                        "Состоит в браке", "Образование", "Постоянное место жительства", "Номер телефона",
+                        "Адрес родственников", "Номер телефона родственников", "Территория страхования",
+                        "Номер удостоверения соц. защиты", "Дата первого осмотра",
+                        "Неделя беременности на первом осмотре", "Прибыла из другой мед. организации (причина)",
+                        "Название старой мед. организации", "Беременность (которая)", "Роды (которые)",
+                        "Срок беременности по последним месячным (нед.)", "Срок беременности по последнему УЗИ (нед.)",
+                        "Предполагаемая дата родов", "Если взята на учет в сроке беременности свыше 12-недель (указать причины)",
+                        "Дан отпуск по беременности с", "Дан отпуск по беременности по", "Группа крови",
+                        "Резус-принадлежность беременной", "Резус-принадлежность партнера/мужа",
+                        "Титр резус-антител в 28 нед. беременности", "Кровь на RW", "Кровь на ВИЧ",
+                        "Кровь на ВИЧ партнера", "Жалобы при первичном осмотре", "Аллергия на препараты",
+                        "Перенесенные заболевания и операции", "Рост на первом осмотре", "Вес на первом осмотре", "ИМТ",
+                        "Кожные покровы и слизистые", "Щитовидная железа", "Молочные железы",
+                        "Периферические лимфатические узлы", "Дыхательная система",
+                        "Сердечно-сосудистая система", "Артериальное давление", "Пищеварительная система",
+                        "Мочевыделительная система", "Отеки", "Костный таз", "Высота дна матки (см.)",
+                        "Сердцебиение плода", "Наружные половые органы", "Осмотр шейки матки в зеркалах",
+                        "Бимануальное исследование", "Выделения из влагалища", "Предварительный диагноз",
+                        "Анализ крови на гемоглобин", "Группа крови и резус фактор", "Анализ мочи на белок",
+                        "Проведено дотестовое консультирование по ВИЧ", "Согласна на тестирование", "Анализ крови на ВИЧ",
+                        "Анализ крови на сифилис", "Бактериологический посев мочи", "УЗИ (в 18 недель)",
+                        "Фолиевая кислота", "Калия йодид"
+                };
 
         Row row = sheet.createRow(0);
         CellStyle style = workbook.createCellStyle();
@@ -73,7 +74,7 @@ public class MedCardExcelExporter {
         font.setFontHeight(16);
         style.setFont(font);
         Cell cell;
-        for(int i = 0; i < columns.length; i++) {
+        for (int i = 0; i < columns.length; i++) {
             cell = row.createCell(i);
             cell.setCellValue(columns[i]);
             cell.setCellStyle(style);
@@ -81,33 +82,27 @@ public class MedCardExcelExporter {
     }
 
     private void writeDataRows() {
-        User user = patient.getUser();
+        UserEntity userEntity = patientEntity.getUserEntity();
 
-        Pregnancy pregnancy = pregnancyRepository.findById(patient.getCurrentPregnancyId())
+        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Pregnancy was not found with ID: " + patient.getCurrentPregnancyId()));
+                        new ResourceNotFoundException("Pregnancy was not found with ID: " + patientEntity.getCurrentPregnancyId()));
 
-        Address address = patient.getAddress();
+        AddressEntity addressEntity = patientEntity.getAddressEntity();
 
-        Insurance insurance = patient.getInsurance();
+        InsuranceEntity insuranceEntity = patientEntity.getInsuranceEntity();
 
-        Doctor doctor = pregnancy.getDoctor();
+        DoctorEntity doctorEntity = pregnancyEntity.getDoctorEntity();
 
-        List<Appointment> appointments = pregnancy.getAppointments();
+        List<AppointmentEntity> appointmentEntities = pregnancyEntity.getAppointmentEntities();
 
         List<String> appointmentResults = new ArrayList<>();
 
-        String[] appointmentsOrdered =
-                {
-                        "blood_test_for_hemoglobin","blood_type_and_Rh_factor","urinalysis_for_protein",
-                        "had_pretest_counseling_for_HIV", "agrees_on_testing","blood_test_for_hiv",
-                        "blood_test_for_syphilis", "bacteriological_culture_of_urine",
-                        "ultrasound_in_eighteen_week", "folic_acid","potassium_iodide"
-                };
+        List<AppointmentEnum> appointmentEnums = AppointmentEnum.getAppointments();
 
-        for(String s: appointmentsOrdered) {
-            for (Appointment a : appointments) {
-                if(a.getAppointmentType().getName().equals(s)) {
+        for (AppointmentEnum s : appointmentEnums) {
+            for (AppointmentEntity a : appointmentEntities) {
+                if (a.getAppointmentTypeEntity().getName().equals(s.name())) {
                     appointmentResults.add(a.getResult());
                 }
             }
@@ -115,79 +110,79 @@ public class MedCardExcelExporter {
 
         ArrayList<Object> answers = new ArrayList<>();
 
-        answers.add(pregnancy.getRegistrationDate());
-        answers.add(user.getEmail());
-        answers.add(user.getFirstName());
-        answers.add(user.getLastName());
-        answers.add(user.getMiddleName());
-        answers.add(user.getPhoneNumber());
-        answers.add(doctor.getUser().getLastName() + doctor.getUser().getFirstName() + doctor.getUser().getMiddleName());
-        answers.add(patient.getBirthday());
-        answers.add(patient.getAge());
-        answers.add(patient.getPin());
-        answers.add(patient.getCitizenship());
-        answers.add(patient.getPatientCategory());
-        answers.add(patient.getWorkPlace());
-        answers.add(patient.getPosition());
-        answers.add(patient.getWorkConditions());
-        answers.add(patient.getWorksNow());
-        answers.add(patient.getHusbandLastName());
-        answers.add(patient.getHusbandFirstName());
-        answers.add(patient.getHusbandMiddleName());
-        answers.add(patient.getHusbandWorkPlace());
-        answers.add(patient.getHusbandPosition());
-        answers.add(patient.getHusbandPhoneNumber());
-        answers.add(patient.getMarried());
-        answers.add(patient.getEducation());
-        answers.add(address.getPatientAddress());
-        answers.add(address.getPhoneNumber());
-        answers.add(address.getRelativeAddress());
-        answers.add(address.getRelativePhoneNumber());
-        answers.add(insurance.getTerritoryName());
-        answers.add(insurance.getNumber());
-        answers.add(pregnancy.getFirstVisitDate()); // Дата первого осмотра
-        answers.add(pregnancy.getFirstVisitWeekOfPregnancy());
-        answers.add(pregnancy.getFromAnotherMedOrganizationReason());
-        answers.add(pregnancy.getNameOfAnotherMedOrganization());
-        answers.add(pregnancy.getPregnancyNumber());
-        answers.add(pregnancy.getChildbirthNumber());
-        answers.add(pregnancy.getGestationalAgeByLastMenstruation());
-        answers.add(pregnancy.getGestationalAgeByUltrasound());
-        answers.add(pregnancy.getEstimatedDateOfBirth());
-        answers.add(pregnancy.getLateRegistrationReason());
-        answers.add(pregnancy.getVacationFromForPregnancy());
-        answers.add(pregnancy.getVacationUntilForPregnancy());
-        answers.add(pregnancy.getBloodType());
-        answers.add(pregnancy.getRhFactorPregnant());
-        answers.add(pregnancy.getRhFactorPartner());
-        answers.add(pregnancy.getTiterRhFactorInTwentyEightMonth());
-        answers.add(pregnancy.getBloodRw());
-        answers.add(pregnancy.getBloodHiv());
-        answers.add(pregnancy.getBloodHivPartner());
-        answers.add(pregnancy.getFirstVisitComplaints());
-        answers.add(pregnancy.getAllergicToDrugs());
-        answers.add(pregnancy.getPastIllnessesAndSurgeries());
-        answers.add(pregnancy.getFirstVisitGrowth());
-        answers.add(pregnancy.getFirstVisitWeight());
-        answers.add(pregnancy.getBodyMassIndex());
-        answers.add(pregnancy.getSkinAndMucousMembranes());
-        answers.add(pregnancy.getThyroid());
-        answers.add(pregnancy.getMilkGlands());
-        answers.add(pregnancy.getPeripheralLymphNodes());
-        answers.add(pregnancy.getRespiratorySystem());
-        answers.add(pregnancy.getCardiovascularSystem());
-        answers.add(pregnancy.getArterialPressure());
-        answers.add(pregnancy.getDigestiveSystem());
-        answers.add(pregnancy.getUrinarySystem());
-        answers.add(pregnancy.getEdema());
-        answers.add(pregnancy.getBonePelvis());
-        answers.add(pregnancy.getUterineFundusHeight());
-        answers.add(pregnancy.getFetalHeartbeat());
-        answers.add(pregnancy.getExternalGenitalia());
-        answers.add(pregnancy.getExaminationOfCervixInMirrors());
-        answers.add(pregnancy.getBimanualStudy());
-        answers.add(pregnancy.getVaginalDischarge());
-        answers.add(pregnancy.getProvisionalDiagnosis());
+        answers.add(pregnancyEntity.getRegistrationDate());
+        answers.add(userEntity.getEmail());
+        answers.add(userEntity.getFirstName());
+        answers.add(userEntity.getLastName());
+        answers.add(userEntity.getMiddleName());
+        answers.add(userEntity.getPhoneNumber());
+        answers.add(doctorEntity.getUserEntity().getLastName() + doctorEntity.getUserEntity().getFirstName() + doctorEntity.getUserEntity().getMiddleName());
+        answers.add(patientEntity.getBirthday());
+        answers.add(patientEntity.getAge());
+        answers.add(patientEntity.getPin());
+        answers.add(patientEntity.getCitizenship());
+        answers.add(patientEntity.getPatientCategory());
+        answers.add(patientEntity.getWorkPlace());
+        answers.add(patientEntity.getPosition());
+        answers.add(patientEntity.getWorkConditions());
+        answers.add(patientEntity.getWorksNow());
+        answers.add(patientEntity.getHusbandLastName());
+        answers.add(patientEntity.getHusbandFirstName());
+        answers.add(patientEntity.getHusbandMiddleName());
+        answers.add(patientEntity.getHusbandWorkPlace());
+        answers.add(patientEntity.getHusbandPosition());
+        answers.add(patientEntity.getHusbandPhoneNumber());
+        answers.add(patientEntity.getMarried());
+        answers.add(patientEntity.getEducation());
+        answers.add(addressEntity.getPatientAddress());
+        answers.add(addressEntity.getPhoneNumber());
+        answers.add(addressEntity.getRelativeAddress());
+        answers.add(addressEntity.getRelativePhoneNumber());
+        answers.add(insuranceEntity.getTerritoryName());
+        answers.add(insuranceEntity.getNumber());
+        answers.add(pregnancyEntity.getFirstVisitDate()); // Дата первого осмотра
+        answers.add(pregnancyEntity.getFirstVisitWeekOfPregnancy());
+        answers.add(pregnancyEntity.getFromAnotherMedOrganizationReason());
+        answers.add(pregnancyEntity.getNameOfAnotherMedOrganization());
+        answers.add(pregnancyEntity.getPregnancyNumber());
+        answers.add(pregnancyEntity.getChildbirthNumber());
+        answers.add(pregnancyEntity.getGestationalAgeByLastMenstruation());
+        answers.add(pregnancyEntity.getGestationalAgeByUltrasound());
+        answers.add(pregnancyEntity.getEstimatedDateOfBirth());
+        answers.add(pregnancyEntity.getLateRegistrationReason());
+        answers.add(pregnancyEntity.getVacationFromForPregnancy());
+        answers.add(pregnancyEntity.getVacationUntilForPregnancy());
+        answers.add(pregnancyEntity.getBloodType());
+        answers.add(pregnancyEntity.getRhFactorPregnant());
+        answers.add(pregnancyEntity.getRhFactorPartner());
+        answers.add(pregnancyEntity.getTiterRhFactorInTwentyEightMonth());
+        answers.add(pregnancyEntity.getBloodRw());
+        answers.add(pregnancyEntity.getBloodHiv());
+        answers.add(pregnancyEntity.getBloodHivPartner());
+        answers.add(pregnancyEntity.getFirstVisitComplaints());
+        answers.add(pregnancyEntity.getAllergicToDrugs());
+        answers.add(pregnancyEntity.getPastIllnessesAndSurgeries());
+        answers.add(pregnancyEntity.getFirstVisitGrowth());
+        answers.add(pregnancyEntity.getFirstVisitWeight());
+        answers.add(pregnancyEntity.getBodyMassIndex());
+        answers.add(pregnancyEntity.getSkinAndMucousMembranes());
+        answers.add(pregnancyEntity.getThyroid());
+        answers.add(pregnancyEntity.getMilkGlands());
+        answers.add(pregnancyEntity.getPeripheralLymphNodes());
+        answers.add(pregnancyEntity.getRespiratorySystem());
+        answers.add(pregnancyEntity.getCardiovascularSystem());
+        answers.add(pregnancyEntity.getArterialPressure());
+        answers.add(pregnancyEntity.getDigestiveSystem());
+        answers.add(pregnancyEntity.getUrinarySystem());
+        answers.add(pregnancyEntity.getEdema());
+        answers.add(pregnancyEntity.getBonePelvis());
+        answers.add(pregnancyEntity.getUterineFundusHeight());
+        answers.add(pregnancyEntity.getFetalHeartbeat());
+        answers.add(pregnancyEntity.getExternalGenitalia());
+        answers.add(pregnancyEntity.getExaminationOfCervixInMirrors());
+        answers.add(pregnancyEntity.getBimanualStudy());
+        answers.add(pregnancyEntity.getVaginalDischarge());
+        answers.add(pregnancyEntity.getProvisionalDiagnosis());
         answers.addAll(appointmentResults);
 
         Row row = sheet.createRow(1);
@@ -201,7 +196,7 @@ public class MedCardExcelExporter {
 
         Cell cell;
 
-        for(int i = 0; i < answers.size(); i++) {
+        for (int i = 0; i < answers.size(); i++) {
             cell = row.createCell(i);
             cell.setCellValue(String.valueOf(answers.get(i)));
             cell.setCellStyle(style);

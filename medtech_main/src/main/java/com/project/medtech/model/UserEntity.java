@@ -1,6 +1,5 @@
 package com.project.medtech.model;
 
-import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,16 +17,18 @@ import java.util.Collection;
 @Setter
 @Entity
 @Table(name = "`user`")
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "user_seq")
+            generator = "user_seq"
+    )
     @SequenceGenerator(
             name = "user_seq",
             sequenceName = "user_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long userId;
 
     @Column(unique = true, nullable = false)
@@ -49,25 +50,32 @@ public class User implements UserDetails {
 
     private String resetCode;
 
-    @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private Role role;
-
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    @OneToOne (mappedBy = "user")
-    private Patient patient;
+    @ManyToOne
+    @JoinColumn(
+            name = "role_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "FKUSERROLE")
+    )
+    private RoleEntity roleEntity;
 
-    @OneToOne(mappedBy = "user")
-    private Doctor doctor;
+    @OneToOne(mappedBy = "userEntity")
+    private PatientEntity patientEntity;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private Image image;
+    @OneToOne(mappedBy = "userEntity")
+    private DoctorEntity doctorEntity;
+
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            mappedBy = "userEntity"
+    )
+    private ImageEntity imageEntity;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        return roleEntity.getAuthorities();
     }
 
     @Override
@@ -95,14 +103,14 @@ public class User implements UserDetails {
         return status.equals(Status.ACTIVE);
     }
 
-    public static UserDetails getUserDetails(User user) {
+    public static UserDetails getUserDetails(UserEntity userEntity) {
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(),
-                user.getStatus().equals(Status.ACTIVE),
+                userEntity.getEmail(), userEntity.getPassword(),
+                userEntity.getStatus().equals(Status.ACTIVE),
                 true,
                 true,
                 true,
-                user.getRole().getAuthorities()
+                userEntity.roleEntity.getAuthorities()
         );
     }
 

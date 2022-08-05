@@ -1,16 +1,11 @@
 package com.project.medtech.dto;
 
-import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
-import com.project.medtech.model.User;
+import com.project.medtech.model.RoleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,7 +21,7 @@ public class UserDto {
     private String phoneNumber;
     private boolean otpUsed;
     private String resetCode;
-    private Role role;
+    private RoleEntity role;
     private Status status;
 
 }

@@ -6,7 +6,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,7 +14,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "`patient`")
-public class Patient {
+public class PatientEntity {
 
     @Id
     @GeneratedValue(
@@ -69,18 +68,18 @@ public class Patient {
 
     @OneToOne(
             cascade = CascadeType.ALL,
-            mappedBy = "patient"
+            mappedBy = "patientEntity"
     )
-    private Address address;
+    private AddressEntity addressEntity;
 
     @OneToOne(
             cascade = CascadeType.ALL,
-            mappedBy = "patient"
+            mappedBy = "patientEntity"
     )
-    private Insurance insurance;
+    private InsuranceEntity insuranceEntity;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Pregnancy> pregnancy;
+    private List<PregnancyEntity> pregnancy;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
@@ -88,6 +87,6 @@ public class Patient {
             referencedColumnName = "userId",
             foreignKey = @ForeignKey(name = "FKPATIENTUSER")
     )
-    private User user;
+    private UserEntity userEntity;
 
 }

@@ -11,35 +11,37 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`answer`")
-public class Answer {
+public class AnswerEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "answer_seq")
+            generator = "answer_seq"
+    )
     @SequenceGenerator(
             name = "answer_seq",
             sequenceName = "answer_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false)
     private String question;
 
-    private String indicators ;
+    private String indicators;
 
-    private String description ;
+    private String description;
 
     @JsonIgnore
     @ManyToOne(cascade = {
-            CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,
+            CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
             CascadeType.REFRESH
     })
     @JoinColumn(
             name = "checklist_id",
             nullable = false
     )
-    private CheckList checkList;
+    private CheckListEntity checkListEntity;
 
 }
 

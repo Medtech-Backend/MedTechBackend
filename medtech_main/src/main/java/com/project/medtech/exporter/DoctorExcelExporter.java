@@ -1,9 +1,9 @@
 package com.project.medtech.exporter;
 
-import com.project.medtech.model.Doctor;
-import com.project.medtech.model.Patient;
-import com.project.medtech.model.Pregnancy;
-import com.project.medtech.model.User;
+import com.project.medtech.model.DoctorEntity;
+import com.project.medtech.model.PatientEntity;
+import com.project.medtech.model.PregnancyEntity;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.service.PatientService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -22,12 +22,12 @@ public class DoctorExcelExporter {
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<User> users;
+    private List<UserEntity> users;
 
 
 
 
-    public DoctorExcelExporter(List<User> users) {
+    public DoctorExcelExporter(List<UserEntity> users) {
         this.users = users;
         workbook = new XSSFWorkbook();
     }
@@ -73,13 +73,13 @@ public class DoctorExcelExporter {
         style.setFont(font);
         int num = 1;
 
-        for (User u : users) {
+        for (UserEntity u : users) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            Doctor doctor = u.getDoctor();
-            List<Pregnancy> pregnancies = doctor.getPregnancies();
-            List<Patient> patients = new ArrayList<>();
+            DoctorEntity doctor = u.getDoctorEntity();
+            List<PregnancyEntity> pregnancies = doctor.getPregnancies();
+            List<PatientEntity> patients = new ArrayList<>();
             int number = 1;
 //            for(Pregnancy preg : pregnancies ){
 //                for(Pregnancy preg2 : pregnancies){

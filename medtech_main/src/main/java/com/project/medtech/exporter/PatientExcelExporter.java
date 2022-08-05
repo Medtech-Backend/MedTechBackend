@@ -1,9 +1,8 @@
 package com.project.medtech.exporter;
 
-import com.project.medtech.dto.RequestPatient;
-import com.project.medtech.model.Address;
-import com.project.medtech.model.Patient;
-import com.project.medtech.model.User;
+import com.project.medtech.model.AddressEntity;
+import com.project.medtech.model.PatientEntity;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.service.PatientService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -18,15 +17,18 @@ import java.io.IOException;
 import java.util.List;
 
 public class PatientExcelExporter {
+
     private XSSFWorkbook workbook;
+
     private XSSFSheet sheet;
-    private List<User> users;
+
+    private List<UserEntity> userEntities;
 
     private final PatientService patientService;
 
 
-    public PatientExcelExporter(List<User> users, PatientService patientService) {
-        this.users = users;
+    public PatientExcelExporter(List<UserEntity> userEntities, PatientService patientService) {
+        this.userEntities = userEntities;
         this.patientService = patientService;
         workbook = new XSSFWorkbook();
     }
@@ -74,12 +76,12 @@ public class PatientExcelExporter {
         style.setFont(font);
         int num = 1;
 
-        for (User u : users) {
+        for (UserEntity u : userEntities) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            Patient patient = u.getPatient();
-            Address address = patient.getAddress();
+            PatientEntity patientEntity = u.getPatientEntity();
+            AddressEntity addressEntity = patientEntity.getAddressEntity();
 
             createCell(row, columnCount++, num, style);
             createCell(row, columnCount++, u.getFirstName(), style);
@@ -88,7 +90,7 @@ public class PatientExcelExporter {
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
             createCell(row, columnCount++, patientService.calculateCurrentWeekOfPregnancy(u.getEmail()), style);
-            createCell(row, columnCount++,  address.getRelativeAddress(), style);
+            createCell(row, columnCount++,  addressEntity.getRelativeAddress(), style);
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
             num++;

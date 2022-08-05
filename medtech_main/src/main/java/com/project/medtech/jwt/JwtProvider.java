@@ -2,7 +2,7 @@ package com.project.medtech.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.project.medtech.model.User;
+import com.project.medtech.model.UserEntity;
 import io.jsonwebtoken.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -22,24 +22,24 @@ public class JwtProvider {
     private String secret;
 
 
-    public String generateAccessToken(@NonNull User user) {
+    public String generateAccessToken(@NonNull UserEntity userEntity) {
         Date now = new Date();
         final Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
-                .withSubject(user.getEmail())
+                .withSubject(userEntity.getEmail())
                 .withIssuedAt(now)
                 .withExpiresAt(new Date(System.currentTimeMillis() + 172800000)) // 2 days
-                .withClaim("roles", user.getRole().getAuthorities().stream()
+                .withClaim("roles", userEntity.getRoleEntity().getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .withClaim("user_id", user.getUserId())
+                .withClaim("user_id", userEntity.getUserId())
                 .sign(algorithm);
     }
 
-    public String generateRefreshToken(@NonNull User user) {
+    public String generateRefreshToken(@NonNull UserEntity userEntity) {
         Date now = new Date();
         final Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
-                .withSubject(user.getEmail())
+                .withSubject(userEntity.getEmail())
                 .withIssuedAt(now)
                 .withExpiresAt(new Date(System.currentTimeMillis() + 604800000)) // 7 days
                 .withClaim("roles", String.valueOf((new SimpleGrantedAuthority("can:refresh"))))

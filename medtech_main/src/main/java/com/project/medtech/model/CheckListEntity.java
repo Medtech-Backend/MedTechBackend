@@ -13,16 +13,18 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "`checklist`")
-public class CheckList {
+public class CheckListEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "checklist_seq")
+            generator = "checklist_seq"
+    )
     @SequenceGenerator(
             name = "checklist_seq",
             sequenceName = "checklist_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     @JsonIgnore
@@ -31,14 +33,14 @@ public class CheckList {
             name = "patient_id",
             nullable = false
     )
-    private Patient patient;
+    private PatientEntity patientEntity;
 
     @ManyToOne
     @JoinColumn(
             name = "doctor_id",
             nullable = false
     )
-    private Doctor doctor;
+    private DoctorEntity doctorEntity;
 
     @Column(nullable = false)
     private Time time;
@@ -47,21 +49,22 @@ public class CheckList {
     private Date date;
 
     @OneToMany(
-            mappedBy="checkList",
+            mappedBy = "checkListEntity",
             fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL)
-    private List<Answer> answers;
+            cascade = CascadeType.ALL
+    )
+    private List<AnswerEntity> answerEntities;
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+    public void setPatientEntity(PatientEntity patientEntity) {
+        this.patientEntity = patientEntity;
     }
 
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
+    public void setDoctorEntity(DoctorEntity doctorEntity) {
+        this.doctorEntity = doctorEntity;
     }
 
     public void setTime(Time time) {
@@ -72,13 +75,13 @@ public class CheckList {
         this.date = date;
     }
 
-    public void setAnswers(List<Answer> answers) {
-        if(answers != null){
-            answers.forEach(a->{
-                a.setCheckList(this);
+    public void setAnswerEntities(List<AnswerEntity> answerEntities) {
+        if (answerEntities != null) {
+            answerEntities.forEach(a -> {
+                a.setCheckListEntity(this);
             });
         }
-        this.answers = answers;
+        this.answerEntities = answerEntities;
     }
 }
 

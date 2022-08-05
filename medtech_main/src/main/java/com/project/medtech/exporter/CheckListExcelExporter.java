@@ -12,16 +12,18 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 public class CheckListExcelExporter {
 
     private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
-    private CheckList checkList;
 
-    public CheckListExcelExporter(CheckList checkLists) {
-        this.checkList = checkLists;
+    private XSSFSheet sheet;
+
+    private CheckListEntity checkListEntity;
+
+
+    public CheckListExcelExporter(CheckListEntity checkListsEntity) {
+        this.checkListEntity = checkListsEntity;
         workbook = new XSSFWorkbook();
     }
 
@@ -64,15 +66,15 @@ public class CheckListExcelExporter {
         style.setFont(font);
         int num = 1;
 
-        List<Answer> answers = checkList.getAnswers();
-        for (Answer answer : answers) {
+        List<AnswerEntity> answerEntities = checkListEntity.getAnswerEntities();
+        for (AnswerEntity answerEntity : answerEntities) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
             createCell(row, columnCount++, num, style);
-            createCell(row, columnCount++, answer.getQuestion(), style);
-            createCell(row, columnCount++, answer.getDescription(), style);
-            createCell(row, columnCount++, answer.getIndicators(), style);
+            createCell(row, columnCount++, answerEntity.getQuestion(), style);
+            createCell(row, columnCount++, answerEntity.getDescription(), style);
+            createCell(row, columnCount++, answerEntity.getIndicators(), style);
 
             num++;
         }

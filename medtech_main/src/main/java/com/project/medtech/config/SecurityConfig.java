@@ -1,13 +1,16 @@
 package com.project.medtech.config;
 
+import com.project.medtech.dto.enums.AppointmentEnum;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
+import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtFilter;
-import com.project.medtech.model.AppointmentType;
-import com.project.medtech.model.User;
+import com.project.medtech.model.AppointmentTypeEntity;
+import com.project.medtech.model.RoleEntity;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.AppointmentTypeRepository;
+import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
-import com.project.medtech.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -40,20 +43,27 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
+
     private final JwtFilter jwtFilter;
+
     private final UserRepository userRepository;
+
     private final AppointmentTypeRepository appointmentTypeRepository;
+
+    private final RoleRepository roleRepository;
 
     @Value("${spring.mail.username}")
     private String username;
+
     @Value("${spring.mail.password}")
     private String password;
+
     @Value("${spring.mail.host}")
     private String host;
+
     @Value("${spring.mail.port}")
     private int port;
-    @Value("#{'${appointments.list}'.split(',')}")
-    private List<String> appointments;
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -88,11 +98,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public void configure() {
+        ArrayList<AppointmentTypeEntity> appointmentTypeEntities = (ArrayList<AppointmentTypeEntity>) appointmentTypeRepository.findAll();
 
-        User user = userRepository.findByEmail("trustmed.team3@gmail.com");
+        ArrayList<String> appointmentTypesNames =
+                (ArrayList<String>) appointmentTypeEntities.stream().map(AppointmentTypeEntity::getName).collect(Collectors.toList());
+
+        List<AppointmentEnum> list = AppointmentEnum.getAppointments();
+
+        for (AppointmentEnum s : list) {
+            if (!appointmentTypesNames.contains(s.name())) {
+                AppointmentTypeEntity appointmentTypeEntity = new AppointmentTypeEntity();
+                appointmentTypeEntity.setName(s.name());
+                appointmentTypeRepository.save(appointmentTypeEntity);
+            }
+        }
+
+        List<RoleEntity> roleEntityList = roleRepository.findAll();
+
+        Role[] roleArray = Role.values();
+
+        for (Role r : roleArray) {
+            if (!roleEntityList.contains(r.name())) {
+                RoleEntity roleEntityModel = new RoleEntity();
+                roleEntityModel.setName(r.name());
+                roleRepository.save(roleEntityModel);
+            }
+        }
+
+        UserEntity user = userRepository.findByEmail("trustmed.team3@gmail.com");
 
         if (user == null) {
-            User superAdmin = new User();
+            UserEntity superAdmin = new UserEntity();
             superAdmin.setEmail("trustmed.team3@gmail.com");
             superAdmin.setPassword("$2a$12$UNNiXe1QGTWoyzJ.U13o.OUNbhXu1ejDsflbK0EwCajpPgn3inD/a");
             superAdmin.setFirstName("Neobis");
@@ -100,22 +136,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             superAdmin.setMiddleName("Four");
             superAdmin.setPhoneNumber("");
             superAdmin.setOtpUsed(true);
-            superAdmin.setRole(Role.SUPERADMIN);
+            RoleEntity roleEntity = roleRepository.findByName("SUPERADMIN")
+                    .orElseThrow(
+                            () ->
+                                    new ResourceNotFoundException("No role was found with name: SUPERADMIN")
+                    );
+            superAdmin.setRoleEntity(roleEntity);
             superAdmin.setStatus(Status.ACTIVE);
 
             userRepository.save(superAdmin);
-        }
-
-        ArrayList<AppointmentType> appointmentTypes = (ArrayList<AppointmentType>) appointmentTypeRepository.findAll();
-        ArrayList<String> appointmentTypesNames =
-                (ArrayList<String>) appointmentTypes.stream().map(AppointmentType::getName).collect(Collectors.toList());
-        ArrayList<String> list = (ArrayList<String>) appointments;
-        for(String s: list) {
-            if(!appointmentTypesNames.contains(s)) {
-                AppointmentType appointmentType = new AppointmentType();
-                appointmentType.setName(s);
-                appointmentTypeRepository.save(appointmentType);
-            }
         }
     }
 
@@ -132,6 +161,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+
         mailSender.setHost(host);
         mailSender.setPort(port);
         mailSender.setUsername(username);
@@ -144,4 +174,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         return mailSender;
     }
+
 }

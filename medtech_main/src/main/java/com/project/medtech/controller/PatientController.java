@@ -5,8 +5,8 @@ import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.exporter.MedCardExcelExporter;
 import com.project.medtech.exporter.PatientExcelExporter;
-import com.project.medtech.model.Patient;
-import com.project.medtech.model.User;
+import com.project.medtech.model.PatientEntity;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.PatientRepository;
 import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.UserRepository;
@@ -33,9 +33,13 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+
     private final UserRepository userRepository;
+
     private final PatientRepository patientRepository;
+
     private final PregnancyRepository pregnancyRepository;
+
 
     @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
     @GetMapping("/excel/get-patients")
@@ -56,9 +60,9 @@ public class PatientController {
 
         response.setHeader(headerKey, headerValue);
 
-        List<User> users = userRepository.findAll(Role.PATIENT);
+        List<UserEntity> userEntities = userRepository.findAll(Role.PATIENT);
 
-        PatientExcelExporter excelExporter = new PatientExcelExporter(users, patientService);
+        PatientExcelExporter excelExporter = new PatientExcelExporter(userEntities, patientService);
 
         excelExporter.export(response);
     }
@@ -82,10 +86,10 @@ public class PatientController {
 
         response.setHeader(headerKey, headerValue);
 
-        Patient patient = patientRepository.findById(patientId)
+        PatientEntity patientEntity = patientRepository.findById(patientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient was not found with ID: " + patientId));
 
-        MedCardExcelExporter medCardExcelExporter = new MedCardExcelExporter(pregnancyRepository, patient);
+        MedCardExcelExporter medCardExcelExporter = new MedCardExcelExporter(pregnancyRepository, patientEntity);
 
         medCardExcelExporter.export(response);
     }

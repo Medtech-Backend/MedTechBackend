@@ -12,4 +12,5 @@ public class NewCheckListDto {
     private long doctorId;
     private Time time;
     private Date date;
+
 }

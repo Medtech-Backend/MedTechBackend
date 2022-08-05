@@ -4,15 +4,14 @@ package com.project.medtech.service;
 import com.project.medtech.dto.QuestionDto;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.QuestionMapper;
-import com.project.medtech.model.Question;
+import com.project.medtech.model.QuestionEntity;
 import com.project.medtech.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,39 +19,37 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
 
+
     public List<QuestionDto> getAllQuestion() {
-        List<Question> list = questionRepository.findAll();
-        List<QuestionDto> listDto = new ArrayList<>();
-        for(Question question : list ){
-            listDto.add(QuestionMapper.EntityToDto(question));
-        }
-        return listDto;
+        return questionRepository.findAll().stream()
+                .map(QuestionMapper::EntityToDto)
+                .collect(Collectors.toList());
     }
 
-
     public Optional<QuestionDto> findById(long id) {
-        Question question = questionRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("No Question with ID : "+id));
-        return Optional.of(QuestionMapper.EntityToDto(question));
+        QuestionEntity questionEntity = questionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Question with ID : " + id));
+        return Optional.of(QuestionMapper.EntityToDto(questionEntity));
     }
 
     public QuestionDto save(QuestionDto dto) {
-        Question question = QuestionMapper.DtoToEntity(dto);
-        questionRepository.save(question);
-        QuestionDto questionDto = QuestionMapper.EntityToDto(question);
+        QuestionEntity questionEntity = QuestionMapper.DtoToEntity(dto);
+        questionRepository.save(questionEntity);
+        QuestionDto questionDto = QuestionMapper.EntityToDto(questionEntity);
         return questionDto;
     }
 
-    public QuestionDto update(long id, QuestionDto dto){
-        Question question = questionRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("No Question with ID : "+id));
-        Question newQuestion = QuestionMapper.DtoToEntity(dto);
-        newQuestion.setId(question.getId());
-        return QuestionMapper.EntityToDto(questionRepository.save(newQuestion));
+    public QuestionDto update(long id, QuestionDto dto) {
+        QuestionEntity questionEntity = questionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Question with ID : " + id));
+        QuestionEntity newQuestionEntity = QuestionMapper.DtoToEntity(dto);
+        newQuestionEntity.setId(questionEntity.getId());
+        return QuestionMapper.EntityToDto(questionRepository.save(newQuestionEntity));
     }
 
     public QuestionDto delete(long id) {
-        Question question = questionRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("No Question with ID : "+id));
-        questionRepository.delete(question);
-        return QuestionMapper.EntityToDto(question);
+        QuestionEntity questionEntity = questionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Question with ID : " + id));
+        questionRepository.delete(questionEntity);
+        return QuestionMapper.EntityToDto(questionEntity);
     }
+
 }

@@ -13,16 +13,18 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`appointment`")
-public class Appointment {
+public class AppointmentEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "appointment_seq")
+            generator = "appointment_seq"
+    )
     @SequenceGenerator(
             name = "appointment_seq",
             sequenceName = "appointment_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     private String result;
@@ -33,7 +35,7 @@ public class Appointment {
             referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "FKAPPOINTAPPOINTTYPE")
     )
-    private AppointmentType appointmentType;
+    private AppointmentTypeEntity appointmentTypeEntity;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
@@ -41,5 +43,5 @@ public class Appointment {
             referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "FKAPPOINTPREGNANCY")
     )
-    private Pregnancy pregnancy;
+    private PregnancyEntity pregnancyEntity;
 }

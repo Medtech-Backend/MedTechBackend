@@ -1,6 +1,6 @@
 package com.project.medtech.controller;
 
-import com.project.medtech.model.Image;
+import com.project.medtech.model.ImageEntity;
 import com.project.medtech.service.ImageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,6 +9,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,17 +22,18 @@ public class ImageController {
 
     private final ImageService service;
 
-    @ApiOperation("получение фото пользователя")
+
+    @ApiOperation(value = "получение фото пользователя")
     @GetMapping("/get")
     public ResponseEntity<Resource> retrieve() {
-        Image image = service.getImage();
-        Resource body = new ByteArrayResource(image.getData());
+        ImageEntity imageEntity = service.getImage();
+        Resource body = new ByteArrayResource(imageEntity.getData());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, image.getMimeType())
+                .header(HttpHeaders.CONTENT_TYPE, imageEntity.getMimeType())
                 .body(body);
     }
 
-    @ApiOperation("загрузка фото пользователя")
+    @ApiOperation(value = "загрузка фото пользователя")
     @PostMapping("/upload")
     public ResponseEntity<String> save(@RequestPart MultipartFile file) {
         return ResponseEntity.ok(service.save(file));

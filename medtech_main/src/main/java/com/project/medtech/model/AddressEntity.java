@@ -14,16 +14,18 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`address`")
-public class Address {
+public class AddressEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "address_seq")
+            generator = "address_seq"
+    )
     @SequenceGenerator(
             name = "address_seq",
             sequenceName = "address_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     private String patientAddress;
@@ -40,5 +42,5 @@ public class Address {
             referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "FKADDRESSPATIENT")
     )
-    private Patient patient;
+    private PatientEntity patientEntity;
 }

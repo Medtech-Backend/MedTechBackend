@@ -17,6 +17,7 @@ public class AdminController {
 
     private final AdminService adminService;
 
+
     @ApiOperation(value = "регистрация нового админа")
     @PostMapping("/create")
     public ResponseEntity<RegisterAdminDto> createAdmin(@RequestBody RegisterAdminDto registerAdminDto) {

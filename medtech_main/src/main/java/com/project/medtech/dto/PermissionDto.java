@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressDto {
+public class PermissionDto {
 
-    private String address;
+    private String name;
+
+    private String description;
 
 }

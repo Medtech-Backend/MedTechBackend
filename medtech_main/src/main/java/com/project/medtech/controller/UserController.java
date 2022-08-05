@@ -4,7 +4,6 @@ import com.project.medtech.dto.*;
 import com.project.medtech.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,11 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@Api( "REST APIs related to `User` Entity")
+@Api("REST APIs related to `User` Entity")
 public class UserController {
 
-    private final @NonNull UserService userService;
+    private final UserService userService;
+
 
     @ApiOperation(value = "получение всех пользователей")
     @GetMapping
@@ -27,7 +27,7 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
-    @ApiOperation(value = "получение пользователя по ID")   //Зачем пароль?
+    @ApiOperation(value = "получение пользователя по ID")
     @GetMapping("{id}")
     public ResponseEntity<UserDto> findUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));

@@ -1,7 +1,7 @@
 package com.project.medtech.dto;
-import com.project.medtech.model.Answer;
-import com.project.medtech.model.Doctor;
-import com.project.medtech.model.Patient;
+import com.project.medtech.model.AnswerEntity;
+import com.project.medtech.model.DoctorEntity;
+import com.project.medtech.model.PatientEntity;
 import lombok.Data;
 
 import java.sql.Time;
@@ -12,9 +12,10 @@ import java.util.List;
 public class CheckListDto {
 
     private Long id;
-    private Patient patient;
-    private Doctor doctor;
+    private PatientEntity patientEntity;
+    private DoctorEntity doctorEntity;
     private Time time;
     private Date date;
-    private List<Answer> answers;
+    private List<AnswerEntity> answerEntities;
+
 }

@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PhoneNumberDto {
 
     private String phoneNumber;
+
 }

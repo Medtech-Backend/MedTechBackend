@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressDto {
+public class RoleDto {
 
-    private String address;
+    private String name;
 
 }

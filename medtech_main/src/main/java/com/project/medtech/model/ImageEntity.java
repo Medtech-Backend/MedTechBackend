@@ -13,16 +13,18 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`image`")
-public class Image {
+public class ImageEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "image_seq")
+            generator = "image_seq"
+    )
     @SequenceGenerator(
             name = "image_seq",
             sequenceName = "image_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     private String filename;
@@ -37,5 +39,5 @@ public class Image {
             referencedColumnName = "userId",
             foreignKey = @ForeignKey(name = "FKIMAGEUSER")
     )
-    private User user;
+    private UserEntity userEntity;
 }

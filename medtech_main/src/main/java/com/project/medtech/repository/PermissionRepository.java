@@ -1,14 +1,14 @@
 package com.project.medtech.repository;
 
-import com.project.medtech.model.PatientEntity;
+import com.project.medtech.model.PermissionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface PatientRepository extends JpaRepository<PatientEntity, Long> {
+public interface PermissionRepository extends JpaRepository<PermissionEntity, Long> {
 
-    Optional<PatientEntity> findByUserEntityUserId(Long id);
+    Optional<PermissionEntity> findByName(String name);
 
 }

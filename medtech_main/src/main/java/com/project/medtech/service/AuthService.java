@@ -2,7 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.jwt.JwtProvider;
-import com.project.medtech.model.User;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.NonNull;
@@ -18,23 +18,25 @@ import javax.security.auth.message.AuthException;
 public class AuthService {
 
     private final JwtProvider jwtProvider;
+
     private final PasswordEncoder encoder;
+
     private final UserRepository userRepository;
 
 
     @SneakyThrows
     public AuthResponse login(@NonNull AuthRequest authRequest) {
-        User user = userRepository.findByEmail(authRequest.getEmail());
-        if(user == null) {
+        UserEntity userEntity = userRepository.findByEmail(authRequest.getEmail());
+        if (userEntity == null) {
             throw new AuthException("Not found user with email: " + authRequest.getEmail());
         }
-        if (encoder.matches(authRequest.getPassword(), user.getPassword())) {
-            String accessToken = jwtProvider.generateAccessToken(user);
-            String refreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, refreshToken, user.getUserId(),
-                    user.getEmail(), user.isOtpUsed(), user.getRole().name());
+        if (encoder.matches(authRequest.getPassword(), userEntity.getPassword())) {
+            String accessToken = jwtProvider.generateAccessToken(userEntity);
+            String refreshToken = jwtProvider.generateRefreshToken(userEntity);
+            return new AuthResponse(accessToken, refreshToken, userEntity.getUserId(),
+                    userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
         } else {
-            throw new AuthException("Incorrect password for email: " + authRequest.getPassword());
+            throw new AuthException("Incorrect password for email: " + authRequest.getEmail());
         }
     }
 
@@ -43,11 +45,11 @@ public class AuthService {
         if (jwtProvider.validateToken(refreshToken)) {
             final Claims claims = jwtProvider.getClaims(refreshToken);
             final String email = claims.getSubject();
-            User user = userRepository.findByEmail(email);
-            final String accessToken = jwtProvider.generateAccessToken(user);
-            final String newRefreshToken = jwtProvider.generateRefreshToken(user);
-            return new AuthResponse(accessToken, newRefreshToken, user.getUserId(),
-                    user.getEmail(), user.isOtpUsed(), user.getRole().name());
+            UserEntity userEntity = userRepository.findByEmail(email);
+            final String accessToken = jwtProvider.generateAccessToken(userEntity);
+            final String newRefreshToken = jwtProvider.generateRefreshToken(userEntity);
+            return new AuthResponse(accessToken, newRefreshToken, userEntity.getUserId(),
+                    userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
         }
         throw new AuthException("Invalid JWT token");
     }

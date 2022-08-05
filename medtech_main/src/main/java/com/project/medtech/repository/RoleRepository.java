@@ -1,14 +1,14 @@
 package com.project.medtech.repository;
 
-import com.project.medtech.model.PatientEntity;
+import com.project.medtech.model.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface PatientRepository extends JpaRepository<PatientEntity, Long> {
+public interface RoleRepository extends JpaRepository<RoleEntity, Long> {
 
-    Optional<PatientEntity> findByUserEntityUserId(Long id);
+    Optional<RoleEntity> findByName(String name);
 
 }

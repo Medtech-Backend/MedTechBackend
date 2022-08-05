@@ -2,8 +2,8 @@ package com.project.medtech.service;
 
 import com.project.medtech.exception.FileEmptyException;
 import com.project.medtech.exception.ResourceNotFoundException;
-import com.project.medtech.model.Image;
-import com.project.medtech.model.User;
+import com.project.medtech.model.ImageEntity;
+import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.ImageRepository;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,38 +18,50 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+
     private final UserRepository userRepository;
 
-    public Image getImage() {
-        User user = getAuthentication();
-        if(user.getImage() == null) {
-            throw new ResourceNotFoundException("Image was not found for user email: " + user.getEmail());
+
+    public ImageEntity getImage() {
+        UserEntity userEntity = getAuthentication();
+
+        if (userEntity.getImageEntity() == null) {
+            throw new ResourceNotFoundException("Image was not found for user email: " + userEntity.getEmail());
         }
-        return user.getImage();
+
+        return userEntity.getImageEntity();
     }
 
     @SneakyThrows
     public String save(MultipartFile file) {
-        User user = getAuthentication();
+        UserEntity userEntity = getAuthentication();
+
         if (file.isEmpty()) {
             throw new FileEmptyException("File is empty");
         }
-        Image image;
-        if(user.getImage() == null) {
-            image = new Image();
+
+        ImageEntity imageEntity;
+
+        if (userEntity.getImageEntity() == null) {
+            imageEntity = new ImageEntity();
         } else {
-            image = user.getImage();
+            imageEntity = userEntity.getImageEntity();
         }
-        image.setFilename(file.getOriginalFilename());
-        image.setMimeType(file.getContentType());
-        image.setData(file.getBytes());
-        image.setUser(user);
-        imageRepository.save(image);
+
+        imageEntity.setFilename(file.getOriginalFilename());
+        imageEntity.setMimeType(file.getContentType());
+        imageEntity.setData(file.getBytes());
+        imageEntity.setUserEntity(userEntity);
+
+        imageRepository.save(imageEntity);
+
         return "Image uploaded";
     }
 
-    public User getAuthentication() {
+    public UserEntity getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         return userRepository.findByEmail(authentication.getName());
     }
+
 }

@@ -100,4 +100,5 @@ public class UpdateMedCard {
     private String pastIllnessesAndSurgeries;
 
     private HashMap<String, String> typeResultAppointments;
+
 }

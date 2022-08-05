@@ -9,5 +9,6 @@ public class QuestionDto {
     private Long id;
     private String question;
     private Status status;
+
 }
 

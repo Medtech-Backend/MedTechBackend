@@ -13,16 +13,18 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`appointment_type`")
-public class AppointmentType {
+public class AppointmentTypeEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "appointment_type_seq")
+            generator = "appointment_type_seq"
+    )
     @SequenceGenerator(
             name = "appointment_type_seq",
             sequenceName = "appointment_type_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(unique = true)

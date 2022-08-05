@@ -16,16 +16,18 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "`pregnancy`")
-public class Pregnancy {
+public class PregnancyEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "pregnancy_seq")
+            generator = "pregnancy_seq"
+    )
     @SequenceGenerator(
             name = "pregnancy_seq",
             sequenceName = "pregnancy_seq",
-            allocationSize = 1)
+            allocationSize = 1
+    )
     private Long id;
 
     private String bloodType;
@@ -122,12 +124,12 @@ public class Pregnancy {
             referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "FKPREGNANCYDOCTOR")
     )
-    private Doctor doctor;
+    private DoctorEntity doctorEntity;
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            mappedBy = "pregnancy"
+            mappedBy = "pregnancyEntity"
     )
-    private List<Appointment> appointments;
+    private List<AppointmentEntity> appointmentEntities;
 
 }
