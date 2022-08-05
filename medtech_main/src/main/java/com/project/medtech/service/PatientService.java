@@ -520,7 +520,7 @@ public class PatientService {
     }
 
     public List<PatientDataDto> getAllPatients() {
-        List<UserEntity> userEntities = userRepository.findAll(Role.PATIENT);
+        List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.PATIENT.name());
         List<PatientDataDto> listDto = new ArrayList<>();
 
         for (UserEntity u : userEntities) {
@@ -532,10 +532,11 @@ public class PatientService {
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
             dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
-            dto.setResidenceAddress(address.getRelativeAddress());
+            dto.setResidenceAddress(address.getPatientAddress());
             dto.setStatus(u.getStatus().toString());
             listDto.add(dto);
         }
+
         return listDto;
     }
 
