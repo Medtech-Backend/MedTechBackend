@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -113,23 +114,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
         }
 
-        List<RoleEntity> roleEntityList = roleRepository.findAll();
-
         Role[] roleArray = Role.values();
 
         for (Role r : roleArray) {
-            if (!roleEntityList.contains(r.name())) {
-                RoleEntity roleEntityModel = new RoleEntity();
-                roleEntityModel.setName(r.name());
-                roleRepository.save(roleEntityModel);
+            Optional<RoleEntity> role = roleRepository.findByName(r.name());
+            if (!role.isPresent()) {
+                RoleEntity roleEntity = new RoleEntity();
+
+                roleEntity.setName(r.name());
+
+                roleRepository.save(roleEntity);
             }
         }
 
-        UserEntity user = userRepository.findByEmail("trustmed.team3@gmail.com");
+        UserEntity user = userRepository.findByEmail("tilekju3@gmail.com");
 
         if (user == null) {
             UserEntity superAdmin = new UserEntity();
-            superAdmin.setEmail("trustmed.team3@gmail.com");
+            superAdmin.setEmail("tilekju@gmail.com");
             superAdmin.setPassword("$2a$12$UNNiXe1QGTWoyzJ.U13o.OUNbhXu1ejDsflbK0EwCajpPgn3inD/a");
             superAdmin.setFirstName("Neobis");
             superAdmin.setLastName("Team");
