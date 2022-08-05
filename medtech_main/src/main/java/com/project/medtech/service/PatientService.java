@@ -302,7 +302,8 @@ public class PatientService {
         medCardDto.setMiddleName(userEntity.getMiddleName());
         medCardDto.setPhoneNumber(userEntity.getPhoneNumber());
 
-        medCardDto.setDoctor(doctorEntity.getUserEntity().getLastName() + doctorEntity.getUserEntity().getFirstName() + doctorEntity.getUserEntity().getMiddleName());
+        medCardDto.setDoctor(String.format("%s %s %s",doctorEntity.getUserEntity().getLastName(),
+                doctorEntity.getUserEntity().getFirstName(), doctorEntity.getUserEntity().getMiddleName()));
 
         medCardDto.setBirthday(patientEntity.getBirthday());
         medCardDto.setAge(patientEntity.getAge());
