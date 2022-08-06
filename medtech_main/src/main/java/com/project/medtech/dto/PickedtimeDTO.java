@@ -7,7 +7,7 @@ import java.sql.Time;
 
 
 @Data
-public class Pickedtime {
+public class PickedtimeDTO {
 
     private Time time;
     private Colors colors;
