@@ -1,12 +1,15 @@
 package com.project.medtech.dto;
 
 import com.project.medtech.dto.enums.Colors;
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Time;
 
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PickedtimeDTO {
 
     private Time time;

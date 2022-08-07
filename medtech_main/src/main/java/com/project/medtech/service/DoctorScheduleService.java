@@ -12,9 +12,7 @@ import com.project.medtech.model.CheckListEntity;
 import com.project.medtech.model.DoctorSchedule;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.DoctorScheduleRepository;
-import com.project.medtech.repository.PregnancyRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
@@ -183,7 +181,6 @@ public class DoctorScheduleService {
     public List<CheckListDto> getAllCheckLists() {
         List<CheckListEntity> list = checkListRepository.findAll();
         List<CheckListDto> listDto = new ArrayList<>();
-
         for (CheckListEntity checkList : list) {
             listDto.add(CheckListMapper.EntityToDto(checkList));
         }
