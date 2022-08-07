@@ -15,6 +15,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -75,7 +76,7 @@ public class DoctorScheduleController {
     }
 
     @ApiOperation(value = "получение расписаний доктора по id доктора ")
-    @GetMapping(value = "/doctorSchedule/{id}")
+    @GetMapping(value = "/listOfSchedulesByDocId/{id}")
     ResponseEntity<List<DoctorScheduleDto>> listOfSchedulesByDocId(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(doctorScheduleService.listOfSchedulesByDocId(id));
     }
@@ -87,7 +88,7 @@ public class DoctorScheduleController {
     }
 
     @ApiOperation(value = "изменения расписания доктора")
-    @PutMapping(value = "/doctorSchedule/{id}")
+    @PutMapping(value = "/doctorSchedule/{id}/{docSchedule}")
     ResponseEntity<DoctorScheduleDto> updateDoctorSchedule(@PathVariable("id") long id, @RequestBody DoctorScheduleDto dto) {
         return ResponseEntity.ok().body(doctorScheduleService.update(id, dto));
     }

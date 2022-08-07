@@ -42,6 +42,7 @@ public class DoctorScheduleService {
         for (CheckListEntity checkList : getByDoc) {
             list.add(CheckListMapper.EntityToDto(checkList));
         }
+
         return list;
     }
 
@@ -130,10 +131,12 @@ public class DoctorScheduleService {
     public Optional<DoctorScheduleDto> findById(long id) {
         DoctorSchedule doctorSchedule = repository.findById(id)
                 .orElseThrow(
-                        () -> new NotFoundException("No Doctor Schedule with ID : " + id));
+                        () ->
+                                new NotFoundException("No Doctor Schedule with ID : " + id));
 
         return Optional.of(DoctorScheduleMapper.EntityToDto(doctorSchedule));
     }
+
 
     public List<DoctorScheduleDto> listOfSchedulesByDocId(long id) {
         List<DoctorScheduleDto> list1 = getAllDoctorSchedules();
@@ -145,10 +148,13 @@ public class DoctorScheduleService {
         return list2;
     }
 
+
     public Optional<DoctorScheduleDto> findByDocIdAndDate(long id, Date date) {
         DoctorSchedule doctorSchedule = repository.findByDocIDAndDate(id, date)
                 .orElseThrow(
-                        () -> new NotFoundException("No Doctor Schedule with ID : " + id));
+                        () ->
+                                new NotFoundException("No Doctor Schedule with ID : " + id)
+                );
 
         return Optional.of(DoctorScheduleMapper.EntityToDto(doctorSchedule));
     }
@@ -161,22 +167,30 @@ public class DoctorScheduleService {
         return dto1;
     }
 
+
     public DoctorScheduleDto update(long id, DoctorScheduleDto dto) {
         DoctorSchedule schedule = repository.findById(id)
                 .orElseThrow(
-                () -> new NotFoundException("No DoctorS chedule with ID : " + id));
+                        () ->
+                                new NotFoundException("No DoctorS chedule with ID : " + id)
+                );
 
         DoctorSchedule schedule1 = DoctorScheduleMapper.DtoToEntity(dto);
         schedule1.setId(schedule.getId());
         return DoctorScheduleMapper.EntityToDto(repository.save(schedule1));
     }
 
+
     public void delete(long id) {
         DoctorSchedule schedule = repository.findById(id)
-                .orElseThrow(() ->
-                        new NotFoundException("No Doctor Schedule with ID : " + id));
+                .orElseThrow(
+                        () ->
+                                new NotFoundException("No Doctor Schedule with ID : " + id)
+                );
+
         repository.delete(schedule);
     }
+
 
     public List<CheckListDto> getAllCheckLists() {
         List<CheckListEntity> list = checkListRepository.findAll();
