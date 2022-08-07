@@ -13,4 +13,6 @@ import java.util.Optional;
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, Long> {
     @Query("SELECT  ch FROM DoctorSchedule ch WHERE ch.doctor.id =:docID AND ch.dayOfWeek =:cDate")
     Optional<DoctorSchedule> findByDocIDAndDate(@RequestParam Long docID, Date cDate);
+
+
 }
