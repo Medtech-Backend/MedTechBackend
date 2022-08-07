@@ -52,6 +52,7 @@ public class DoctorScheduleService {
         List<PickedtimeDTO> pcktTime = getAllpickedTime(patientID, doctorID, date);
         List<Time> times = doctorScheduleTime(doctorID, date);
         List<Time> timess = new ArrayList<>();
+
         for (PickedtimeDTO pickedtime : pcktTime) {
             timess.add(pickedtime.getTime());
         }
@@ -86,8 +87,7 @@ public class DoctorScheduleService {
                 }
             }
         }
-        List<PickedtimeDTO> lsst = new ArrayList<>(pktTime);
-        return lsst;
+        return new ArrayList<>(pktTime);
     }
 
 
@@ -114,7 +114,6 @@ public class DoctorScheduleService {
         DoctorScheduleDto doctorScheduleDto = findByDocIdAndDate(id, date).get();
         List<Time> time_list = new ArrayList<>();
         for (int i = 0; i < doctorScheduleDto.getTime_end().getHours() - doctorScheduleDto.getTime_start().getHours(); i++) {
-
             Time time = new Time(doctorScheduleDto.getTime_start().getHours() + i, 0, 0);
             time_list.add(time);
         }
@@ -131,7 +130,10 @@ public class DoctorScheduleService {
     }
 
     public Optional<DoctorScheduleDto> findById(long id) {
-        DoctorSchedule doctorSchedule = repository.findById(id).orElseThrow(() -> new NotFoundException("No Doctor Schedule with ID : " + id));
+        DoctorSchedule doctorSchedule = repository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException("No Doctor Schedule with ID : " + id));
+
         return Optional.of(DoctorScheduleMapper.EntityToDto(doctorSchedule));
     }
 
@@ -146,9 +148,11 @@ public class DoctorScheduleService {
     }
 
     public Optional<DoctorScheduleDto> findByDocIdAndDate(long id, Date date) {
-        DoctorSchedule doctorSchedule = repository.findByDocIDAndDate(id, date).orElseThrow(() -> new NotFoundException("No Doctor Schedule with ID : " + id));
-        return Optional.of(DoctorScheduleMapper.EntityToDto(doctorSchedule));
+        DoctorSchedule doctorSchedule = repository.findByDocIDAndDate(id, date)
+                .orElseThrow(
+                        () -> new NotFoundException("No Doctor Schedule with ID : " + id));
 
+        return Optional.of(DoctorScheduleMapper.EntityToDto(doctorSchedule));
     }
 
 
@@ -160,7 +164,10 @@ public class DoctorScheduleService {
     }
 
     public DoctorScheduleDto update(long id, DoctorScheduleDto dto) {
-        DoctorSchedule schedule = repository.findById(id).orElseThrow(() -> new NotFoundException("No DoctorS chedule with ID : " + id));
+        DoctorSchedule schedule = repository.findById(id)
+                .orElseThrow(
+                () -> new NotFoundException("No DoctorS chedule with ID : " + id));
+
         DoctorSchedule schedule1 = DoctorScheduleMapper.DtoToEntity(dto);
         schedule1.setId(schedule.getId());
         return DoctorScheduleMapper.EntityToDto(repository.save(schedule1));
