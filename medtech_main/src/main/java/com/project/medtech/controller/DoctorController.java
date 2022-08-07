@@ -1,5 +1,7 @@
 package com.project.medtech.controller;
 
+import com.project.medtech.dto.DoctorDataDto;
+import com.project.medtech.dto.NameRequest;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.DoctorExcelExporter;
@@ -37,21 +39,44 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
     }
 
-    @ApiOperation(value = "получение чеклиста в виде excel файла")
-    @GetMapping("/excel/export")
+    @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
+    @GetMapping("/excel/get-doctors")
     public void exportToExcel(HttpServletResponse response) throws IOException {
-
         response.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
         String currentDateTime = dateFormatter.format(new Date());
-        currentDateTime = currentDateTime.replaceAll(":", "-");
-        String headerKey = "Content-Disposition ";
-        String headerValue = "attachment; filename=doctors_" + currentDateTime + ".xlsx";
+
+        String fileName = "doctors_" + currentDateTime + ".xlsx";
+
+        fileName = fileName.replaceAll(":", "-");
+
+        String headerValue = "attachment; filename=" + fileName;
+
         response.setHeader(headerKey, headerValue);
+
         List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
 
         DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities);
-        excelExporter.export(response);
 
+        excelExporter.export(response);
     }
+
+    @ApiOperation(value = "вывод данных всех докторов")
+    @GetMapping("/get-all")
+    ResponseEntity<List<DoctorDataDto>> getAll(){
+        return ResponseEntity.ok(doctorService.getAllDoctors());
+    }
+
+    @ApiOperation(value = "поиск данных всех докторов по ФИО")
+    @PostMapping("/get-all-by-parameter")
+    ResponseEntity<List<DoctorDataDto>> searchAllDoctorsByName(@RequestBody NameRequest nameRequest){
+        return ResponseEntity.ok(doctorService.searchByName(nameRequest));
+    }
+
+
+
 }

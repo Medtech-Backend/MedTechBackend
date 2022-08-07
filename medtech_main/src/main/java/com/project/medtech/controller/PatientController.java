@@ -112,7 +112,7 @@ public class PatientController {
         return ResponseEntity.ok(patientService.registerPatient(medCardDto));
     }
 
-    @ApiOperation(value = "получение инфо о пациентке(для мобильного приложения)")
+    @ApiOperation(value = "получение инфо о пациен   D Ma09тке(для мобильного приложения)")
     @GetMapping("/get-info")
     ResponseEntity<PatientDto> getInfo() {
         return ResponseEntity.ok(patientService.getInfo());
@@ -146,5 +146,11 @@ public class PatientController {
     @GetMapping("/get-all")
     ResponseEntity<List<PatientDataDto>> getAll(){
         return ResponseEntity.ok(patientService.getAllPatients());
+    }
+
+    @ApiOperation(value = "поиск данных всех пациентов по ФИО")
+    @PostMapping("/get-all-by-parameter")
+    ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@RequestBody NameRequest nameRequest){
+        return ResponseEntity.ok(patientService.searchByName(nameRequest));
     }
 }

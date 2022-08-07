@@ -47,6 +47,8 @@ public class PatientService {
 
     private final RoleRepository roleRepository;
 
+    private final UserService userService;
+
 
     public PatientDto getInfo() {
         UserEntity userEntity = getAuthentication();
@@ -528,7 +530,7 @@ public class PatientService {
             PatientEntity patientEntity = u.getPatientEntity();
             AddressEntity address = patientEntity.getAddressEntity();
             dto.setPatientId(patientEntity.getId());
-            dto.setFIO(getFullName(u));
+            dto.setFIO(userService.getFullName(u));
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
             dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
@@ -540,18 +542,25 @@ public class PatientService {
         return listDto;
     }
 
-    public String getFullName(UserEntity userEntity) {
-        String name = "";
-        if (!userEntity.getLastName().isEmpty()) {
-            name += userEntity.getLastName();
+    public List<PatientDataDto> searchByName(NameRequest nameRequest) {
+        List<UserEntity> userEntities = userRepository.findAllByFio(Role.PATIENT.name(),nameRequest.getSearchWord());
+        List<PatientDataDto> listDto = new ArrayList<>();
+
+        for (UserEntity u : userEntities) {
+            PatientDataDto dto = new PatientDataDto();
+            PatientEntity patientEntity = u.getPatientEntity();
+            AddressEntity address = patientEntity.getAddressEntity();
+            dto.setPatientId(patientEntity.getId());
+            dto.setFIO(userService.getFullName(u));
+            dto.setPhoneNumber(u.getPhoneNumber());
+            dto.setEmail(u.getEmail());
+            dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
+            dto.setResidenceAddress(address.getPatientAddress());
+            dto.setStatus(u.getStatus().toString());
+            listDto.add(dto);
         }
-        if (!userEntity.getFirstName().isEmpty()) {
-            name += " " + userEntity.getFirstName().charAt(0) + ".";
-        }
-        if (!userEntity.getMiddleName().isEmpty()) {
-            name += " " + userEntity.getMiddleName().charAt(0) + ".";
-        }
-        return name;
+
+        return listDto;
     }
 
     public UserEntity getAuthentication() {

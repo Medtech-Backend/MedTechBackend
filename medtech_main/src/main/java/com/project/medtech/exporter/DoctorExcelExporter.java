@@ -79,16 +79,6 @@ public class DoctorExcelExporter {
 
             DoctorEntity doctor = u.getDoctorEntity();
             List<PregnancyEntity> pregnancies = doctor.getPregnancies();
-            List<PatientEntity> patients = new ArrayList<>();
-            int number = 1;
-//            for(Pregnancy preg : pregnancies ){
-//                for(Pregnancy preg2 : pregnancies){
-//                    if(preg.getPatient().getId() == preg2.getPatient().getId()){
-//                        break;
-//                    }
-//
-//                }
-//            }
 
             createCell(row, columnCount++, num, style);
             createCell(row, columnCount++, u.getFirstName()+" "+u.getLastName()+" "+u.getMiddleName(), style);

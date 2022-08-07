@@ -140,4 +140,18 @@ public class UserService implements UserDetailsService {
         return userDto;
     }
 
+    public String getFullName(UserEntity userEntity) {
+        String name = "";
+        if (!userEntity.getLastName().isEmpty()) {
+            name += userEntity.getLastName();
+        }
+        if (!userEntity.getFirstName().isEmpty()) {
+            name += " " + userEntity.getFirstName().charAt(0) + ".";
+        }
+        if (!userEntity.getMiddleName().isEmpty()) {
+            name += " " + userEntity.getMiddleName().charAt(0) + ".";
+        }
+        return name;
+    }
+
 }

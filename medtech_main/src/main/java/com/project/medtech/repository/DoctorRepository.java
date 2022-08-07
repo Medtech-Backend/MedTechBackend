@@ -12,5 +12,4 @@ public interface DoctorRepository extends JpaRepository<DoctorEntity, Long> {
 
     @Query("SELECT d FROM DoctorEntity d WHERE d.userEntity.userId = ?1")
     Optional<DoctorEntity> findDoctorByUser(Long id);
-
 }

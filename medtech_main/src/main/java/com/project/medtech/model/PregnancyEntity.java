@@ -126,6 +126,14 @@ public class PregnancyEntity {
     )
     private DoctorEntity doctorEntity;
 
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(
+//            name = "pregnancy_id",
+//            referencedColumnName = "id",
+//            foreignKey = @ForeignKey(name = "FKPREGNANCYPATIENT")
+//    )
+//    private PregnancyEntity pregnancyEntity;
+
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "pregnancyEntity"
