@@ -1,5 +1,6 @@
 package com.project.medtech.controller;
 
+import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.DoctorExcelExporter;
@@ -31,7 +32,7 @@ public class DoctorController {
     private final UserRepository userRepository;
 
 
-    @ApiOperation(value = "регистрация нового доктора")
+    @ApiOperation(value = "регистрация нового доктора (ВЕБ)")
     @PostMapping("/create")
     public ResponseEntity<RegisterDoctorDto> createDoctor(@RequestBody RegisterDoctorDto registerDoctorDto) {
         return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
@@ -54,4 +55,11 @@ public class DoctorController {
         excelExporter.export(response);
 
     }
+
+    @ApiOperation(value = "вывод листа состоящий из ФИО и почты доктора (ВЕБ)")
+    @GetMapping("/get-full-name-email")
+    public ResponseEntity<List<FullNameEmailDto>> getDoctorsFNEmail() {
+        return ResponseEntity.ok(doctorService.getDoctorsFNEmail());
+    }
+
 }

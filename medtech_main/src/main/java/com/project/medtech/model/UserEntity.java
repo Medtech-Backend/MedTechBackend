@@ -53,6 +53,8 @@ public class UserEntity implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(
             name = "role_id",
@@ -67,11 +69,6 @@ public class UserEntity implements UserDetails {
     @OneToOne(mappedBy = "userEntity")
     private DoctorEntity doctorEntity;
 
-    @OneToOne(
-            cascade = CascadeType.ALL,
-            mappedBy = "userEntity"
-    )
-    private ImageEntity imageEntity;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

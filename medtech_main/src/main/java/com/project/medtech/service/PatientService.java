@@ -1,6 +1,8 @@
 package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
+import com.project.medtech.dto.enums.Education;
+import com.project.medtech.dto.enums.Married;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
@@ -12,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -48,29 +51,6 @@ public class PatientService {
     private final RoleRepository roleRepository;
 
 
-    public PatientDto getInfo() {
-        UserEntity userEntity = getAuthentication();
-
-        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + userEntity.getUserId()));
-
-        PatientDto patientDto = new PatientDto();
-        patientDto.setEmail(userEntity.getEmail());
-        patientDto.setBirthday(patientEntity.getBirthday());
-        patientDto.setAddress(patientEntity.getAddressEntity().getPatientAddress());
-        patientDto.setFullName(userEntity.getLastName() + " " + userEntity.getFirstName() + " " + userEntity.getMiddleName());
-        patientDto.setPhoneNumber(userEntity.getPhoneNumber());
-        patientDto.setPatientId(patientEntity.getId());
-        patientDto.setWeekOfPregnancy(calculateCurrentWeekOfPregnancy(userEntity.getEmail()));
-
-        return patientDto;
-    }
-
-    public Integer getCurrentWeekOfPregnancy() {
-        UserEntity userEntity = getAuthentication();
-        return calculateCurrentWeekOfPregnancy(userEntity.getEmail());
-    }
-
     public Integer calculateCurrentWeekOfPregnancy(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
 
@@ -80,8 +60,7 @@ public class PatientService {
 
         PatientEntity patientEntity = userEntity.getPatientEntity();
 
-        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Pregnancy with ID : " + patientEntity.getId()));
+        PregnancyEntity pregnancyEntity = patientEntity.getPregnancy();
 
         if (pregnancyEntity.getFirstVisitDate() == null || pregnancyEntity.getFirstVisitWeekOfPregnancy() == null) {
             return 0;
@@ -132,6 +111,7 @@ public class PatientService {
         return addressDto;
     }
 
+    @Transactional
     public MedCardDto registerPatient(MedCardDto registerPatientDto) {
         UserEntity userEntity = new UserEntity();
         userEntity.setFirstName(registerPatientDto.getFirstName());
@@ -151,11 +131,9 @@ public class PatientService {
         userEntity.setPassword(passwordEncoder.encode(password));
 
         PatientEntity patientEntity = new PatientEntity();
-        patientEntity.setPregnancy(new ArrayList<>());
         patientEntity.setUserEntity(userEntity);
         patientEntity.setBirthday(registerPatientDto.getBirthday());
         patientEntity.setAge(calculateAge(registerPatientDto.getBirthday()));
-        patientEntity.setPin(registerPatientDto.getPin());
         patientEntity.setCitizenship(registerPatientDto.getCitizenship());
         patientEntity.setPatientCategory(registerPatientDto.getPatientCategory());
         patientEntity.setWorkPlace(registerPatientDto.getWorkPlace());
@@ -191,6 +169,7 @@ public class PatientService {
 
         PregnancyEntity pregnancyEntity = new PregnancyEntity();
         pregnancyEntity.setDoctorEntity(doctorEntity);
+        pregnancyEntity.setPatientEntity(patientEntity);
         pregnancyEntity.setBloodType(registerPatientDto.getBloodType());
         pregnancyEntity.setRhFactorPregnant(registerPatientDto.getRhFactorPregnant());
         pregnancyEntity.setRhFactorPartner(registerPatientDto.getRhFactorPartner());
@@ -237,10 +216,11 @@ public class PatientService {
         pregnancyEntity.setVacationUntilForPregnancy(registerPatientDto.getVacationUntilForPregnancy());
         pregnancyEntity.setAllergicToDrugs(registerPatientDto.getAllergicToDrugs());
         pregnancyEntity.setPastIllnessesAndSurgeries(registerPatientDto.getPastIllnessesAndSurgeries());
+        pregnancyEntity.setDisabilityListNumber(registerPatientDto.getDisabilityListNumber());
 
         List<AppointmentTypeEntity> appointmentTypeEntities = appointmentTypeRepository.findAll();
 
-        HashMap<String, String> map = registerPatientDto.getTypeResultAppointments();
+        HashMap<String, String> map = (HashMap<String, String>) registerPatientDto.getTypeResultAppointments();
 
         appointmentTypeEntities.forEach(
                 a -> {
@@ -260,10 +240,6 @@ public class PatientService {
 
         pregnancyRepository.save(pregnancyEntity);
 
-        patientEntity.setCurrentPregnancyId(pregnancyEntity.getId());
-
-        patientEntity.getPregnancy().add(pregnancyEntity);
-
         patientRepository.save(patientEntity);
 
         userRepository.save(userEntity);
@@ -275,22 +251,15 @@ public class PatientService {
         return registerPatientDto;
     }
 
-    public MedCardDto getPatientMedCardInfo(EmailDto email) {
-        UserEntity userEntity = userRepository.findByEmail(email.getEmail());
-
-        if (userEntity == null) {
-            throw new ResourceNotFoundException("User was not found with email: " + email.getEmail());
-        }
-
-        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
+    public MedCardDto getPatientMedCardInfo(Long patientId) {
+        PatientEntity patientEntity = patientRepository.findById(patientId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient was not found with user_id: " + userEntity.getUserId())
+                        new ResourceNotFoundException("Patient was not found with id: " + patientId)
                 );
 
-        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patientEntity.getCurrentPregnancyId())
-                );
+        UserEntity userEntity = patientEntity.getUserEntity();
+
+        PregnancyEntity pregnancyEntity = patientEntity.getPregnancy();
 
         DoctorEntity doctorEntity = pregnancyEntity.getDoctorEntity();
 
@@ -307,7 +276,6 @@ public class PatientService {
 
         medCardDto.setBirthday(patientEntity.getBirthday());
         medCardDto.setAge(patientEntity.getAge());
-        medCardDto.setPin(patientEntity.getPin());
         medCardDto.setCitizenship(patientEntity.getCitizenship());
         medCardDto.setPatientCategory(patientEntity.getPatientCategory());
         medCardDto.setWorkPlace(patientEntity.getWorkPlace());
@@ -374,6 +342,7 @@ public class PatientService {
         medCardDto.setProvisionalDiagnosis(pregnancyEntity.getProvisionalDiagnosis());
         medCardDto.setVacationFromForPregnancy(pregnancyEntity.getVacationFromForPregnancy());
         medCardDto.setVacationUntilForPregnancy(pregnancyEntity.getVacationUntilForPregnancy());
+        medCardDto.setDisabilityListNumber(pregnancyEntity.getDisabilityListNumber());
 
         medCardDto.setAllergicToDrugs(pregnancyEntity.getAllergicToDrugs());
         medCardDto.setPastIllnessesAndSurgeries(pregnancyEntity.getPastIllnessesAndSurgeries());
@@ -389,28 +358,27 @@ public class PatientService {
         return medCardDto;
     }
 
+    @Transactional
     public UpdateMedCard updateMedCard(UpdateMedCard updateMedCard) {
-        UserEntity userEntity = userRepository.findById(updateMedCard.getUser_id())
+        PatientEntity patientEntity = patientRepository.findById(updateMedCard.getPatientId())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("User was not found with id: " + updateMedCard.getUser_id())
+                        () -> new ResourceNotFoundException("Patient was not found with id: " + updateMedCard.getPatientId())
                 );
+
+        UserEntity userEntity = patientEntity.getUserEntity();
 
         userEntity.setFirstName(updateMedCard.getFirstName());
         userEntity.setLastName(updateMedCard.getLastName());
         userEntity.setMiddleName(updateMedCard.getMiddleName());
+
         if (!updateMedCard.getEmail().equals(userEntity.getEmail())) {
             userEntity.setEmail(updateMedCard.getEmail());
         }
-        userEntity.setPhoneNumber(updateMedCard.getPhoneNumber());
 
-        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Patient was not found with user_id: " + userEntity.getUserId())
-                );
+        userEntity.setPhoneNumber(updateMedCard.getPhoneNumber());
 
         patientEntity.setBirthday(updateMedCard.getBirthday());
         patientEntity.setAge(calculateAge(updateMedCard.getBirthday()));
-        patientEntity.setPin(updateMedCard.getPin());
         patientEntity.setCitizenship(updateMedCard.getCitizenship());
         patientEntity.setPatientCategory(updateMedCard.getPatientCategory());
         patientEntity.setWorkPlace(updateMedCard.getWorkPlace());
@@ -437,14 +405,12 @@ public class PatientService {
         insuranceEntity.setNumber(updateMedCard.getInsuranceNumber());
 
         UserEntity userEntityDoctor = userRepository.findByEmail(updateMedCard.getDoctor());
+
         DoctorEntity doctorEntity = doctorRepository.findDoctorByUser(userEntityDoctor.getUserId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Doctor was not found with user_id: " + userEntityDoctor.getUserId()));
 
-        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Pregnancy was not found with id: " + patientEntity.getCurrentPregnancyId())
-                );
+        PregnancyEntity pregnancyEntity = patientEntity.getPregnancy();
 
         pregnancyEntity.setDoctorEntity(doctorEntity);
         pregnancyEntity.setBloodType(updateMedCard.getBloodType());
@@ -469,7 +435,8 @@ public class PatientService {
         pregnancyEntity.setFirstVisitGrowth(updateMedCard.getFirstVisitGrowth());
         pregnancyEntity.setFirstVisitWeight(updateMedCard.getFirstVisitWeight());
         if (updateMedCard.getFirstVisitGrowth() != null && updateMedCard.getFirstVisitWeight() != null) {
-            pregnancyEntity.setBodyMassIndex(calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
+            pregnancyEntity.setBodyMassIndex
+                    (calculateBmx(updateMedCard.getFirstVisitWeight(), updateMedCard.getFirstVisitGrowth()));
         }
         pregnancyEntity.setSkinAndMucousMembranes(updateMedCard.getSkinAndMucousMembranes());
         pregnancyEntity.setThyroid(updateMedCard.getThyroid());
@@ -493,10 +460,11 @@ public class PatientService {
         pregnancyEntity.setVacationUntilForPregnancy(updateMedCard.getVacationUntilForPregnancy());
         pregnancyEntity.setAllergicToDrugs(updateMedCard.getAllergicToDrugs());
         pregnancyEntity.setPastIllnessesAndSurgeries(updateMedCard.getPastIllnessesAndSurgeries());
+        pregnancyEntity.setDisabilityListNumber(updateMedCard.getDisabilityListNumber());
 
         List<AppointmentEntity> appointmentEntities = pregnancyEntity.getAppointmentEntities();
 
-        HashMap<String, String> map = updateMedCard.getTypeResultAppointments();
+        HashMap<String, String> map = (HashMap<String, String>) updateMedCard.getTypeResultAppointments();
 
         for (String key : map.keySet()) {
             for (AppointmentEntity a1 : appointmentEntities) {
@@ -519,14 +487,37 @@ public class PatientService {
         return updateMedCard;
     }
 
+    public PatientDto getPatientProfileMob() {
+        UserEntity userEntity = getAuthentication();
+
+        PatientEntity patientEntity = patientRepository.findByUserEntityUserId(userEntity.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Patient with user_id: " + userEntity.getUserId()));
+
+        PatientDto patientDto = new PatientDto();
+        patientDto.setEmail(userEntity.getEmail());
+        patientDto.setBirthday(patientEntity.getBirthday());
+        patientDto.setAddress(patientEntity.getAddressEntity().getPatientAddress());
+        patientDto.setFullName(userEntity.getLastName() + " " + userEntity.getFirstName() + " " + userEntity.getMiddleName());
+        patientDto.setPhoneNumber(userEntity.getPhoneNumber());
+        patientDto.setPatientId(patientEntity.getId());
+        patientDto.setWeekOfPregnancy(calculateCurrentWeekOfPregnancy(userEntity.getEmail()));
+        patientDto.setImageUrl(userEntity.getImageUrl());
+
+        return patientDto;
+    }
+
     public List<PatientDataDto> getAllPatients() {
         List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.PATIENT.name());
+
         List<PatientDataDto> listDto = new ArrayList<>();
 
         for (UserEntity u : userEntities) {
             PatientDataDto dto = new PatientDataDto();
+
             PatientEntity patientEntity = u.getPatientEntity();
+
             AddressEntity address = patientEntity.getAddressEntity();
+
             dto.setPatientId(patientEntity.getId());
             dto.setFIO(getFullName(u));
             dto.setPhoneNumber(u.getPhoneNumber());
@@ -534,10 +525,34 @@ public class PatientService {
             dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
             dto.setResidenceAddress(address.getPatientAddress());
             dto.setStatus(u.getStatus().toString());
+
             listDto.add(dto);
         }
 
         return listDto;
+    }
+
+    public PatientProfileDto getPatientProfileWeb(Long patientId) {
+        PatientEntity patient = patientRepository.findById(patientId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Patient was not found with id: " + patientId)
+                );
+
+        UserEntity user = patient.getUserEntity();
+
+        PregnancyEntity pregnancyEntity = patient.getPregnancy();
+
+        PatientProfileDto patientProfileDto = new PatientProfileDto();
+
+        patientProfileDto.setLastName(user.getLastName());
+        patientProfileDto.setFirstName(user.getFirstName());
+        patientProfileDto.setMiddleName(user.getMiddleName());
+        patientProfileDto.setPhoneNumber(user.getPhoneNumber());
+        patientProfileDto.setImageUrl(user.getImageUrl());
+        patientProfileDto.setEmail(user.getEmail());
+        patientProfileDto.setDoctor(getFullName(pregnancyEntity.getDoctorEntity().getUserEntity()));
+
+        return patientProfileDto;
     }
 
     public String getFullName(UserEntity userEntity) {
@@ -567,6 +582,30 @@ public class PatientService {
 
     public int calculateAge(LocalDate dob) {
         return dob != null ? Period.between(dob, LocalDate.now()).getYears() : 0;
+    }
+
+    public List<EducationDto> getEducationTypes() {
+        List<EducationDto> result = new ArrayList<>();
+
+        Education[] educationEnums = Education.values();
+
+        for(Education e: educationEnums) {
+            result.add(new EducationDto(e.name(), e.getType()));
+        }
+
+        return result;
+    }
+
+    public List<MarriedDto> getMarriedTypes() {
+        List<MarriedDto> result = new ArrayList<>();
+
+        Married[] marriedEnums = Married.values();
+
+        for(Married m: marriedEnums) {
+            result.add(new MarriedDto(m.name(), m.getType()));
+        }
+
+        return result;
     }
 
 }

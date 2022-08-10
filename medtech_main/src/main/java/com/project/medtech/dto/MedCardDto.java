@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -26,7 +26,6 @@ public class MedCardDto {
 
     private LocalDate birthday;
     private Integer age;
-    private String pin;
     private String citizenship;
     private String patientCategory;
     private String workPlace;
@@ -93,10 +92,11 @@ public class MedCardDto {
     private String provisionalDiagnosis;
     private LocalDate vacationFromForPregnancy;
     private LocalDate vacationUntilForPregnancy;
+    private String disabilityListNumber;
 
     private String allergicToDrugs;
     private String pastIllnessesAndSurgeries;
 
-    private HashMap<String, String> typeResultAppointments;
+    private Map<String, String> typeResultAppointments;
 
 }

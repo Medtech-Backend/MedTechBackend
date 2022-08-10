@@ -1,7 +1,6 @@
 package com.project.medtech.exporter;
 
 import com.project.medtech.dto.enums.AppointmentEnum;
-import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.*;
 import com.project.medtech.repository.PregnancyRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,8 +18,6 @@ import java.util.List;
 
 public class MedCardExcelExporter {
 
-    private final PregnancyRepository pregnancyRepository;
-
     private XSSFWorkbook workbook;
 
     private XSSFSheet sheet;
@@ -28,8 +25,7 @@ public class MedCardExcelExporter {
     private PatientEntity patientEntity;
 
 
-    public MedCardExcelExporter(PregnancyRepository pregnancyRepository, PatientEntity patientEntity) {
-        this.pregnancyRepository = pregnancyRepository;
+    public MedCardExcelExporter(PatientEntity patientEntity) {
         this.patientEntity = patientEntity;
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Медицинская карта");
@@ -39,7 +35,7 @@ public class MedCardExcelExporter {
         String[] columns =
                 {
                         "Дата взятия на учет", "Почта", "Имя", "Фамилия", "Отчество", "Номер телефона", "Гинеколог", "Дата рождения",
-                        "Возраст", "ИНН", "Гражданство", "Категория пациента", "Место работы", "Должность",
+                        "Возраст", "Гражданство", "Категория пациента", "Место работы", "Должность",
                         "Условия труда", "Работает в данное время", "Имя мужа", "Фамилия мужа",
                         "Отчество мужа", "Место работы мужа", "Должность мужа", "Номер телефона мужа",
                         "Состоит в браке", "Образование", "Постоянное место жительства", "Номер телефона",
@@ -84,9 +80,7 @@ public class MedCardExcelExporter {
     private void writeDataRows() {
         UserEntity userEntity = patientEntity.getUserEntity();
 
-        PregnancyEntity pregnancyEntity = pregnancyRepository.findById(patientEntity.getCurrentPregnancyId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Pregnancy was not found with ID: " + patientEntity.getCurrentPregnancyId()));
+        PregnancyEntity pregnancyEntity = patientEntity.getPregnancy();
 
         AddressEntity addressEntity = patientEntity.getAddressEntity();
 
@@ -116,31 +110,30 @@ public class MedCardExcelExporter {
         answers.add(userEntity.getLastName());
         answers.add(userEntity.getMiddleName());
         answers.add(userEntity.getPhoneNumber());
-        answers.add(doctorEntity.getUserEntity().getLastName() + doctorEntity.getUserEntity().getFirstName() + doctorEntity.getUserEntity().getMiddleName());
+        answers.add(getFullName(doctorEntity.getUserEntity()));
         answers.add(patientEntity.getBirthday());
         answers.add(patientEntity.getAge());
-        answers.add(patientEntity.getPin());
         answers.add(patientEntity.getCitizenship());
         answers.add(patientEntity.getPatientCategory());
         answers.add(patientEntity.getWorkPlace());
         answers.add(patientEntity.getPosition());
         answers.add(patientEntity.getWorkConditions());
-        answers.add(patientEntity.getWorksNow());
+        answers.add(patientEntity.getWorksNow() ? "да" : "нет");
         answers.add(patientEntity.getHusbandLastName());
         answers.add(patientEntity.getHusbandFirstName());
         answers.add(patientEntity.getHusbandMiddleName());
         answers.add(patientEntity.getHusbandWorkPlace());
         answers.add(patientEntity.getHusbandPosition());
         answers.add(patientEntity.getHusbandPhoneNumber());
-        answers.add(patientEntity.getMarried());
-        answers.add(patientEntity.getEducation());
+        answers.add(patientEntity.getMarried().getType());
+        answers.add(patientEntity.getEducation().getType());
         answers.add(addressEntity.getPatientAddress());
         answers.add(addressEntity.getPhoneNumber());
         answers.add(addressEntity.getRelativeAddress());
         answers.add(addressEntity.getRelativePhoneNumber());
         answers.add(insuranceEntity.getTerritoryName());
         answers.add(insuranceEntity.getNumber());
-        answers.add(pregnancyEntity.getFirstVisitDate()); // Дата первого осмотра
+        answers.add(pregnancyEntity.getFirstVisitDate());
         answers.add(pregnancyEntity.getFirstVisitWeekOfPregnancy());
         answers.add(pregnancyEntity.getFromAnotherMedOrganizationReason());
         answers.add(pregnancyEntity.getNameOfAnotherMedOrganization());
@@ -214,4 +207,19 @@ public class MedCardExcelExporter {
         workbook.close();
         outputStream.close();
     }
+
+    public String getFullName(UserEntity userEntity) {
+        String name = "";
+        if (!userEntity.getLastName().isEmpty()) {
+            name += userEntity.getLastName();
+        }
+        if (!userEntity.getFirstName().isEmpty()) {
+            name += " " + userEntity.getFirstName().charAt(0) + ".";
+        }
+        if (!userEntity.getMiddleName().isEmpty()) {
+            name += " " + userEntity.getMiddleName().charAt(0) + ".";
+        }
+        return name;
+    }
+
 }

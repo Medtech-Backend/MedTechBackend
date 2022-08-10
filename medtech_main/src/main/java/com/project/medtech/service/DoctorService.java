@@ -1,5 +1,6 @@
 package com.project.medtech.service;
 
+import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
@@ -7,11 +8,15 @@ import com.project.medtech.model.DoctorEntity;
 import com.project.medtech.model.RoleEntity;
 import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.DoctorRepository;
+import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,8 @@ public class DoctorService {
     private final PasswordEncoder passwordEncoder;
 
     private final RoleRepository roleRepository;
+
+    private final PregnancyRepository pregnancyRepository;
 
 
     public RegisterDoctorDto createDoctor(RegisterDoctorDto registerDoctorDto) {
@@ -53,6 +60,23 @@ public class DoctorService {
         doctorRepository.save(doctorEntity);
 
         return registerDoctorDto;
+    }
+
+    public List<FullNameEmailDto> getDoctorsFNEmail() {
+        List<DoctorEntity> doctors = doctorRepository.findAll();
+
+        List<FullNameEmailDto> result = new ArrayList<>();
+
+        doctors.forEach(d -> {
+            UserEntity user = d.getUserEntity();
+
+            String fullName = user.getLastName() + " " + user.getFirstName();
+            fullName += !user.getMiddleName().isEmpty() ? user.getMiddleName() : "";
+
+            result.add(new FullNameEmailDto(fullName, user.getEmail()));
+        });
+
+        return result;
     }
 
 }

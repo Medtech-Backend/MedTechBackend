@@ -4,7 +4,6 @@ import com.project.medtech.model.DoctorEntity;
 import com.project.medtech.model.PatientEntity;
 import com.project.medtech.model.PregnancyEntity;
 import com.project.medtech.model.UserEntity;
-import com.project.medtech.service.PatientService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -21,10 +20,10 @@ import java.util.List;
 public class DoctorExcelExporter {
 
     private XSSFWorkbook workbook;
+
     private XSSFSheet sheet;
+
     private List<UserEntity> users;
-
-
 
 
     public DoctorExcelExporter(List<UserEntity> users) {
@@ -95,7 +94,7 @@ public class DoctorExcelExporter {
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
             createCell(row, columnCount++, pregnancies.size() + 1 + " " + "пациентов", style);
-            createCell(row, columnCount++,  doctor.getAge(), style); //график работы
+//            createCell(row, columnCount++,  doctor.getAge(), style); //график работы
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
             num++;
@@ -111,7 +110,5 @@ public class DoctorExcelExporter {
         workbook.close();
 
         outputStream.close();
-
-
     }
 }

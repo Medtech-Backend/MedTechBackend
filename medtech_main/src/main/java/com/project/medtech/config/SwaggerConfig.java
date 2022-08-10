@@ -18,7 +18,6 @@ import java.util.List;
 
 @EnableSwagger2
 @Configuration
-
 public class SwaggerConfig {
 
     @Bean

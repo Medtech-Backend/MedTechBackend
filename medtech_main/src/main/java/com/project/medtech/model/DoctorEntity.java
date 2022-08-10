@@ -26,8 +26,6 @@ public class DoctorEntity {
     )
     private Long id;
 
-    private int age;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "user_id",

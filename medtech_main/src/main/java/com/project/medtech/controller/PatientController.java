@@ -8,7 +8,6 @@ import com.project.medtech.exporter.PatientExcelExporter;
 import com.project.medtech.model.PatientEntity;
 import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.PatientRepository;
-import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.UserRepository;
 import com.project.medtech.service.PatientService;
 import io.swagger.annotations.Api;
@@ -29,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patient")
-@Api( "REST APIs related to `Patient` entity")
+@Api("REST APIs related to `Patient` entity")
 public class PatientController {
 
     private final PatientService patientService;
@@ -37,8 +36,6 @@ public class PatientController {
     private final UserRepository userRepository;
 
     private final PatientRepository patientRepository;
-
-    private final PregnancyRepository pregnancyRepository;
 
 
     @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
@@ -67,7 +64,7 @@ public class PatientController {
         excelExporter.export(response);
     }
 
-    @ApiOperation(value = "скачивание мед. карты определенного пациента")
+    @ApiOperation(value = "скачивание мед. карты определенного пациента (ВЕБ)")
     @GetMapping("/excel/med-card/{patientId}")
     public void exportMedCardToExcel(HttpServletResponse response, @ApiParam(value = "введите ID пациента") @PathVariable Long patientId) throws IOException {
         response.setContentType("application/octet-stream");
@@ -89,62 +86,75 @@ public class PatientController {
         PatientEntity patientEntity = patientRepository.findById(patientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient was not found with ID: " + patientId));
 
-        MedCardExcelExporter medCardExcelExporter = new MedCardExcelExporter(pregnancyRepository, patientEntity);
+        MedCardExcelExporter medCardExcelExporter = new MedCardExcelExporter(patientEntity);
 
         medCardExcelExporter.export(response);
     }
 
-    @ApiOperation(value = "вывод настоящей недели беременности по ID пациента")
-    @GetMapping("/current-week-of-pregnancy")
-    ResponseEntity<Integer> getCurrentWeekOfPregnancy(){
-        return ResponseEntity.ok(patientService.getCurrentWeekOfPregnancy());
-    }
-
-    @ApiOperation(value = "вывод всех чек-листов по ID пациента")
+    @ApiOperation(value = "вывод всех чек-листов по ID пациента (ВЕБ)")
     @GetMapping("/patients-checklists/{patientId}")
-    ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@PathVariable Long patientId){
+    ResponseEntity<List<CheckListInfoDto>> getAllPatientsChecklists(@PathVariable Long patientId) {
         return ResponseEntity.ok(patientService.getAllPatientsCheckLists(patientId));
     }
 
-    @ApiOperation(value = "регистрация нового пациента")
-    @PostMapping("/create")
-    ResponseEntity<MedCardDto> registerPatient(@RequestBody MedCardDto medCardDto) {
-        return ResponseEntity.ok(patientService.registerPatient(medCardDto));
-    }
-
-    @ApiOperation(value = "получение инфо о пациентке(для мобильного приложения)")
-    @GetMapping("/get-info")
-    ResponseEntity<PatientDto> getInfo() {
-        return ResponseEntity.ok(patientService.getInfo());
-    }
-
-    @ApiOperation(value = "изменение номера телефона пациента")
+    @ApiOperation(value = "изменение номера телефона пациента (МОБ)")
     @PutMapping("/change-phone-number")
     public ResponseEntity<PhoneNumberDto> changePhoneNumber(@RequestBody PhoneNumberDto phoneNumberDto) {
         return ResponseEntity.ok(patientService.changePhoneNumber(phoneNumberDto));
     }
 
-    @ApiOperation(value = "изменение адреса телефона пациента")
+    @ApiOperation(value = "изменение адреса телефона пациента (МОБ)")
     @PutMapping("/change-address")
     public ResponseEntity<AddressDto> changeAddress(@RequestBody AddressDto addressDto) {
         return ResponseEntity.ok(patientService.changeAddress(addressDto));
     }
 
-    @ApiOperation(value = "изменение медицинской карты пациента")
+    @ApiOperation(value = "регистрация нового пациента (ВЕБ)")
+    @PostMapping("/create")
+    ResponseEntity<MedCardDto> registerPatient(@RequestBody MedCardDto medCardDto) {
+        return ResponseEntity.ok(patientService.registerPatient(medCardDto));
+    }
+
+    @ApiOperation(value = "изменение медицинской карты пациента (ВЕБ)")
     @PutMapping("/update-med-card")
     public ResponseEntity<UpdateMedCard> updateMedCard(@RequestBody UpdateMedCard updateMedCard) {
         return ResponseEntity.ok(patientService.updateMedCard(updateMedCard));
     }
 
-    @ApiOperation(value = "получение данных медицинской карты пациента")
-    @GetMapping("/get-med-card-info")
-    public ResponseEntity<MedCardDto> getPatientMedCardInfo(@RequestBody EmailDto email) {
-        return ResponseEntity.ok(patientService.getPatientMedCardInfo(email));
+    @ApiOperation(value = "получение данных медицинской карты пациента (ВЕБ)")
+    @GetMapping("/get-med-card-info/{patientId}")
+    public ResponseEntity<MedCardDto> getPatientMedCardInfo(@PathVariable Long patientId) {
+        return ResponseEntity.ok(patientService.getPatientMedCardInfo(patientId));
     }
 
-    @ApiOperation(value = "вывод данных всех пациентов")
+    @ApiOperation(value = "получение профиля пациентки (МОБ)")
+    @GetMapping("/get-profile-mob")
+    ResponseEntity<PatientDto> getPatientProfileMob() {
+        return ResponseEntity.ok(patientService.getPatientProfileMob());
+    }
+
+    @ApiOperation(value = "вывод данных всех пациентов (ВЕБ)")
     @GetMapping("/get-all")
-    ResponseEntity<List<PatientDataDto>> getAll(){
+    public ResponseEntity<List<PatientDataDto>> getAll() {
         return ResponseEntity.ok(patientService.getAllPatients());
     }
+
+    @ApiOperation(value = "получение профиля пациентки (ВЕБ)")
+    @GetMapping("/get-profile-web/{patientId}")
+    public ResponseEntity<PatientProfileDto> getPatientProfileWeb(@PathVariable Long patientId) {
+        return ResponseEntity.ok(patientService.getPatientProfileWeb(patientId));
+    }
+
+    @ApiOperation(value = "вывод типов образования (ВЕБ)")
+    @GetMapping("/get-education-types")
+    public ResponseEntity<List<EducationDto>> getEducationTypes() {
+        return ResponseEntity.ok(patientService.getEducationTypes());
+    }
+
+    @ApiOperation(value = "вывод типов семейного положения (ВЕБ)")
+    @GetMapping("/get-married-types")
+    public ResponseEntity<List<MarriedDto>> getMarriedTypes() {
+        return ResponseEntity.ok(patientService.getMarriedTypes());
+    }
+
 }
