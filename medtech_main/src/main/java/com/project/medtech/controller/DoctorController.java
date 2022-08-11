@@ -60,7 +60,7 @@ public class DoctorController {
 
         List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
 
-        DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities);
+        DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities, doctorService);
 
         excelExporter.export(response);
     }
@@ -72,8 +72,8 @@ public class DoctorController {
     }
 
     @ApiOperation(value = "поиск данных всех докторов по ФИО")
-    @PostMapping("/get-all-by-parameter")
-    ResponseEntity<List<DoctorDataDto>> searchAllDoctorsByName(@RequestBody NameRequest nameRequest){
+    @GetMapping("/get-all-by-parameter/{username}")
+    ResponseEntity<List<DoctorDataDto>> searchAllDoctorsByName(@PathVariable("username") NameRequest nameRequest){
         return ResponseEntity.ok(doctorService.searchByName(nameRequest));
     }
 

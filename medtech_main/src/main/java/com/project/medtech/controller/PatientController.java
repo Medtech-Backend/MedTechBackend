@@ -149,8 +149,8 @@ public class PatientController {
     }
 
     @ApiOperation(value = "поиск данных всех пациентов по ФИО")
-    @PostMapping("/get-all-by-parameter")
-    ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@RequestBody NameRequest nameRequest){
+    @GetMapping("/get-all-by-parameter/{username}")
+    ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@PathVariable("username") NameRequest nameRequest){
         return ResponseEntity.ok(patientService.searchByName(nameRequest));
     }
 }

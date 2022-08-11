@@ -13,7 +13,7 @@ public class DoctorDataDto {
     private String phoneNumber;
     private String email;
     private String doctorsSchedule;
-    private int countOfPatients;
+    private Long countOfPatients;
     private String status;
 
 }

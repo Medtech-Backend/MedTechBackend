@@ -1,10 +1,8 @@
 package com.project.medtech.exporter;
 
 import com.project.medtech.model.DoctorEntity;
-import com.project.medtech.model.PatientEntity;
-import com.project.medtech.model.PregnancyEntity;
 import com.project.medtech.model.UserEntity;
-import com.project.medtech.service.PatientService;
+import com.project.medtech.service.DoctorService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,7 +13,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorExcelExporter {
@@ -23,12 +20,12 @@ public class DoctorExcelExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<UserEntity> users;
+    private final DoctorService doctorService;
 
 
-
-
-    public DoctorExcelExporter(List<UserEntity> users) {
+    public DoctorExcelExporter(List<UserEntity> users, DoctorService doctorService) {
         this.users = users;
+        this.doctorService = doctorService;
         workbook = new XSSFWorkbook();
     }
 
@@ -78,13 +75,12 @@ public class DoctorExcelExporter {
             int columnCount = 0;
 
             DoctorEntity doctor = u.getDoctorEntity();
-            List<PregnancyEntity> pregnancies = doctor.getPregnancies();
 
             createCell(row, columnCount++, num, style);
             createCell(row, columnCount++, u.getFirstName()+" "+u.getLastName()+" "+u.getMiddleName(), style);
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
-            createCell(row, columnCount++, pregnancies.size() + 1 + " " + "пациентов", style);
+            createCell(row, columnCount++, doctorService.getNumberOfPatients(u.getEmail()) + " пациентов", style);
             createCell(row, columnCount++,  doctor.getAge(), style); //график работы
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
