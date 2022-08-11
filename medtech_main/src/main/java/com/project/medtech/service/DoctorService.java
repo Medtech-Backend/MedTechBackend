@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
+import com.project.medtech.dto.enums.DefaultImageUrl;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.DoctorEntity;
@@ -50,6 +51,7 @@ public class DoctorService {
                 );
         userEntity.setRoleEntity(roleEntity);
         userEntity.setStatus(Status.ACTIVE);
+        userEntity.setImageUrl(DefaultImageUrl.DEFAULT_IMAGE_TWO.getUrl());
         String password = emailSenderService.send(registerDoctorDto.getEmail(), "otp");
         userEntity.setPassword(passwordEncoder.encode(password));
 

@@ -25,8 +25,8 @@ public class AdviceController {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(AlreadyExistingException.class)
-    public ResponseEntity<Object> handleAlreadyExistingException(AlreadyExistingException e) {
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<Object> handleAlreadyExists(AlreadyExistsException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 

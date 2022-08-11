@@ -2,7 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.TextDto;
 import com.project.medtech.dto.UpdateContactDto;
-import com.project.medtech.exception.AlreadyExistingException;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.ContactEntity;
 import com.project.medtech.repository.ContactRepository;
@@ -29,7 +29,7 @@ public class ContactService {
         boolean existed = contactRepository.findByText(textDto.getText()).isPresent();
 
         if(existed) {
-            throw new AlreadyExistingException("Contact is already existing.");
+            throw new AlreadyExistsException("Contact is already exists.");
         }
 
         ContactEntity contact = new ContactEntity();

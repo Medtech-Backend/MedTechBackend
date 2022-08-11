@@ -1,13 +1,16 @@
 package com.project.medtech.config;
 
 import com.project.medtech.dto.enums.AppointmentEnum;
+import com.project.medtech.dto.enums.DefaultImageUrl;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtFilter;
 import com.project.medtech.model.AppointmentTypeEntity;
+import com.project.medtech.model.ContentEntity;
 import com.project.medtech.model.RoleEntity;
 import com.project.medtech.model.UserEntity;
+import com.project.medtech.repository.ContentRepository;
 import com.project.medtech.repository.AppointmentTypeRepository;
 import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
@@ -28,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AppointmentTypeRepository appointmentTypeRepository;
 
     private final RoleRepository roleRepository;
+
+    private final ContentRepository contentRepository;
+
 
     @Value("${spring.mail.username}")
     private String username;
@@ -98,6 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @Transactional
     public void configure() {
         ArrayList<AppointmentTypeEntity> appointmentTypeEntities = (ArrayList<AppointmentTypeEntity>) appointmentTypeRepository.findAll();
 
@@ -127,11 +135,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
         }
 
-        UserEntity user = userRepository.findByEmail("trustmed.team3@gmail.com");
+        UserEntity user = userRepository.findByEmail("tilekju@gmail.com");
 
         if (user == null) {
             UserEntity superAdmin = new UserEntity();
-            superAdmin.setEmail("trustmed.team3@gmail.com");
+            superAdmin.setEmail("tilekju@gmail.com");
             superAdmin.setPassword("$2a$12$UNNiXe1QGTWoyzJ.U13o.OUNbhXu1ejDsflbK0EwCajpPgn3inD/a");
             superAdmin.setFirstName("Neobis");
             superAdmin.setLastName("Team");
@@ -148,6 +156,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             userRepository.save(superAdmin);
         }
+
+        List<ContentEntity> contentEntities = contentRepository.findAll();
+
+        if (contentEntities.isEmpty()) {
+            for (int i = 1; i < 43; i++) {
+                for (int k = 1; k < 4; k++) {
+                    contentRepository.save(createDefaultEntity(i, k));
+                }
+            }
+        } else {
+            for (int i = 1; i < 43; i++) {
+                for (int k = 1; k < 4; k++) {
+                    ContentEntity findEntityByWeekAndOrder =
+                            contentRepository.findByWeekNumberAndOrder(i, k);
+                    if (findEntityByWeekAndOrder == null) {
+                        contentRepository.save(createDefaultEntity(i, k));
+                    }
+                }
+            }
+        }
+
+    }
+
+    public ContentEntity createDefaultEntity(Integer week, Integer order) {
+        ContentEntity entity = new ContentEntity();
+
+        entity.setWeekNumber(week);
+        entity.setOrder(order);
+        entity.setHeader("");
+        entity.setSubtitle("");
+        entity.setDescription("");
+        entity.setImageUrl(DefaultImageUrl.DEFAULT_IMAGE_ONE.getUrl());
+
+        return entity;
     }
 
     @Bean

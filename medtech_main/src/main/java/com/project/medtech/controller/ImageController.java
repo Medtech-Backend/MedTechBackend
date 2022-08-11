@@ -20,14 +20,20 @@ public class ImageController {
 
     @ApiOperation(value = "загрузка фото доктора (ВЕБ)")
     @PostMapping("/upload/doctor/{doctorId}")
-    public ResponseEntity<String> saveDoc(@PathVariable Long doctorId, @RequestPart MultipartFile file) {
-        return ResponseEntity.ok(service.saveForWeb(doctorId, file));
+    public ResponseEntity<String> saveDoctor(@PathVariable Long doctorId, @RequestPart MultipartFile file) {
+        return ResponseEntity.ok(service.saveForDoctor(doctorId, file));
     }
 
     @ApiOperation(value = "загрузка фото пациентки (МОБ)")
     @PostMapping("/upload/patient")
     public ResponseEntity<String> savePatient(@RequestPart MultipartFile file) {
-        return ResponseEntity.ok(service.saveForMob(file));
+        return ResponseEntity.ok(service.saveForPatient(file));
+    }
+
+    @ApiOperation(value = "загрузка фото контента (ВЕБ)")
+    @PostMapping("/upload/content/{contentId}")
+    public ResponseEntity<String> saveContent(@PathVariable Long contentId, @RequestPart MultipartFile file) {
+        return ResponseEntity.ok(service.saveForContent(contentId, file));
     }
 
 }

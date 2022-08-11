@@ -1,10 +1,7 @@
 package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
-import com.project.medtech.dto.enums.Education;
-import com.project.medtech.dto.enums.Married;
-import com.project.medtech.dto.enums.Role;
-import com.project.medtech.dto.enums.Status;
+import com.project.medtech.dto.enums.*;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListInfoDtoMapper;
 import com.project.medtech.model.*;
@@ -120,6 +117,7 @@ public class PatientService {
         userEntity.setEmail(registerPatientDto.getEmail());
         userEntity.setPhoneNumber(registerPatientDto.getPhoneNumber());
         userEntity.setOtpUsed(false);
+        userEntity.setImageUrl(DefaultImageUrl.DEFAULT_IMAGE_THREE.getUrl());
         RoleEntity roleEntity = roleRepository.findByName("PATIENT")
                 .orElseThrow(
                         () ->
@@ -271,7 +269,7 @@ public class PatientService {
         medCardDto.setMiddleName(userEntity.getMiddleName());
         medCardDto.setPhoneNumber(userEntity.getPhoneNumber());
 
-        medCardDto.setDoctor(String.format("%s %s %s",doctorEntity.getUserEntity().getLastName(),
+        medCardDto.setDoctor(String.format("%s %s %s", doctorEntity.getUserEntity().getLastName(),
                 doctorEntity.getUserEntity().getFirstName(), doctorEntity.getUserEntity().getMiddleName()));
 
         medCardDto.setBirthday(patientEntity.getBirthday());
@@ -589,7 +587,7 @@ public class PatientService {
 
         Education[] educationEnums = Education.values();
 
-        for(Education e: educationEnums) {
+        for (Education e : educationEnums) {
             result.add(new EducationDto(e.name(), e.getType()));
         }
 
@@ -601,7 +599,7 @@ public class PatientService {
 
         Married[] marriedEnums = Married.values();
 
-        for(Married m: marriedEnums) {
+        for (Married m : marriedEnums) {
             result.add(new MarriedDto(m.name(), m.getType()));
         }
 
