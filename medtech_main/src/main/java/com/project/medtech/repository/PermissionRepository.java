@@ -11,4 +11,6 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
 
     Optional<PermissionEntity> findByName(String name);
 
+    Boolean existsByName(String name);
+
 }

@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.RegisterAdminDto;
 import com.project.medtech.dto.enums.Status;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.RoleEntity;
 import com.project.medtech.model.UserEntity;
@@ -25,6 +26,10 @@ public class AdminService {
 
 
     public RegisterAdminDto registerAdmin(RegisterAdminDto registerAdminDto) {
+        if (userRepository.existsByEmail(registerAdminDto.getEmail())) {
+            throw new AlreadyExistsException("The given email is already used. Enter another email.");
+        }
+
         UserEntity userEntity = new UserEntity();
         userEntity.setFirstName(registerAdminDto.getFirstName());
         userEntity.setLastName(registerAdminDto.getLastName());

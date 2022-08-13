@@ -4,6 +4,7 @@ import com.project.medtech.dto.MyEntry;
 import com.project.medtech.dto.RolePermissionDto;
 import com.project.medtech.dto.PermissionDto;
 import com.project.medtech.dto.RoleDto;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.PermissionEntity;
 import com.project.medtech.model.RoleEntity;
@@ -46,6 +47,10 @@ public class RoleService {
     }
 
     public RoleDto createRole(RoleDto roleDto) {
+        if (roleRepository.existsByName(roleDto.getName())) {
+            throw new AlreadyExistsException("Role with the given name is already created.");
+        }
+
         RoleEntity roleEntity = new RoleEntity();
 
         roleEntity.setName(roleDto.getName());
@@ -56,6 +61,10 @@ public class RoleService {
     }
 
     public PermissionDto createPermission(PermissionDto permissionDto) {
+        if (permissionRepository.existsByName(permissionDto.getName())) {
+            throw new AlreadyExistsException("Permission with the given name is already created.");
+        }
+
         PermissionEntity permissionEntity = new PermissionEntity();
 
         permissionEntity.setName(permissionDto.getName());

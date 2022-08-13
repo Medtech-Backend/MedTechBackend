@@ -4,12 +4,12 @@ import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.DefaultImageUrl;
 import com.project.medtech.dto.enums.Status;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.model.DoctorEntity;
 import com.project.medtech.model.RoleEntity;
 import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.DoctorRepository;
-import com.project.medtech.repository.PregnancyRepository;
 import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +33,12 @@ public class DoctorService {
 
     private final RoleRepository roleRepository;
 
-    private final PregnancyRepository pregnancyRepository;
-
 
     public RegisterDoctorDto createDoctor(RegisterDoctorDto registerDoctorDto) {
+        if (userRepository.existsByEmail(registerDoctorDto.getEmail())) {
+            throw new AlreadyExistsException("The given email is already used. Enter another email.");
+        }
+
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(registerDoctorDto.getEmail());
         userEntity.setFirstName(registerDoctorDto.getFirstName());

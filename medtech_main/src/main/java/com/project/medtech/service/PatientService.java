@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.*;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListInfoDtoMapper;
 import com.project.medtech.model.*;
@@ -110,6 +111,10 @@ public class PatientService {
 
     @Transactional
     public MedCardDto registerPatient(MedCardDto registerPatientDto) {
+        if (userRepository.existsByEmail(registerPatientDto.getEmail())) {
+            throw new AlreadyExistsException("The given email is already used. Enter another email.");
+        }
+
         UserEntity userEntity = new UserEntity();
         userEntity.setFirstName(registerPatientDto.getFirstName());
         userEntity.setLastName(registerPatientDto.getLastName());
@@ -161,6 +166,9 @@ public class PatientService {
         insuranceEntity.setPatientEntity(patientEntity);
 
         UserEntity userEntityDoctor = userRepository.findByEmail(registerPatientDto.getDoctor());
+        if (userEntityDoctor == null) {
+            throw new ResourceNotFoundException("User was not found with email: " + registerPatientDto.getDoctor());
+        }
         DoctorEntity doctorEntity = doctorRepository.findDoctorByUser(userEntityDoctor.getUserId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Doctor was not found with user_id: " + userEntityDoctor.getUserId()));
@@ -370,6 +378,10 @@ public class PatientService {
         userEntity.setMiddleName(updateMedCard.getMiddleName());
 
         if (!updateMedCard.getEmail().equals(userEntity.getEmail())) {
+            if (userRepository.existsByEmail(updateMedCard.getEmail())) {
+                throw new AlreadyExistsException("The given email is already used. Enter another email.");
+            }
+
             userEntity.setEmail(updateMedCard.getEmail());
         }
 
