@@ -543,28 +543,27 @@ public class PatientService {
     }
 
     public List<PatientDataDto> searchByName(NameRequest nameRequest) {
-        List<UserEntity> userEntities = userRepository.findAllByFio(Role.PATIENT.name(), nameRequest.getSearchWord());
-        if(nameRequest.getSearchWord() != null || userEntities != null) {
-            List<PatientDataDto> listDto = new ArrayList<>();
+        if(nameRequest.getSearchWord().isEmpty() == false){
+            if(userRepository.findAllByFio("PATIENT", nameRequest.getSearchWord()).isEmpty() == false) {
+                List<UserEntity> userEntities = userRepository.findAllByFio(Role.PATIENT.name(), nameRequest.getSearchWord());
+                List<PatientDataDto> listDto = new ArrayList<>();
 
-            for (UserEntity u : userEntities) {
-                PatientDataDto dto = new PatientDataDto();
-                PatientEntity patientEntity = u.getPatientEntity();
-                AddressEntity address = patientEntity.getAddressEntity();
-                dto.setPatientId(patientEntity.getId());
-                dto.setFIO(userService.getFullName(u));
-                dto.setPhoneNumber(u.getPhoneNumber());
-                dto.setEmail(u.getEmail());
-                dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
-                dto.setResidenceAddress(address.getPatientAddress());
-                dto.setStatus(u.getStatus().toString());
-                listDto.add(dto);
-            }
-            return listDto;
-        }else {
-            List<PatientDataDto> list = getAllPatients();
-            return list;
-        }
+                for (UserEntity u : userEntities) {
+                    PatientDataDto dto = new PatientDataDto();
+                    PatientEntity patientEntity = u.getPatientEntity();
+                    AddressEntity address = patientEntity.getAddressEntity();
+                    dto.setPatientId(patientEntity.getId());
+                    dto.setFIO(userService.getFullName(u));
+                    dto.setPhoneNumber(u.getPhoneNumber());
+                    dto.setEmail(u.getEmail());
+                    dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
+                    dto.setResidenceAddress(address.getPatientAddress());
+                    dto.setStatus(u.getStatus().toString());
+                    listDto.add(dto);
+                }
+                return listDto;
+            }else return Collections.<PatientDataDto>emptyList();
+        }else return getAllPatients();
     }
 
     public UserEntity getAuthentication() {

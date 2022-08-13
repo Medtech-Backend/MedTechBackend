@@ -141,8 +141,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             superAdmin.setOtpUsed(true);
             RoleEntity roleEntity = roleRepository.findByName("SUPERADMIN")
                     .orElseThrow(
-                            () ->
-                                    new ResourceNotFoundException("No role was found with name: SUPERADMIN")
+                            () -> new ResourceNotFoundException("No role was found with name: SUPERADMIN")
                     );
             superAdmin.setRoleEntity(roleEntity);
             superAdmin.setStatus(Status.ACTIVE);
