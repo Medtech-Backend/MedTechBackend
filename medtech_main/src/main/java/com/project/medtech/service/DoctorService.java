@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.DoctorDataDto;
 import com.project.medtech.dto.NameRequest;
+import com.project.medtech.dto.PatientDataDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
@@ -84,28 +85,26 @@ public class DoctorService {
     }
 
     public List<DoctorDataDto> searchByName(NameRequest nameRequest) {
-        if(nameRequest.getSearchWord() != null) {
-            List<UserEntity> userEntities = userRepository.findAllByFio(Role.DOCTOR.name(), nameRequest.getSearchWord());
-            List<DoctorDataDto> listDto = new ArrayList<>();
+        if(nameRequest.getSearchWord().isEmpty() == false){
+            if(userRepository.findAllByFio("DOCTOR", nameRequest.getSearchWord()).isEmpty() == false) {
+                List<UserEntity> userEntities = userRepository.findAllByFio(Role.DOCTOR.name(), nameRequest.getSearchWord());
+                List<DoctorDataDto> listDto = new ArrayList<>();
 
-            for (UserEntity u : userEntities) {
-                DoctorDataDto dto = new DoctorDataDto();
-
-                DoctorEntity doctorEntity = u.getDoctorEntity();
-                dto.setDoctorId(doctorEntity.getId());
-                dto.setFIO(userService.getFullName(u));
-                dto.setPhoneNumber(u.getPhoneNumber());
-                dto.setEmail(u.getEmail());
-                dto.setDoctorsSchedule(u.getEmail());  //изменить потом после бексултана
-                dto.setCountOfPatients((long) getCountOfPatientsByDoctor(doctorEntity));
-                dto.setStatus(u.getStatus().toString());
-                listDto.add(dto);
-            }
-
-            return listDto;
-        }else {
-            return getAllDoctors();
-        }
+                for (UserEntity u : userEntities) {
+                    DoctorDataDto dto = new DoctorDataDto();
+                    DoctorEntity doctorEntity = u.getDoctorEntity();
+                    dto.setDoctorId(doctorEntity.getId());
+                    dto.setFIO(userService.getFullName(u));
+                    dto.setPhoneNumber(u.getPhoneNumber());
+                    dto.setEmail(u.getEmail());
+                    dto.setDoctorsSchedule(u.getEmail());  //изменить потом после бексултана
+                    dto.setCountOfPatients((long) getCountOfPatientsByDoctor(doctorEntity));
+                    dto.setStatus(u.getStatus().toString());
+                    listDto.add(dto);
+                }
+                return listDto;
+            }else return Collections.<DoctorDataDto>emptyList();
+        }else return getAllDoctors();
     }
 
     public int getCountOfPatientsByDoctor(DoctorEntity doctor){
