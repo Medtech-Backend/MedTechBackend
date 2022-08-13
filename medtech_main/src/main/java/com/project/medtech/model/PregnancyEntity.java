@@ -128,8 +128,6 @@ public class PregnancyEntity {
     )
     private DoctorEntity doctorEntity;
 
-<<<<<<< HEAD
-=======
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "patient_id",
@@ -137,7 +135,6 @@ public class PregnancyEntity {
             foreignKey = @ForeignKey(name = "FKPREGNANCYPATIENT")
     )
     private PatientEntity patientEntity;
->>>>>>> main
 
     @OneToMany(
             cascade = CascadeType.ALL,
