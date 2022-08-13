@@ -17,7 +17,6 @@ public class ImageController {
 
     private final ImageService service;
 
-
     @ApiOperation(value = "загрузка фото доктора (ВЕБ)")
     @PostMapping("/upload/doctor/{doctorId}")
     public ResponseEntity<String> saveDoctor(@PathVariable Long doctorId, @RequestPart MultipartFile file) {

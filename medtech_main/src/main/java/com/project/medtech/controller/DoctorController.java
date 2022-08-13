@@ -1,5 +1,7 @@
 package com.project.medtech.controller;
 
+import com.project.medtech.dto.DoctorDataDto;
+import com.project.medtech.dto.NameRequest;
 import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Role;
@@ -38,22 +40,42 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
     }
 
-    @ApiOperation(value = "получение чеклиста в виде excel файла")
-    @GetMapping("/excel/export")
+    @ApiOperation(value = "скачивание данных всех докторов в формате excel (ВЕБ)")
+    @GetMapping("/excel/get-doctors")
     public void exportToExcel(HttpServletResponse response) throws IOException {
-
         response.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
         String currentDateTime = dateFormatter.format(new Date());
-        currentDateTime = currentDateTime.replaceAll(":", "-");
-        String headerKey = "Content-Disposition ";
-        String headerValue = "attachment; filename=doctors_" + currentDateTime + ".xlsx";
+
+        String fileName = "doctors_" + currentDateTime + ".xlsx";
+
+        fileName = fileName.replaceAll(":", "-");
+
+        String headerValue = "attachment; filename=" + fileName;
+
         response.setHeader(headerKey, headerValue);
         List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
 
-        DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities);
+        DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities, doctorService);
+
         excelExporter.export(response);
 
+    }
+
+    @ApiOperation(value = "вывод данных всех докторов (ВЕБ)")
+    @GetMapping("/get-all")
+    ResponseEntity<List<DoctorDataDto>> getAll(){
+        return ResponseEntity.ok(doctorService.getAllDoctors());
+    }
+
+    @ApiOperation(value = "поиск данных всех докторов по ФИО (ВЕБ)")
+    @GetMapping("/get-all-by-parameter/{username}")
+    ResponseEntity<List<DoctorDataDto>> searchAllDoctorsByName(@PathVariable("username") NameRequest nameRequest){
+        return ResponseEntity.ok(doctorService.searchByName(nameRequest));
     }
 
     @ApiOperation(value = "вывод листа состоящий из ФИО и почты доктора (ВЕБ)")

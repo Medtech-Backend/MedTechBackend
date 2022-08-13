@@ -1,23 +1,25 @@
 package com.project.medtech.service;
 
+import com.project.medtech.dto.DoctorDataDto;
 import com.project.medtech.dto.FullNameEmailDto;
+import com.project.medtech.dto.NameRequest;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.DefaultImageUrl;
+import com.project.medtech.dto.enums.Role;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
-import com.project.medtech.model.DoctorEntity;
-import com.project.medtech.model.RoleEntity;
-import com.project.medtech.model.UserEntity;
-import com.project.medtech.repository.DoctorRepository;
-import com.project.medtech.repository.RoleRepository;
-import com.project.medtech.repository.UserRepository;
+import com.project.medtech.model.*;
+import com.project.medtech.repository.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,12 @@ public class DoctorService {
     private final PasswordEncoder passwordEncoder;
 
     private final RoleRepository roleRepository;
+
+    private final UserService userService;
+
+    private final PatientRepository patientRepository;
+
+    private final PregnancyRepository pregnancyRepository;
 
 
     public RegisterDoctorDto createDoctor(RegisterDoctorDto registerDoctorDto) {
@@ -81,6 +89,83 @@ public class DoctorService {
         });
 
         return result;
+    }
+
+    public List<DoctorDataDto> getAllDoctors() {
+        List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
+
+        List<DoctorDataDto> listDto = new ArrayList<>();
+
+        for (UserEntity u : userEntities) {
+            DoctorDataDto dto = new DoctorDataDto();
+
+            DoctorEntity doctorEntity = u.getDoctorEntity();
+            dto.setDoctorId(doctorEntity.getId());
+            dto.setFIO(userService.getFullName(u));
+            dto.setPhoneNumber(u.getPhoneNumber());
+            dto.setEmail(u.getEmail());
+            dto.setDoctorsSchedule(u.getEmail());  //изменить потом после бексултана
+            dto.setCountOfPatients(getNumberOfPatients(u.getEmail()));
+            dto.setStatus(u.getStatus().toString());
+
+            listDto.add(dto);
+        }
+
+        return listDto;
+    }
+
+    public List<DoctorDataDto> searchByName(NameRequest nameRequest) {
+        if (!nameRequest.getSearchWord().isEmpty()) {
+            if (!userRepository.findAllByFio("DOCTOR", nameRequest.getSearchWord()).isEmpty()) {
+                List<UserEntity> userEntities = userRepository.findAllByFio(Role.DOCTOR.name(), nameRequest.getSearchWord());
+
+                List<DoctorDataDto> listDto = new ArrayList<>();
+
+                for (UserEntity u : userEntities) {
+                    DoctorDataDto dto = new DoctorDataDto();
+
+                    DoctorEntity doctorEntity = u.getDoctorEntity();
+                    dto.setDoctorId(doctorEntity.getId());
+                    dto.setFIO(userService.getFullName(u));
+                    dto.setPhoneNumber(u.getPhoneNumber());
+                    dto.setEmail(u.getEmail());
+                    dto.setDoctorsSchedule(u.getEmail());  //изменить потом после бексултана
+                    dto.setCountOfPatients((long) getCountOfPatientsByDoctor(doctorEntity));
+                    dto.setStatus(u.getStatus().toString());
+
+                    listDto.add(dto);
+                }
+                return listDto;
+            } else return Collections.emptyList();
+        } else return getAllDoctors();
+    }
+
+    public int getCountOfPatientsByDoctor(DoctorEntity doctor) {
+        List<PregnancyEntity> pregnancies = doctor.getPregnancies();
+
+        List<PatientEntity> allPatients = patientRepository.findAll();
+
+        Set<PatientEntity> doctorsPatient = new HashSet<>();
+
+        for (PregnancyEntity pregnancy : pregnancies) {
+            for (PatientEntity patient : allPatients) {
+                if (pregnancy == patient.getPregnancy()) {
+                    doctorsPatient.add(patient);
+
+                    break;
+                }
+            }
+        }
+
+        return doctorsPatient.size();
+    }
+
+    public Long getNumberOfPatients(String email) {
+        List<PregnancyEntity> pregnancies = pregnancyRepository.findAll();
+
+        return pregnancies.stream()
+                .filter(p -> p.getDoctorEntity().getUserEntity().getEmail().equals(email))
+                .count();
     }
 
 }

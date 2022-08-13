@@ -1,11 +1,12 @@
 package com.project.medtech.service;
 
-import com.project.medtech.dto.*;
+import com.project.medtech.dto.AuthResponse;
+import com.project.medtech.dto.EmailDto;
+import com.project.medtech.dto.EmailTextDto;
+import com.project.medtech.dto.UserDto;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.jwt.JwtProvider;
 import com.project.medtech.model.UserEntity;
-import com.project.medtech.repository.PermissionRepository;
-import com.project.medtech.repository.RoleRepository;
 import com.project.medtech.repository.UserRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,7 +30,8 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserRepository userRepository, EmailSenderService emailSenderService, JwtProvider jwtProvider, @Lazy PasswordEncoder passwordEncoder, RoleRepository roleRepository, PermissionRepository permissionRepository) {
+    public UserService(UserRepository userRepository, EmailSenderService emailSenderService,
+                       JwtProvider jwtProvider, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.emailSenderService = emailSenderService;
         this.jwtProvider = jwtProvider;
@@ -138,6 +140,22 @@ public class UserService implements UserDetailsService {
         userDto.setStatus(userEntity.getStatus());
 
         return userDto;
+    }
+
+    public String getFullName(UserEntity userEntity) {
+        String name = "";
+
+        if (!userEntity.getLastName().isEmpty()) {
+            name += userEntity.getLastName();
+        }
+        if (!userEntity.getFirstName().isEmpty()) {
+            name += " " + userEntity.getFirstName().charAt(0) + ".";
+        }
+        if (!userEntity.getMiddleName().isEmpty()) {
+            name += " " + userEntity.getMiddleName().charAt(0) + ".";
+        }
+
+        return name;
     }
 
 }

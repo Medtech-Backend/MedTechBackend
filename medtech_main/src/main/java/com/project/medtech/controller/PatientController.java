@@ -38,7 +38,7 @@ public class PatientController {
     private final PatientRepository patientRepository;
 
 
-    @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
+    @ApiOperation(value = "скачивание данных всех пациентов в формате excel (ВЕБ)")
     @GetMapping("/excel/get-patients")
     public void exportPatientsToExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/octet-stream");
@@ -155,6 +155,12 @@ public class PatientController {
     @GetMapping("/get-married-types")
     public ResponseEntity<List<MarriedDto>> getMarriedTypes() {
         return ResponseEntity.ok(patientService.getMarriedTypes());
+    }
+
+    @ApiOperation(value = "поиск данных всех пациентов по ФИО (ВЕБ)")
+    @GetMapping("/get-all-by-parameter/{username}")
+            ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@PathVariable("username") NameRequest nameRequest){
+        return ResponseEntity.ok(patientService.searchByName(nameRequest));
     }
 
 }

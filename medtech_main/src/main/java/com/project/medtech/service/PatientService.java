@@ -18,7 +18,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +50,8 @@ public class PatientService {
     private final PasswordEncoder passwordEncoder;
 
     private final RoleRepository roleRepository;
+
+    private final UserService userService;
 
 
     public Integer calculateCurrentWeekOfPregnancy(String email) {
@@ -78,8 +83,7 @@ public class PatientService {
         List<CheckListInfoDto> listDto = new ArrayList<>();
 
         for (CheckListEntity checkListEntity : list) {
-            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkListEntity));
-        }
+            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkListEntity));}
 
         return listDto;
     }
@@ -529,7 +533,7 @@ public class PatientService {
             AddressEntity address = patientEntity.getAddressEntity();
 
             dto.setPatientId(patientEntity.getId());
-            dto.setFIO(getFullName(u));
+            dto.setFIO(userService.getFullName(u));
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
             dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
@@ -577,6 +581,7 @@ public class PatientService {
             name += " " + userEntity.getMiddleName().charAt(0) + ".";
         }
         return name;
+
     }
 
     public UserEntity getAuthentication() {
@@ -617,5 +622,30 @@ public class PatientService {
 
         return result;
     }
+
+    public List<PatientDataDto> searchByName(NameRequest nameRequest) {
+        if (nameRequest.getSearchWord().isEmpty() == false) {
+            if (userRepository.findAllByFio("PATIENT", nameRequest.getSearchWord()).isEmpty() == false) {
+                List<UserEntity> userEntities = userRepository.findAllByFio(Role.PATIENT.name(), nameRequest.getSearchWord());
+                List<PatientDataDto> listDto = new ArrayList<>();
+
+                for (UserEntity u : userEntities) {
+                    PatientDataDto dto = new PatientDataDto();
+                    PatientEntity patientEntity = u.getPatientEntity();
+                    AddressEntity address = patientEntity.getAddressEntity();
+                    dto.setPatientId(patientEntity.getId());
+                    dto.setFIO(userService.getFullName(u));
+                    dto.setPhoneNumber(u.getPhoneNumber());
+                    dto.setEmail(u.getEmail());
+                    dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
+                    dto.setResidenceAddress(address.getPatientAddress());
+                    dto.setStatus(u.getStatus().toString());
+                    listDto.add(dto);
+                }
+                return listDto;
+            } else return Collections.<PatientDataDto>emptyList();
+        } else return getAllPatients();
+    }
+
 
 }
