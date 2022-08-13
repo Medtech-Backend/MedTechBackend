@@ -2,6 +2,7 @@ package com.project.medtech.controller;
 
 import com.project.medtech.dto.DoctorDataDto;
 import com.project.medtech.dto.NameRequest;
+import com.project.medtech.dto.FullNameEmailDto;
 import com.project.medtech.dto.RegisterDoctorDto;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.DoctorExcelExporter;
@@ -33,7 +34,7 @@ public class DoctorController {
     private final UserRepository userRepository;
 
 
-    @ApiOperation(value = "регистрация нового доктора")
+    @ApiOperation(value = "регистрация нового доктора (ВЕБ)")
     @PostMapping("/create")
     public ResponseEntity<RegisterDoctorDto> createDoctor(@RequestBody RegisterDoctorDto registerDoctorDto) {
         return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
@@ -42,26 +43,18 @@ public class DoctorController {
     @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
     @GetMapping("/excel/get-doctors")
     public void exportToExcel(HttpServletResponse response) throws IOException {
+
         response.setContentType("application/octet-stream");
-
         String headerKey = "Content-Disposition";
-
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-
         String currentDateTime = dateFormatter.format(new Date());
-
         String fileName = "doctors_" + currentDateTime + ".xlsx";
-
         fileName = fileName.replaceAll(":", "-");
-
         String headerValue = "attachment; filename=" + fileName;
-
         response.setHeader(headerKey, headerValue);
-
         List<UserEntity> userEntities = userRepository.findAllByRoleEntityName(Role.DOCTOR.name());
 
         DoctorExcelExporter excelExporter = new DoctorExcelExporter(userEntities, doctorService);
-
         excelExporter.export(response);
     }
 
@@ -77,6 +70,10 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.searchByName(nameRequest));
     }
 
-
+    @ApiOperation(value = "вывод листа состоящий из ФИО и почты доктора (ВЕБ)")
+    @GetMapping("/get-full-name-email")
+    public ResponseEntity<List<FullNameEmailDto>> getDoctorsFNEmail() {
+        return ResponseEntity.ok(doctorService.getDoctorsFNEmail());
+    }
 
 }

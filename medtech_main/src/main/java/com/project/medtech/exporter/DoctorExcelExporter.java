@@ -22,7 +22,6 @@ public class DoctorExcelExporter {
     private List<UserEntity> users;
     private final DoctorService doctorService;
 
-
     public DoctorExcelExporter(List<UserEntity> users, DoctorService doctorService) {
         this.users = users;
         this.doctorService = doctorService;
@@ -81,7 +80,7 @@ public class DoctorExcelExporter {
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
             createCell(row, columnCount++, doctorService.getNumberOfPatients(u.getEmail()) + " пациентов", style);
-            createCell(row, columnCount++,  doctor.getAge(), style); //график работы
+            createCell(row, columnCount++,  doctor.getId(), style); //график работы
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
             num++;
@@ -97,7 +96,5 @@ public class DoctorExcelExporter {
         workbook.close();
 
         outputStream.close();
-
-
     }
 }

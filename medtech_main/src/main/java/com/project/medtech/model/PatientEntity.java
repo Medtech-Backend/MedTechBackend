@@ -32,8 +32,6 @@ public class PatientEntity {
 
     private Integer age;
 
-    private String pin;
-
     private String citizenship;
 
     private String patientCategory;
@@ -58,8 +56,6 @@ public class PatientEntity {
 
     private String husbandPhoneNumber;
 
-    private Long currentPregnancyId;
-
     @Enumerated(value = EnumType.STRING)
     private Married married;
 
@@ -78,8 +74,11 @@ public class PatientEntity {
     )
     private InsuranceEntity insuranceEntity;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<PregnancyEntity> pregnancy;
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            mappedBy = "patientEntity"
+    )
+    private PregnancyEntity pregnancy;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(

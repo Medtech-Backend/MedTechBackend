@@ -64,7 +64,7 @@ public class PregnancyEntity {
 
     private String lateRegistrationReason;
 
-    private Integer firstVisitWeekOfPregnancy; // 2
+    private Integer firstVisitWeekOfPregnancy;
 
     private String firstVisitComplaints;
 
@@ -118,6 +118,8 @@ public class PregnancyEntity {
 
     private String pastIllnessesAndSurgeries;
 
+    private String disabilityListNumber;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "doctor_id",
@@ -126,6 +128,16 @@ public class PregnancyEntity {
     )
     private DoctorEntity doctorEntity;
 
+<<<<<<< HEAD
+=======
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "patient_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "FKPREGNANCYPATIENT")
+    )
+    private PatientEntity patientEntity;
+>>>>>>> main
 
     @OneToMany(
             cascade = CascadeType.ALL,

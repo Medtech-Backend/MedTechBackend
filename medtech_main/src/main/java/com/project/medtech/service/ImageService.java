@@ -1,11 +1,11 @@
 package com.project.medtech.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.project.medtech.exception.FileEmptyException;
 import com.project.medtech.exception.ResourceNotFoundException;
-import com.project.medtech.model.ImageEntity;
-import com.project.medtech.model.UserEntity;
-import com.project.medtech.repository.ImageRepository;
-import com.project.medtech.repository.UserRepository;
+import com.project.medtech.model.*;
+import com.project.medtech.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.Authentication;
@@ -13,49 +13,86 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.Map;
+import java.nio.file.Files;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class ImageService {
 
-    private final ImageRepository imageRepository;
-
     private final UserRepository userRepository;
 
+    private final DoctorRepository doctorRepository;
 
-    public ImageEntity getImage() {
-        UserEntity userEntity = getAuthentication();
+    private final ContentRepository contentRepository;
 
-        if (userEntity.getImageEntity() == null) {
-            throw new ResourceNotFoundException("Image was not found for user email: " + userEntity.getEmail());
-        }
 
-        return userEntity.getImageEntity();
+    @SneakyThrows
+    public String saveForContent(Long contentId, MultipartFile file) {
+        ContentEntity contentEntity = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Content was not found with id: " + contentId)
+                );
+
+        contentEntity.setImageUrl(saveImage(file));
+
+        contentRepository.save(contentEntity);
+
+        return "Saved image for content";
     }
 
     @SneakyThrows
-    public String save(MultipartFile file) {
+    public String saveForDoctor(Long doctorId, MultipartFile file) {
+        DoctorEntity doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Doctor was not found with id: " + doctorId)
+                );
+
+        UserEntity userEntity = doctor.getUserEntity();
+
+        userEntity.setImageUrl(saveImage(file));
+
+        userRepository.save(userEntity);
+
+        return "Saved image for doctor";
+    }
+
+    @SneakyThrows
+    public String saveForPatient(MultipartFile file) {
         UserEntity userEntity = getAuthentication();
 
+        userEntity.setImageUrl(saveImage(file));
+
+        userRepository.save(userEntity);
+
+        return "Saved image for patient";
+    }
+
+    @SneakyThrows
+    public String saveImage(MultipartFile file) {
         if (file.isEmpty()) {
             throw new FileEmptyException("File is empty");
         }
 
-        ImageEntity imageEntity;
+        final String urlKey = "cloudinary://887665211349866:__mb-CWmbXeXGbTEqDrbhA1H6NU@neobisteamfour";
 
-        if (userEntity.getImageEntity() == null) {
-            imageEntity = new ImageEntity();
-        } else {
-            imageEntity = userEntity.getImageEntity();
-        }
+        File saveFile = Files.createTempFile(
+                        System.currentTimeMillis() + "",
+                        Objects.requireNonNull
+                                        (file.getOriginalFilename(), "File must have an extension")
+                                .substring(file.getOriginalFilename().lastIndexOf("."))
+                )
+                .toFile();
 
-        imageEntity.setFilename(file.getOriginalFilename());
-        imageEntity.setMimeType(file.getContentType());
-        imageEntity.setData(file.getBytes());
-        imageEntity.setUserEntity(userEntity);
+        file.transferTo(saveFile);
 
-        imageRepository.save(imageEntity);
+        Cloudinary cloudinary = new Cloudinary((urlKey));
 
-        return "Image uploaded";
+        Map upload = cloudinary.uploader().upload(saveFile, ObjectUtils.emptyMap());
+
+        return (String) upload.get("url");
     }
 
     public UserEntity getAuthentication() {
