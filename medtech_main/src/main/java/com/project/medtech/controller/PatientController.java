@@ -141,7 +141,7 @@ public class PatientController {
         return ResponseEntity.ok(patientService.getMarriedTypes());
     }
 
-    @ApiOperation(value = "поиск данных всех пациентов по ФИО")
+    @ApiOperation(value = "поиск данных всех пациентов по ФИО (ВЕБ)")
     @GetMapping("/get-all-by-parameter/{username}")
             ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@PathVariable("username") NameRequest nameRequest){
         return ResponseEntity.ok(patientService.searchByName(nameRequest));

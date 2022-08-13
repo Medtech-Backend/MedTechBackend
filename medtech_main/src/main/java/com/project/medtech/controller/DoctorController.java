@@ -40,7 +40,7 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
     }
 
-    @ApiOperation(value = "скачивание данных всех пациентов в формате excel")
+    @ApiOperation(value = "скачивание данных всех докторов в формате excel (ВЕБ)")
     @GetMapping("/excel/get-doctors")
     public void exportToExcel(HttpServletResponse response) throws IOException {
 
@@ -58,13 +58,13 @@ public class DoctorController {
         excelExporter.export(response);
     }
 
-    @ApiOperation(value = "вывод данных всех докторов")
+    @ApiOperation(value = "вывод данных всех докторов (ВЕБ)")
     @GetMapping("/get-all")
     ResponseEntity<List<DoctorDataDto>> getAll(){
         return ResponseEntity.ok(doctorService.getAllDoctors());
     }
 
-    @ApiOperation(value = "поиск данных всех докторов по ФИО")
+    @ApiOperation(value = "поиск данных всех докторов по ФИО (ВЕБ)")
     @GetMapping("/get-all-by-parameter/{username}")
     ResponseEntity<List<DoctorDataDto>> searchAllDoctorsByName(@PathVariable("username") NameRequest nameRequest){
         return ResponseEntity.ok(doctorService.searchByName(nameRequest));
