@@ -2,20 +2,11 @@ package com.project.medtech.mapper;
 
 
 import com.project.medtech.dto.CheckListDto;
+import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.model.CheckListEntity;
 
 public class CheckListMapper {
-    public static CheckListEntity DtoToEntity(CheckListDto dto) {
 
-        CheckListEntity entity = new CheckListEntity();
-        entity.setId(dto.getId());
-        entity.setPatientEntity(dto.getPatientEntity());
-        entity.setDoctorEntity(dto.getDoctorEntity());
-        entity.setTime(dto.getTime());
-        entity.setDate(dto.getDate());
-        entity.setAnswerEntities(dto.getAnswerEntities());
-        return entity;
-    }
     public static CheckListDto EntityToDto(CheckListEntity entity) {
 
         CheckListDto dto = new CheckListDto();
@@ -27,5 +18,17 @@ public class CheckListMapper {
         dto.setAnswerEntities(entity.getAnswerEntities());
         return dto;
     }
+
+    public static SimpleCheckListInfoDto EntityToSimpleDto(CheckListEntity entity) {
+
+        SimpleCheckListInfoDto dto = new SimpleCheckListInfoDto();
+        dto.setDate(entity.getDate());
+        dto.setTime(entity.getTime());
+        dto.setDoctorId(entity.getDoctorEntity().getId());
+        dto.setPatientId(entity.getPatientEntity().getId());
+        return dto;
+    }
+
+
 }
 

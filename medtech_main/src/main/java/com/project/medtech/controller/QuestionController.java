@@ -1,6 +1,7 @@
 package com.project.medtech.controller;
 
 
+import com.project.medtech.dto.NewQuestionDto;
 import com.project.medtech.dto.QuestionDto;
 import com.project.medtech.service.QuestionService;
 import io.swagger.annotations.Api;
@@ -35,14 +36,14 @@ public class QuestionController {
 
     @ApiOperation(value = "добавление нового стандартного вопроса")
     @PostMapping(value="/create")
-    ResponseEntity<QuestionDto> createQuestion(@RequestBody QuestionDto dto) {
+    ResponseEntity<QuestionDto> createQuestion(@RequestBody NewQuestionDto dto) {
         return ResponseEntity.ok().body(questionService.save(dto));
     }
 
     @ApiOperation(value = "изменение стандартного вопроса по ID")
     @PutMapping(value="/update/{id}")
-    ResponseEntity<QuestionDto> updateText(@PathVariable("id") long id, @RequestBody QuestionDto dto) {
-        return ResponseEntity.ok().body(questionService.update(id, dto));
+    ResponseEntity<QuestionDto> updateText(@PathVariable("id") long id, @RequestBody NewQuestionDto dtoForUpdating) {
+        return ResponseEntity.ok().body(questionService.update(id, dtoForUpdating));
     }
 
     @ApiOperation(value = "удаление вопроса из стандартного чек-листа по ID")

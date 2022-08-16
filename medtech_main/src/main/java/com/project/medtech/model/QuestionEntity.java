@@ -29,7 +29,7 @@ public class QuestionEntity {
     @Column(nullable = false)
     private String question;
 
-    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private Status status;
 
 }

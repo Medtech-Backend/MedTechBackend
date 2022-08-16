@@ -1,7 +1,7 @@
 package com.project.medtech.service;
 
 import com.project.medtech.dto.CheckListDto;
-import com.project.medtech.dto.NewCheckListDto;
+import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListMapper;
@@ -32,24 +32,24 @@ public class CheckListService {
     private final QuestionRepository questionRepository;
 
 
-    public List<CheckListDto> getAllCheckLists() {
+    public List<SimpleCheckListInfoDto> getAllCheckLists() {
         List<CheckListEntity> list = repository.findAll();
-        List<CheckListDto> listDto = new ArrayList<>();
+        List<SimpleCheckListInfoDto> listDto = new ArrayList<>();
         for (CheckListEntity checkListEntity : list) {
-            listDto.add(CheckListMapper.EntityToDto(checkListEntity));
+            listDto.add(CheckListMapper.EntityToSimpleDto(checkListEntity));
         }
         return listDto;
     }
 
-    public Optional<CheckListDto> findById(long id) {
+    public Optional<SimpleCheckListInfoDto> findById(long id) {
         CheckListEntity text = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
-        return Optional.of(CheckListMapper.EntityToDto(text));
+        return Optional.of(CheckListMapper.EntityToSimpleDto(text));
     }
 
-    public CheckListDto save(NewCheckListDto dto) {
+    public SimpleCheckListInfoDto save(SimpleCheckListInfoDto dto) {
         CheckListEntity checkListEntity = new CheckListEntity();
-        checkListEntity.setDoctorEntity(doctorRepository.findById(dto.getDoctorId()).get());
-        checkListEntity.setPatientEntity(patientRepository.findById(dto.getPatientId()).get());
+        checkListEntity.setDoctorEntity(doctorRepository.findById(dto.getDoctorId()).orElseThrow(() -> new ResourceNotFoundException("No doctor with ID : " + dto.getDoctorId())));
+        checkListEntity.setPatientEntity(patientRepository.findById(dto.getPatientId()).orElseThrow(() -> new ResourceNotFoundException("No patient with ID : " + dto.getPatientId())));
         checkListEntity.setDate(dto.getDate());
         checkListEntity.setTime(dto.getTime());
 
@@ -66,22 +66,8 @@ public class CheckListService {
         checkListEntity.setAnswerEntities(answerEntities);
 
         repository.save(checkListEntity);
-        return CheckListMapper.EntityToDto(checkListEntity);
+        return dto;
 
-    }
-
-    public CheckListDto update(long id, CheckListDto dto) {
-        CheckListEntity checkListEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
-        CheckListEntity checkListEntity1 = CheckListMapper.DtoToEntity(dto);
-        checkListEntity1.setId(checkListEntity.getId());
-        return CheckListMapper.EntityToDto(repository.save(checkListEntity1));
-    }
-
-    public CheckListDto delete(long id) {
-        CheckListEntity checkListEntity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
-        repository.delete(checkListEntity);
-        return CheckListMapper.EntityToDto(checkListEntity);
     }
 
 }
