@@ -8,8 +8,6 @@ import com.project.medtech.model.ScheduleEntity;
 import com.project.medtech.model.UserEntity;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.DoctorRepository;
-import com.project.medtech.repository.ScheduleRepository;
-import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -93,15 +91,14 @@ public class ScheduleService {
             dto.setDate(date.toString());
 
             if (daySchedule.containsKey("free") && daySchedule.get("free").isEmpty() &&
-                    daySchedule.containsKey("booked") && daySchedule.get("booked").isEmpty()) {
-                dto.setStatus("GREY");
-            } else if (daySchedule.containsKey("free") && daySchedule.get("free").isEmpty()) {
+                    daySchedule.containsKey("booked") && !daySchedule.get("booked").isEmpty()) {
                 dto.setStatus("GREEN");
+                output.add(dto);
             } else if (daySchedule.containsKey("free") && !daySchedule.get("free").isEmpty()) {
                 dto.setStatus("WHITE");
+                output.add(dto);
             }
 
-            output.add(dto);
         }
 
         return output;
