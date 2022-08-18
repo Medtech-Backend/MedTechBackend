@@ -11,7 +11,7 @@ public class CheckListInfoDtoMapper {
 
         dto.setId(entity.getId());
         dto.setDate(entity.getDate());
-        dto.setAnswerEntities(entity.getAnswerEntities());
+        dto.setAnswer(AnswerMapper.ListEntityToListDto(entity.getAnswerEntities()));
 
         return dto;
     }

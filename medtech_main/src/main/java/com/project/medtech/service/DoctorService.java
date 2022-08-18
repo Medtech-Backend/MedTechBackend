@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -164,12 +165,14 @@ public class DoctorService {
             DoctorDataDto dto = new DoctorDataDto();
 
             DoctorEntity doctorEntity = u.getDoctorEntity();
+            List<ScheduleEntity> scheduleEntities = doctorEntity.getScheduleList();
 
             dto.setDoctorId(doctorEntity.getId());
             dto.setFIO(userService.getFullName(u));
             dto.setPhoneNumber(u.getPhoneNumber());
             dto.setEmail(u.getEmail());
             dto.setCountOfPatients(getNumberOfPatients(u.getEmail()));
+            dto.setDayOfWeek( String.join(" ", scheduleEntities.stream().map(sh -> sh.getDayOfWeek()).collect(Collectors.toList())));
             dto.setStatus(u.getStatus().toString());
 
             listDto.add(dto);

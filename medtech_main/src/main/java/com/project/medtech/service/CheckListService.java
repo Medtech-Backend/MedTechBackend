@@ -1,6 +1,5 @@
 package com.project.medtech.service;
 
-import com.project.medtech.dto.CheckListDto;
 import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.dto.enums.Status;
 import com.project.medtech.exception.ResourceNotFoundException;

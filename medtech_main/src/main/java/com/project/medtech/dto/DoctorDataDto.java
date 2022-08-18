@@ -10,6 +10,7 @@ public class DoctorDataDto {
     private String phoneNumber;
     private String email;
     private Long countOfPatients;
+    private String dayOfWeek;
     private String status;
 
 }

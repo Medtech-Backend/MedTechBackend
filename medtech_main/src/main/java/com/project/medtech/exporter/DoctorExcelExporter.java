@@ -1,6 +1,7 @@
 package com.project.medtech.exporter;
 
 import com.project.medtech.model.DoctorEntity;
+import com.project.medtech.model.ScheduleEntity;
 import com.project.medtech.model.UserEntity;
 import com.project.medtech.service.DoctorService;
 import org.apache.poi.ss.usermodel.Cell;
@@ -14,6 +15,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DoctorExcelExporter {
 
@@ -77,13 +79,14 @@ public class DoctorExcelExporter {
             int columnCount = 0;
 
             DoctorEntity doctor = u.getDoctorEntity();
+            List<ScheduleEntity> scheduleEntities = doctor.getScheduleList();
 
             createCell(row, columnCount++, num, style);
             createCell(row, columnCount++, u.getFirstName()+" "+u.getLastName()+" "+u.getMiddleName(), style);
             createCell(row, columnCount++, u.getPhoneNumber(), style);
             createCell(row, columnCount++, u.getEmail(), style);
             createCell(row, columnCount++, doctorService.getNumberOfPatients(u.getEmail()) + " пациентов", style);
-            createCell(row, columnCount++,  doctor.getId(), style); //график работы
+            createCell(row, columnCount++,  String.join(" ", scheduleEntities.stream().map(sh -> sh.getDayOfWeek()).collect(Collectors.toList())), style); //график работы
             createCell(row, columnCount++, u.getStatus().toString(), style);
 
             num++;

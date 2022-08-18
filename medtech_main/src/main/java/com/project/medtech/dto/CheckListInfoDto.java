@@ -14,7 +14,7 @@ public class CheckListInfoDto {
 
     private LocalDate date;
 
-    private List<AnswerEntity> answerEntities;
+    private List<AnswerDto> answer;
 
 }
 
