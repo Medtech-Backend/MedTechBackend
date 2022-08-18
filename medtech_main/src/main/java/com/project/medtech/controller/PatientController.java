@@ -159,8 +159,14 @@ public class PatientController {
 
     @ApiOperation(value = "поиск данных всех пациентов по ФИО (ВЕБ)")
     @GetMapping("/get-all-by-parameter/{username}")
-            ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@PathVariable("username") NameRequest nameRequest){
+    public ResponseEntity<List<PatientDataDto>> searchAllPatientsByName(@PathVariable("username") NameRequest nameRequest){
         return ResponseEntity.ok(patientService.searchByName(nameRequest));
+    }
+
+    @ApiOperation(value = "поиск пациентов определенного доктора (ВЕБ)")
+    @GetMapping("/get-all-by-doctor/{doctorId}")
+    public ResponseEntity<List<PatientDtoForDoctorProfile>> getPatientsByDoctor(@PathVariable Long doctorId) {
+        return ResponseEntity.ok(patientService.getPatientsByDoctor(doctorId));
     }
 
 }

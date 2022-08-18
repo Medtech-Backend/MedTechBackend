@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
@@ -43,10 +45,10 @@ public class CheckListEntity {
     private DoctorEntity doctorEntity;
 
     @Column(nullable = false)
-    private Time time;
+    private LocalTime time;
 
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @OneToMany(
             mappedBy = "checkListEntity",
@@ -67,11 +69,11 @@ public class CheckListEntity {
         this.doctorEntity = doctorEntity;
     }
 
-    public void setTime(Time time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

@@ -1,9 +1,6 @@
 package com.project.medtech.controller;
 
-import com.project.medtech.dto.DoctorDataDto;
-import com.project.medtech.dto.NameRequest;
-import com.project.medtech.dto.FullNameEmailDto;
-import com.project.medtech.dto.RegisterDoctorDto;
+import com.project.medtech.dto.*;
 import com.project.medtech.dto.enums.Role;
 import com.project.medtech.exporter.DoctorExcelExporter;
 import com.project.medtech.model.UserEntity;
@@ -36,8 +33,15 @@ public class DoctorController {
 
     @ApiOperation(value = "регистрация нового доктора (ВЕБ)")
     @PostMapping("/create")
-    public ResponseEntity<RegisterDoctorDto> createDoctor(@RequestBody RegisterDoctorDto registerDoctorDto) {
-        return ResponseEntity.ok(doctorService.createDoctor(registerDoctorDto));
+    public ResponseEntity<DoctorDto> createDoctor(@RequestBody DoctorDto doctorDto) {
+        return ResponseEntity.ok(doctorService.createDoctor(doctorDto));
+    }
+
+    @ApiOperation(value = "изменение доктора со стороны админа (ВЕБ)")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<DoctorDto> updateDoctor(@PathVariable Long id,
+                                                  @RequestBody DoctorDto doctorDto) {
+        return ResponseEntity.ok(doctorService.updateDoctor(id, doctorDto));
     }
 
     @ApiOperation(value = "скачивание данных всех докторов в формате excel (ВЕБ)")
@@ -82,6 +86,18 @@ public class DoctorController {
     @GetMapping("/get-full-name-email")
     public ResponseEntity<List<FullNameEmailDto>> getDoctorsFNEmail() {
         return ResponseEntity.ok(doctorService.getDoctorsFNEmail());
+    }
+
+    @ApiOperation(value = "вывод профиля доктора по айди (ВЕБ)")
+    @GetMapping("/get-profile/{doctorId}")
+    public ResponseEntity<DoctorProfileDto> getDoctorProfile(@PathVariable Long doctorId) {
+        return ResponseEntity.ok(doctorService.getDoctorProfile(doctorId));
+    }
+
+    @ApiOperation(value = "изменение телефона доктора (ВЕБ)")
+    @PutMapping("/change-phone-number")
+    public ResponseEntity<PhoneNumberDto> changePhoneNumber(@RequestBody PhoneNumberDto dto) {
+        return ResponseEntity.ok(doctorService.changePhoneNumber(dto));
     }
 
 }

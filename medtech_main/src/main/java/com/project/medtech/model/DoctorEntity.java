@@ -40,4 +40,10 @@ public class DoctorEntity {
     )
     private List<PregnancyEntity> pregnancies;
 
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "doctor"
+    )
+    private List<ScheduleEntity> scheduleList;
+
 }

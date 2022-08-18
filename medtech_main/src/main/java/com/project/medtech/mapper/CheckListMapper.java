@@ -5,6 +5,7 @@ import com.project.medtech.dto.CheckListDto;
 import com.project.medtech.model.CheckListEntity;
 
 public class CheckListMapper {
+
     public static CheckListEntity DtoToEntity(CheckListDto dto) {
 
         CheckListEntity entity = new CheckListEntity();
@@ -16,6 +17,7 @@ public class CheckListMapper {
         entity.setAnswerEntities(dto.getAnswerEntities());
         return entity;
     }
+
     public static CheckListDto EntityToDto(CheckListEntity entity) {
 
         CheckListDto dto = new CheckListDto();
@@ -27,5 +29,6 @@ public class CheckListMapper {
         dto.setAnswerEntities(entity.getAnswerEntities());
         return dto;
     }
+
 }
 

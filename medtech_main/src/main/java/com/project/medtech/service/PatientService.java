@@ -8,11 +8,13 @@ import com.project.medtech.mapper.CheckListInfoDtoMapper;
 import com.project.medtech.model.*;
 import com.project.medtech.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -83,7 +85,8 @@ public class PatientService {
         List<CheckListInfoDto> listDto = new ArrayList<>();
 
         for (CheckListEntity checkListEntity : list) {
-            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkListEntity));}
+            listDto.add(CheckListInfoDtoMapper.EntityToDto(checkListEntity));
+        }
 
         return listDto;
     }
@@ -569,8 +572,35 @@ public class PatientService {
         return patientProfileDto;
     }
 
-    public String getFullName(UserEntity userEntity) {
+    public List<PatientDtoForDoctorProfile> getPatientsByDoctor(Long doctorId) {
+        DoctorEntity doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Doctor was not found with ID: " + doctorId)
+                );
+
+        List<PatientDtoForDoctorProfile> output = new ArrayList<>();
+
+        doctor.getPregnancies().forEach(
+                p -> {
+                    PatientDtoForDoctorProfile dto = new PatientDtoForDoctorProfile();
+
+                    UserEntity patient = p.getPatientEntity().getUserEntity();
+
+                    dto.setPatientId(p.getPatientEntity().getId());
+                    dto.setFullName(getFullName(patient));
+                    dto.setPhoneNumber(patient.getPhoneNumber());
+                    dto.setEmail(patient.getEmail());
+
+                    output.add(dto);
+                }
+        );
+
+        return output;
+    }
+
+    public static String getFullName(UserEntity userEntity) {
         String name = "";
+
         if (!userEntity.getLastName().isEmpty()) {
             name += userEntity.getLastName();
         }
@@ -578,20 +608,23 @@ public class PatientService {
             name += " " + userEntity.getFirstName().charAt(0) + ".";
         }
         if (!userEntity.getMiddleName().isEmpty()) {
-            name += " " + userEntity.getMiddleName().charAt(0) + ".";
+            name += userEntity.getMiddleName().charAt(0) + ".";
         }
-        return name;
 
+        return name;
     }
 
     public UserEntity getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         return userRepository.findByEmail(authentication.getName());
     }
 
     public String calculateBmx(Double weight, double height) {
         height /= 100;
+
         double result = weight / (height * height);
+
         return String.format("%.1f", result);
     }
 
@@ -627,12 +660,16 @@ public class PatientService {
         if (nameRequest.getSearchWord().isEmpty() == false) {
             if (userRepository.findAllByFio("PATIENT", nameRequest.getSearchWord()).isEmpty() == false) {
                 List<UserEntity> userEntities = userRepository.findAllByFio(Role.PATIENT.name(), nameRequest.getSearchWord());
+
                 List<PatientDataDto> listDto = new ArrayList<>();
 
                 for (UserEntity u : userEntities) {
                     PatientDataDto dto = new PatientDataDto();
+
                     PatientEntity patientEntity = u.getPatientEntity();
+
                     AddressEntity address = patientEntity.getAddressEntity();
+
                     dto.setPatientId(patientEntity.getId());
                     dto.setFIO(userService.getFullName(u));
                     dto.setPhoneNumber(u.getPhoneNumber());
@@ -640,12 +677,12 @@ public class PatientService {
                     dto.setCurrentWeekOfPregnancy(calculateCurrentWeekOfPregnancy(u.getEmail()));
                     dto.setResidenceAddress(address.getPatientAddress());
                     dto.setStatus(u.getStatus().toString());
+
                     listDto.add(dto);
                 }
                 return listDto;
             } else return Collections.<PatientDataDto>emptyList();
         } else return getAllPatients();
     }
-
 
 }
