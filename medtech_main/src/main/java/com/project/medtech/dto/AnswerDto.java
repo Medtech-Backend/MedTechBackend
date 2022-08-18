@@ -10,6 +10,5 @@ public class AnswerDto {
     private String question;
     private String indicators;
     private String description;
-    private CheckListEntity checkListEntity;
 
 }

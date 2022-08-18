@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.Date;
 
 @Data
-public class NewCheckListDto {
+public class SimpleCheckListInfoDto {
 
     private long patientId;
     private long doctorId;

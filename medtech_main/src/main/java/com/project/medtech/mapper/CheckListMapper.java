@@ -30,5 +30,16 @@ public class CheckListMapper {
         return dto;
     }
 
+    public static SimpleCheckListInfoDto EntityToSimpleDto(CheckListEntity entity) {
+
+        SimpleCheckListInfoDto dto = new SimpleCheckListInfoDto();
+        dto.setDate(entity.getDate());
+        dto.setTime(entity.getTime());
+        dto.setDoctorId(entity.getDoctorEntity().getId());
+        dto.setPatientId(entity.getPatientEntity().getId());
+        return dto;
+    }
+
+
 }
 

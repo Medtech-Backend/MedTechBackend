@@ -1,7 +1,7 @@
 package com.project.medtech.controller;
 
 import com.project.medtech.dto.CheckListDto;
-import com.project.medtech.dto.NewCheckListDto;
+import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.exporter.CheckListExcelExporter;
 import com.project.medtech.model.CheckListEntity;
@@ -32,9 +32,10 @@ public class CheckListController {
     private final CheckListRepository checkListRepository;
 
 
-    @ApiOperation(value = "получение чеклиста в виде excel файла")
+    @ApiOperation(value = "получение чеклиста в виде excel файла (ВЕБ)")
     @GetMapping("/excel/export/{id}")
     public void exportToExcel(HttpServletResponse response, @PathVariable("id") long id) throws IOException {
+
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -49,34 +50,23 @@ public class CheckListController {
         excelExporter.export(response);
     }
 
-    @ApiOperation(value = "запись на приём и создание чек-листа")
+    @ApiOperation(value = "запись на приём и создание чек-листа (МОБ)")
     @PostMapping(value = "/create")
-    ResponseEntity<CheckListDto> createNewCheckList(@RequestBody NewCheckListDto dto) {
+    ResponseEntity<SimpleCheckListInfoDto> createNewCheckList(@RequestBody SimpleCheckListInfoDto dto) {
         return ResponseEntity.ok().body(checkListService.save(dto));
     }
 
-    @ApiOperation(value = "получение всех чек-листов")
+    @ApiOperation(value = "получение всех чек-листов (ВЕБ)")
     @GetMapping(value = "/get-all")
-    ResponseEntity<List<CheckListDto>> getAll() {
+    ResponseEntity<List<SimpleCheckListInfoDto>> getAll() {
         return ResponseEntity.ok(checkListService.getAllCheckLists());
     }
 
-    @ApiOperation(value = "получение чек-листов по ID")
+    @ApiOperation(value = "получение чек-листов по ID (ВЕБ)")
     @GetMapping(value = "/get/{id}")
-    ResponseEntity<CheckListDto> getById(@PathVariable("id") long id) {
+    ResponseEntity<SimpleCheckListInfoDto> getById(@PathVariable("id") long id) {
         return ResponseEntity.ok().body(checkListService.findById(id).get());
     }
 
-    @ApiOperation(value = "обновление чек-листа")
-    @PutMapping(value = "/update/{id}")
-    ResponseEntity<CheckListDto> updateCheckList(@PathVariable("id") long id, @RequestBody CheckListDto dto) {
-        return ResponseEntity.ok().body(checkListService.update(id, dto));
-    }
-
-    @ApiOperation(value = "удаление чек-листа по ID")
-    @DeleteMapping(value = "/delete/{id}")
-    ResponseEntity<CheckListDto> deleteCheckList(@PathVariable("id") long id) {
-        return ResponseEntity.ok(checkListService.delete(id));
-    }
 
 }

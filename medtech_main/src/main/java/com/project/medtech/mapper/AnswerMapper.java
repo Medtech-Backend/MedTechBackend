@@ -12,7 +12,6 @@ public class AnswerMapper {
         entity.setIndicators(dto.getIndicators());
         entity.setDescription(dto.getDescription());
         entity.setId(dto.getId());
-        entity.setCheckListEntity(dto.getCheckListEntity());
         return entity;
     }
     public static AnswerDto EntityToDto(AnswerEntity entity) {
@@ -22,7 +21,6 @@ public class AnswerMapper {
         dto.setIndicators(entity.getIndicators());
         dto.setDescription(entity.getDescription());
         dto.setId(entity.getId());
-        dto.setCheckListEntity(entity.getCheckListEntity());
 
         return dto;
     }

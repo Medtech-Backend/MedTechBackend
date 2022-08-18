@@ -67,13 +67,6 @@ public class AnswerService {
         return AnswerMapper.EntityToDto(repository.save(newAnswerEntity));
     }
 
-    public AnswerDto delete(long id) {
-        AnswerEntity answerEntity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No answer with ID : " + id));
-        repository.delete(answerEntity);
-        return AnswerMapper.EntityToDto(answerEntity);
-    }
-
     public List<AnswerDto> getAllAnswersByCheckList(long id) {
         CheckListEntity checkListEntity = checkListRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No CheckList with ID : " + id));
         List<AnswerEntity> list = repository.findAllByCheckListEntity(checkListEntity);
