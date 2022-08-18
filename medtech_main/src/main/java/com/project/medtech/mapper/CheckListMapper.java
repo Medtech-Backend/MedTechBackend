@@ -2,6 +2,7 @@ package com.project.medtech.mapper;
 
 
 import com.project.medtech.dto.CheckListDto;
+import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.model.CheckListEntity;
 
 public class CheckListMapper {
