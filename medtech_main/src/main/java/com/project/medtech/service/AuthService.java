@@ -34,7 +34,8 @@ public class AuthService {
             String accessToken = jwtProvider.generateAccessToken(userEntity);
             String refreshToken = jwtProvider.generateRefreshToken(userEntity);
             return new AuthResponse(accessToken, refreshToken, userEntity.getUserId(),
-                    userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
+                    userEntity.getEmail(), userEntity.isOtpUsed(),
+                    userEntity.getRoleEntity().getName(), userEntity.getFirstName());
         } else {
             throw new AuthException("Incorrect password for email: " + authRequest.getEmail());
         }
@@ -49,7 +50,8 @@ public class AuthService {
             final String accessToken = jwtProvider.generateAccessToken(userEntity);
             final String newRefreshToken = jwtProvider.generateRefreshToken(userEntity);
             return new AuthResponse(accessToken, newRefreshToken, userEntity.getUserId(),
-                    userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
+                    userEntity.getEmail(), userEntity.isOtpUsed(),
+                    userEntity.getRoleEntity().getName(), userEntity.getFirstName());
         }
         throw new AuthException("Invalid JWT token");
     }

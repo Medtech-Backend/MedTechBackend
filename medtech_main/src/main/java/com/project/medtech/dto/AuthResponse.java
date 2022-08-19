@@ -18,5 +18,6 @@ public class AuthResponse {
     private String email;
     private boolean otpUsed;
     private String role;
+    private String firstName;
 
 }
