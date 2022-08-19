@@ -200,8 +200,6 @@ public class DoctorService {
                     dto.setStatus(u.getStatus().toString());
 
                     listDto.add(dto);
-
-                    listDto.add(dto);
                 }
                 return listDto;
             } else return Collections.emptyList();
