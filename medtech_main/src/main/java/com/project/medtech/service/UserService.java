@@ -112,7 +112,8 @@ public class UserService implements UserDetailsService {
         String refreshToken = jwtProvider.generateRefreshToken(userEntity);
 
         return new AuthResponse(accessToken, refreshToken, userEntity.getUserId(),
-                userEntity.getEmail(), userEntity.isOtpUsed(), userEntity.getRoleEntity().getName());
+                userEntity.getEmail(), userEntity.isOtpUsed(),
+                userEntity.getRoleEntity().getName(), userEntity.getFirstName());
     }
 
     @Override
