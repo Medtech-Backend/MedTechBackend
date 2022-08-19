@@ -2,6 +2,7 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.SimpleCheckListInfoDto;
 import com.project.medtech.dto.enums.Status;
+import com.project.medtech.exception.AlreadyExistsException;
 import com.project.medtech.exception.ResourceNotFoundException;
 import com.project.medtech.mapper.CheckListMapper;
 import com.project.medtech.model.AnswerEntity;
@@ -46,14 +47,22 @@ public class CheckListService {
     }
 
     public SimpleCheckListInfoDto save(SimpleCheckListInfoDto dto) {
+        Boolean checkIfExists = repository
+                .existsByDateAndTimeAndDoctorEntityId(dto.getDate(), dto.getTime(), dto.getDoctorId());
+
+        if(checkIfExists) {
+            throw new AlreadyExistsException("The given date and our is already booked. Choose another time.");
+        }
+
         CheckListEntity checkListEntity = new CheckListEntity();
+
         checkListEntity.setDoctorEntity(doctorRepository.findById(dto.getDoctorId()).orElseThrow(() -> new ResourceNotFoundException("No doctor with ID : " + dto.getDoctorId())));
         checkListEntity.setPatientEntity(patientRepository.findById(dto.getPatientId()).orElseThrow(() -> new ResourceNotFoundException("No patient with ID : " + dto.getPatientId())));
         checkListEntity.setDate(dto.getDate());
         checkListEntity.setTime(dto.getTime());
 
         List<QuestionEntity> questionEntities = questionRepository.findAllByStatus(Status.ACTIVE);
-        List<AnswerEntity> answerEntities = new ArrayList<AnswerEntity>();
+        List<AnswerEntity> answerEntities = new ArrayList<>();
 
         for (QuestionEntity questionEntity : questionEntities) {
             AnswerEntity ans = new AnswerEntity();

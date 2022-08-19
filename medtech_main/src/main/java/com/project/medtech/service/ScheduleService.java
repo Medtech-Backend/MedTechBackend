@@ -2,27 +2,162 @@ package com.project.medtech.service;
 
 import com.project.medtech.dto.*;
 import com.project.medtech.exception.ResourceNotFoundException;
-import com.project.medtech.model.CheckListEntity;
-import com.project.medtech.model.DoctorEntity;
-import com.project.medtech.model.ScheduleEntity;
-import com.project.medtech.model.UserEntity;
+import com.project.medtech.model.*;
 import com.project.medtech.repository.CheckListRepository;
 import com.project.medtech.repository.DoctorRepository;
+import com.project.medtech.repository.ScheduleRepository;
+import com.project.medtech.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
 
+    private final ScheduleRepository scheduleRepository;
+
     private final DoctorRepository doctorRepository;
 
     private final CheckListRepository checkListRepository;
 
+    private final UserRepository userRepository;
+
+    private final CheckListService checkListService;
+
+
+    public Map<String, List<String>> getCurrentMonthScheduleMobile() {
+        LocalDate localDate = LocalDate.now();
+
+        List<ScheduleDateStatusDto> monthList = getMonthSchedule(
+                getAuthentication()
+                        .getPatientEntity()
+                        .getPregnancy()
+                        .getDoctorEntity()
+                        .getId()
+                , localDate.getYear(), localDate.getMonthValue());
+
+        System.out.println(monthList);
+
+        Map<String, List<String>> output = new HashMap<>();
+
+        List<String> bookedList = new ArrayList<>();
+        List<String> freeList = new ArrayList<>();
+
+        monthList.forEach(
+                m -> {
+                    if (m.getStatus().equals("GREEN")) {
+                        bookedList.add(m.getDate());
+                    } else if (m.getStatus().equals("WHITE")) {
+                        freeList.add(m.getDate());
+                    }
+                }
+        );
+
+        output.put("Booked", bookedList);
+        output.put("Free", freeList);
+
+        return output;
+    }
+
+    public List<DateTimeDto> getCurrentMonthPatientScheduleMobile() {
+        UserEntity user = getAuthentication();
+
+        PatientEntity patient = user.getPatientEntity();
+
+        DoctorEntity doctor = patient.getPregnancy().getDoctorEntity();
+
+        List<CheckListEntity> checkListEntities =
+                checkListRepository.findAllByPatientEntityIdAndDoctorEntityId(patient.getId(), doctor.getId());
+
+        List<DateTimeDto> output = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        checkListEntities.forEach(
+                checkList -> {
+                    DateTimeDto dto = new DateTimeDto();
+
+                    dto.setDate(checkList.getDate().toString());
+                    dto.setTime(formatter.format(checkList.getTime()));
+
+                    output.add(dto);
+                }
+        );
+
+        return output;
+    }
+
+    public List<String> getFreeHoursForDayMobile(String date) {
+        UserEntity user = getAuthentication();
+
+        LocalDate localDate = LocalDate.parse(date);
+
+        DoctorEntity doctor = user.getPatientEntity().getPregnancy().getDoctorEntity();
+
+        List<LocalTime> reservedHours = checkListRepository
+                .findByReservedByMe(doctor.getId(), localDate)
+                .stream()
+                .map(CheckListEntity::getTime)
+                .collect(Collectors.toList());
+
+        ScheduleEntity schedule = scheduleRepository
+                .findByDayOfWeekAndDoctorId(localDate.getDayOfWeek().name(), doctor.getId())
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException("Schedule was not found for day of week: "
+                                        + localDate.getDayOfWeek().name())
+                );
+
+        List<String> freeHoursList = new ArrayList<>();
+
+        int fromMinutes = schedule.getFrom().getHour() * 60 + schedule.getFrom().getMinute();
+
+        int tillMinutes = schedule.getTill().getHour() * 60 + schedule.getTill().getMinute();
+
+        int iterationTimes = (tillMinutes - fromMinutes) / 50;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        for (int i = 0; i < iterationTimes; i++) {
+            int compareWith = fromMinutes + (i * 50);
+
+            LocalTime time = LocalTime.of(compareWith / 60, compareWith % 60);
+
+            if (!reservedHours.contains(time)) {
+                freeHoursList.add(formatter.format(time));
+            }
+        }
+
+        return freeHoursList;
+    }
+
+    public SimpleCheckListInfoDto registerForMeetingMobile(String date, String time) {
+        UserEntity user = getAuthentication();
+
+        PatientEntity patient = user.getPatientEntity();
+
+        DoctorEntity doctor = patient.getPregnancy().getDoctorEntity();
+
+        if(doctor == null) {
+            throw new ResourceNotFoundException("This patient does not have a certain doctor");
+        }
+
+        SimpleCheckListInfoDto dto = new SimpleCheckListInfoDto();
+
+        dto.setDate(LocalDate.parse(date));
+        dto.setTime(LocalTime.parse(time));
+        dto.setDoctorId(doctor.getId());
+        dto.setPatientId(patient.getId());
+
+        return checkListService.save(dto);
+    }
 
     public List<CheckListPlannedDto> getTodaysPlannedCheckLists() {
         LocalDate localDate = LocalDate.now();
@@ -89,6 +224,8 @@ public class ScheduleService {
             ScheduleDateStatusDto dto = new ScheduleDateStatusDto();
 
             dto.setDate(date.toString());
+
+            System.out.println(daySchedule);
 
             if (daySchedule.containsKey("free") && daySchedule.get("free").isEmpty() &&
                     daySchedule.containsKey("booked") && !daySchedule.get("booked").isEmpty()) {
@@ -266,12 +403,20 @@ public class ScheduleService {
 
     public String getFormattedDate(LocalDate localDate) {
         DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("dd.MM.uuuu");
+
         return formatDate.format(localDate);
     }
 
     public String getFormattedTime(LocalTime localTime) {
         DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm");
+
         return formatTime.format(localTime);
+    }
+
+    public UserEntity getAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return userRepository.findByEmail(authentication.getName());
     }
 
 }

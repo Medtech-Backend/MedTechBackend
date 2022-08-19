@@ -1,9 +1,6 @@
 package com.project.medtech.controller;
 
-import com.project.medtech.dto.CheckListPlannedDto;
-import com.project.medtech.dto.CheckListProfileDto;
-import com.project.medtech.dto.ScheduleDateStatusDto;
-import com.project.medtech.dto.ScheduleDayDto;
+import com.project.medtech.dto.*;
 import com.project.medtech.service.ScheduleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,11 +47,36 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.getDaySchedule(doctorId, date));
     }
 
-    @ApiOperation(value = "получение профиля чеклиста по айди доктора, дате и времени (ВЕБ)")
+    @ApiOperation(value = "получение профиля записи по айди доктора, дате и времени (ВЕБ)")
     @GetMapping("/get-by-doctor-date-time/{doctorId}/{localDate}/{localTime}")
     public ResponseEntity<CheckListProfileDto> getCheckListProfile(@PathVariable Long doctorId,
                            @PathVariable String localDate, @PathVariable String localTime) {
         return ResponseEntity.ok(scheduleService.getCheckListProfile(doctorId, localDate, localTime));
+    }
+
+    @ApiOperation(value = "получение записей для текущего месяца (МОБ)")
+    @GetMapping("/get-month-schedule-mob")
+    public ResponseEntity<Map<String, List<String>>> getCurrentMonthScheduleMobile() {
+        return ResponseEntity.ok(scheduleService.getCurrentMonthScheduleMobile());
+    }
+
+    @ApiOperation(value = "получение записей пациента (МОБ)")
+    @GetMapping("/get-patients-appointments")
+    public ResponseEntity<List<DateTimeDto>> getCurrentMonthPatientScheduleMobile() {
+        return ResponseEntity.ok(scheduleService.getCurrentMonthPatientScheduleMobile());
+    }
+
+    @ApiOperation(value = "получение свободных окошек доктора пациента по дате (МОБ)")
+    @GetMapping("/get-doctor-free-hours-for-date/{date}")
+    public ResponseEntity<List<String>> getFreeHoursForDay(@PathVariable String date) {
+        return ResponseEntity.ok(scheduleService.getFreeHoursForDayMobile(date));
+    }
+
+    @ApiOperation(value = "регистрация на приём по определенной дате и времени (МОБ)")
+    @PostMapping("/register-for-meeting/{date}/{time}")
+    public ResponseEntity<SimpleCheckListInfoDto> registerForMeetingMobile(@PathVariable String date,
+                                                                           @PathVariable String time) {
+        return ResponseEntity.ok(scheduleService.registerForMeetingMobile(date, time));
     }
 
 }

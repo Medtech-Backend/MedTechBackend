@@ -19,6 +19,10 @@ public interface CheckListRepository extends JpaRepository<CheckListEntity, Long
 
     List<CheckListEntity> findAllByDateOrderByTimeAsc(LocalDate date);
 
+    List<CheckListEntity> findAllByPatientEntityIdAndDoctorEntityId(Long patientId, Long doctorId);
+
+    Boolean existsByDateAndTimeAndDoctorEntityId(LocalDate date, LocalTime time, Long doctorId);
+
     @Query("SELECT ch FROM CheckListEntity ch WHERE ch.patientEntity = :patientEntity")
     List<CheckListEntity> findAllByPatientEntity(@RequestParam PatientEntity patientEntity);
 
