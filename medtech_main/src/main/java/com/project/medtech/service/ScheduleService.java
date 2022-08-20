@@ -43,8 +43,6 @@ public class ScheduleService {
                         .getId()
                 , localDate.getYear(), localDate.getMonthValue());
 
-        System.out.println(monthList);
-
         Map<String, List<String>> output = new HashMap<>();
 
         List<String> bookedList = new ArrayList<>();
@@ -225,15 +223,15 @@ public class ScheduleService {
 
             dto.setDate(date.toString());
 
-            System.out.println(daySchedule);
-
-            if (daySchedule.containsKey("free") && daySchedule.get("free").isEmpty() &&
-                    daySchedule.containsKey("booked") && !daySchedule.get("booked").isEmpty()) {
-                dto.setStatus("GREEN");
-                output.add(dto);
-            } else if (daySchedule.containsKey("free") && !daySchedule.get("free").isEmpty()) {
-                dto.setStatus("WHITE");
-                output.add(dto);
+            if(date.compareTo(LocalDate.now()) > 0) {
+                if (daySchedule.containsKey("free") && daySchedule.get("free").isEmpty() &&
+                        daySchedule.containsKey("booked") && !daySchedule.get("booked").isEmpty()) {
+                    dto.setStatus("GREEN");
+                    output.add(dto);
+                } else if (daySchedule.containsKey("free") && !daySchedule.get("free").isEmpty()) {
+                    dto.setStatus("WHITE");
+                    output.add(dto);
+                }
             }
 
         }
